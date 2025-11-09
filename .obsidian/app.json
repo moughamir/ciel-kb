@@ -1,1 +1,9 @@
-{}
+{
+  "trashOption": "local",
+  "alwaysUpdateLinks": true,
+  "showUnsupportedFiles": true,
+  "attachmentFolderPath": "attachements",
+  "userIgnoreFilters": [
+    "scripts/"
+  ]
+}

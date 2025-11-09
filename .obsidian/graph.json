@@ -6,17 +6,32 @@
   "hideUnresolved": false,
   "showOrphans": true,
   "collapse-color-groups": true,
-  "colorGroups": [],
+  "colorGroups": [
+    {
+      "query": "path:00-Inbox  ",
+      "color": {
+        "a": 1,
+        "rgb": 14701138
+      }
+    },
+    {
+      "query": "path:10-Project-CIEL  ",
+      "color": {
+        "a": 1,
+        "rgb": 14725458
+      }
+    }
+  ],
   "collapse-display": true,
   "showArrow": true,
-  "textFadeMultiplier": 0,
-  "nodeSizeMultiplier": 1,
-  "lineSizeMultiplier": 1,
-  "collapse-forces": true,
-  "centerStrength": 1,
-  "repelStrength": 11.9791666666667,
-  "linkStrength": 0.0885416666666667,
-  "linkDistance": 30,
-  "scale": 0.6666666666666666,
-  "close": false
+  "textFadeMultiplier": -0.2,
+  "nodeSizeMultiplier": 1.73333333333333,
+  "lineSizeMultiplier": 0.3296875,
+  "collapse-forces": false,
+  "centerStrength": 0.385416666666667,
+  "repelStrength": 13.3333333333333,
+  "linkStrength": 1,
+  "linkDistance": 96,
+  "scale": 0.19753086419753085,
+  "close": true
 }

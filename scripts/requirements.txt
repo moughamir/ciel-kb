@@ -1,0 +1,18 @@
+# Core dependencies
+sentence-transformers>=2.2.0
+torch>=2.0.0
+numpy>=1.24.0
+
+# Cross-platform system monitoring
+psutil>=5.9.0
+
+# Progress tracking
+tqdm>=4.65.0
+
+# Intel CPU optimizations for i7-5600U (Broadwell)
+# Uses Intel MKL for vectorized operations (SSE, AVX2)
+mkl>=2023.0.0
+intel-openmp>=2023.0.0
+
+# Install CPU-only PyTorch (smaller, faster for non-GPU systems)
+# Run: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu

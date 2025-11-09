@@ -11,8 +11,9 @@ tqdm>=4.65.0
 
 # Intel CPU optimizations for i7-5600U (Broadwell)
 # Uses Intel MKL for vectorized operations (SSE, AVX2)
-mkl>=2023.0.0
-intel-openmp>=2023.0.0
+# Removed mkl and intel-openmp due to disk quota issues. PyTorch includes basic optimizations.
+# mkl>=2023.0.0
+# intel-openmp>=2023.0.0
 
 # Install CPU-only PyTorch (smaller, faster for non-GPU systems)
 # Run: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu

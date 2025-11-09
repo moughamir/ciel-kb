@@ -9,6 +9,9 @@ psutil>=5.9.0
 # Progress tracking
 tqdm>=4.65.0
 
+# Visualization
+matplotlib>=3.8.0
+
 # Intel CPU optimizations for i7-5600U (Broadwell)
 # Uses Intel MKL for vectorized operations (SSE, AVX2)
 # Removed mkl and intel-openmp due to disk quota issues. PyTorch includes basic optimizations.

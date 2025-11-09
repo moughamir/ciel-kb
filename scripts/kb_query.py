@@ -5,6 +5,11 @@ from pathlib import Path
 from typing import List, Dict, Any
 from sentence_transformers import SentenceTransformer, util
 import torch
+import networkx as nx # Import networkx for graph building
+import matplotlib.pyplot as plt # Import matplotlib for drawing
+
+# Import functions from kb_visualize.py
+from kb_visualize import build_knowledge_graph, draw_graph
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -76,15 +81,24 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Search the knowledge base using semantic similarity."
+        description="Interactive semantic search for the knowledge base."
     )
-    parser.add_argument("query", type=str, help="The natural language query to search for.")
     parser.add_argument(
-        "--top_n", type=int, default=5, help="Number of top results to return."
+        "--top_n", type=int, default=5, help="Number of top results to return for each query."
+    )
+    parser.add_argument(
+        "--visualize", action="store_true", help="Generate a graph visualization of the search results."
+    )
+    parser.add_argument(
+        "--output_file",
+        type=str,
+        default="search_graph.png",
+        help="Output file name for the visualization if --visualize is used.",
     )
     args = parser.parse_args()
 
     script_dir = Path(__file__).parent
+    kb_root = script_dir.parent.resolve()
     vectors_path = script_dir / "vectors.json"
 
     vector_data = load_vector_data(vectors_path)
@@ -93,15 +107,34 @@ def main():
         return
 
     model = get_model()
+    logger.info("Knowledge base search ready. Type 'exit' or 'quit' to stop.")
 
-    results = search_knowledge_base(args.query, vector_data, model, args.top_n)
+    while True:
+        query = input("\nEnter your query (or 'exit'/'quit' to stop): ").strip()
+        if query.lower() in ["exit", "quit"]:
+            break
 
-    if results:
-        print("\n--- Search Results ---")
-        for r in results:
-            print(f"Score: {r['score']:.4f} - File: {r['file_path']}")
-    else:
-        print("No relevant documents found.")
+        if not query:
+            print("Query cannot be empty. Please try again.")
+            continue
+
+        results = search_knowledge_base(query, vector_data, model, args.top_n)
+
+        if results:
+            print("\n--- Search Results ---")
+            highlighted_nodes = []
+            for r in results:
+                print(f"Score: {r['score']:.4f} - File: {r['file_path']}")
+                highlighted_nodes.append(r['file_path'])
+            
+            if args.visualize:
+                logger.info(f"Generating visualization to {args.output_file} with highlighted results.")
+                graph = build_knowledge_graph(kb_root, vector_data)
+                draw_graph(graph, script_dir / args.output_file, highlighted_nodes)
+                print(f"Visualization saved to {script_dir / args.output_file}")
+
+        else:
+            print("No relevant documents found.")
 
 if __name__ == "__main__":
     main()

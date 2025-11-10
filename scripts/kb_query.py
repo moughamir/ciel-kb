@@ -84,6 +84,9 @@ def main():
         description="Interactive semantic search for the knowledge base."
     )
     parser.add_argument(
+        "query", nargs='?', type=str, help="The natural language query to search for (optional for interactive mode)."
+    )
+    parser.add_argument(
         "--top_n", type=int, default=5, help="Number of top results to return for each query."
     )
     parser.add_argument(
@@ -107,17 +110,9 @@ def main():
         return
 
     model = get_model()
-    logger.info("Knowledge base search ready. Type 'exit' or 'quit' to stop.")
-
-    while True:
-        query = input("\nEnter your query (or 'exit'/'quit' to stop): ").strip()
-        if query.lower() in ["exit", "quit"]:
-            break
-
-        if not query:
-            print("Query cannot be empty. Please try again.")
-            continue
-
+    
+    if args.query and args.visualize: # Direct query with visualization
+        query = args.query
         results = search_knowledge_base(query, vector_data, model, args.top_n)
 
         if results:
@@ -127,14 +122,41 @@ def main():
                 print(f"Score: {r['score']:.4f} - File: {r['file_path']}")
                 highlighted_nodes.append(r['file_path'])
             
-            if args.visualize:
-                logger.info(f"Generating visualization to {args.output_file} with highlighted results.")
-                graph = build_knowledge_graph(kb_root, vector_data)
-                draw_graph(graph, script_dir / args.output_file, highlighted_nodes)
-                print(f"Visualization saved to {script_dir / args.output_file}")
-
+            logger.info(f"Generating visualization to {args.output_file} with highlighted results.")
+            graph = build_knowledge_graph(kb_root, vector_data)
+            draw_graph(graph, script_dir / args.output_file, highlighted_nodes)
+            print(f"Visualization saved to {script_dir / args.output_file}")
         else:
             print("No relevant documents found.")
+
+    else: # Interactive mode
+        logger.info("Knowledge base search ready. Type 'exit' or 'quit' to stop.")
+        while True:
+            query = input("\nEnter your query (or 'exit'/'quit' to stop): ").strip()
+            if query.lower() in ["exit", "quit"]:
+                break
+
+            if not query:
+                print("Query cannot be empty. Please try again.")
+                continue
+
+            results = search_knowledge_base(query, vector_data, model, args.top_n)
+
+            if results:
+                print("\n--- Search Results ---")
+                highlighted_nodes = []
+                for r in results:
+                    print(f"Score: {r['score']:.4f} - File: {r['file_path']}")
+                    highlighted_nodes.append(r['file_path'])
+                
+                if args.visualize:
+                    logger.info(f"Generating visualization to {args.output_file} with highlighted results.")
+                    graph = build_knowledge_graph(kb_root, vector_data)
+                    draw_graph(graph, script_dir / args.output_file, highlighted_nodes)
+                    print(f"Visualization saved to {script_dir / args.output_file}")
+
+            else:
+                print("No relevant documents found.")
 
 if __name__ == "__main__":
     main()

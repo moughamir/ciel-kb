@@ -69,7 +69,12 @@ def process_chat_exports(json_filepath: str, output_dir: str):
     os.makedirs(output_dir, exist_ok=True)
 
     with open(json_filepath, "r", encoding="utf-8") as f:
-        chat_exports = json.load(f)
+        json_data = json.load(f)
+
+    if isinstance(json_data, dict) and 'data' in json_data:
+        chat_exports = json_data['data']
+    else:
+        chat_exports = json_data
 
     if not isinstance(chat_exports, list):
         print("Warning: JSON file does not contain a list of chat exports. Attempting to process as a single export.")

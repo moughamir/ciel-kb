@@ -2,7 +2,7 @@
   "collapse-filter": false,
   "search": "",
   "showTags": true,
-  "showAttachments": true,
+  "showAttachments": false,
   "hideUnresolved": false,
   "showOrphans": true,
   "collapse-color-groups": true,
@@ -11,14 +11,35 @@
       "query": "path:00-Inbox  ",
       "color": {
         "a": 1,
-        "rgb": 14701138
+        "rgb": 14701261
       }
     },
     {
       "query": "path:10-Project-CIEL  ",
       "color": {
         "a": 1,
-        "rgb": 14725458
+        "rgb": 3669760
+      }
+    },
+    {
+      "query": "path:20-Notes  ",
+      "color": {
+        "a": 1,
+        "rgb": 65518
+      }
+    },
+    {
+      "query": "path:30-All-Notes  ",
+      "color": {
+        "a": 1,
+        "rgb": 5474816
+      }
+    },
+    {
+      "query": "path:40-Summary-Notes  ",
+      "color": {
+        "a": 1,
+        "rgb": 16711680
       }
     }
   ],
@@ -27,11 +48,11 @@
   "textFadeMultiplier": -0.2,
   "nodeSizeMultiplier": 1.73333333333333,
   "lineSizeMultiplier": 0.3296875,
-  "collapse-forces": false,
-  "centerStrength": 0.385416666666667,
-  "repelStrength": 13.3333333333333,
+  "collapse-forces": true,
+  "centerStrength": 0.427083333333333,
+  "repelStrength": 20,
   "linkStrength": 1,
-  "linkDistance": 96,
-  "scale": 0.19753086419753085,
-  "close": true
+  "linkDistance": 500,
+  "scale": 0.08779149519890253,
+  "close": false
 }

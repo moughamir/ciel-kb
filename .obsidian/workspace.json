@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "c1a6a23a669331d2",
+        "id": "81fde1bbb4263e96",
         "type": "tabs",
         "children": [
           {
-            "id": "40950a0065702e7d",
+            "id": "ce4351303f5a3edc",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -144,7 +144,8 @@
               "title": "Outline"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -159,29 +160,48 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "obsidian-git:Open Git source control": false,
+      "pdf-plus:PDF++: Toggle auto-copy": false,
+      "pdf-plus:PDF++: Toggle auto-focus": false,
+      "pdf-plus:PDF++: Toggle auto-paste": false,
+      "obsidian-import-json:JSON/CSV Importer": false
     }
   },
-  "active": "40950a0065702e7d",
+  "active": "ce4351303f5a3edc",
   "lastOpenFiles": [
-    "10-Project-CIEL/13-Cognitive-OS/custom Linux distribution from scratch.md",
-    "10-Project-CIEL/13-Cognitive-OS/QWEN/Building Custom Linux for QEMU Virtual Environment - Proof of Concept.md",
-    "10-Project-CIEL/13-Cognitive-OS/Cognitive OS - Complete Setup Guide.md",
+    "40-Summary-Notes/Tahuti Vault.md",
+    "attachements/zai-chat-export.json",
+    "attachements/build-serverless-web-app-lambda-amplify-bedrock-cognito-gen-ai.pdf",
+    "attachements/build-react-app-amplify-graphql.pdf",
+    "30-All-Notes/Microscopic_View..md",
+    "30-All-Notes/Meeting_Report_Request..md",
+    "30-All-Notes/Video_Game_Content_Creation..md",
+    "40-Summary-Notes/UpWork Freelancer Bio.md",
+    "40-Summary-Notes/Custom Arch Linux Optimization.md",
+    "40-Summary-Notes/Cognitive Internet Project Whitepaper.md",
+    "30-All-Notes/New_chat.md",
+    "40-Summary-Notes/Multi-talented Educator.md",
+    "40-Summary-Notes/Learning Moroccan Arabic.md",
+    "40-Summary-Notes/Nadra Mijharia Blog.md",
+    "40-Summary-Notes/Talos Story (Moroccan Dialect).md",
+    "40-Summary-Notes/Abdelghani Gomrani Profile & Strategy.md",
+    "40-Summary-Notes/Digital Flow Meeting Report.md",
+    "40-Summary-Notes/Video Game Content Creation.md",
+    "30-All-Notes/New_Chat.md",
+    "20-Notes/Cognitive Internet Project.md",
+    "40-Summary-Notes/Moroccan AI Podcast Launch.md",
     "10-Project-CIEL/12-Hardware/Hardware Procurement Specification.md",
-    "10-Project-CIEL/13-Cognitive-OS/QWEN/Building Custom Linux for QEMU Virtual Environment - Proof of Concept For Arch Linux.md",
     "10-Project-CIEL/11-Architecture/Cognitive Internet - Repository Structure.md",
     "00-Inbox/Initial Response with Canvas.md",
     "00-Inbox/0000 Init Claude Prompt.md",
+    "00-Inbox/Chat Exports/STAND-BY_Command.md",
+    "30-All-Notes/Memory_Recall_Requested..md",
+    "40-Summary-Notes/Social Media Marketing Panels (SMM).md",
+    "40-Summary-Notes/Random Adventures Podcast.md",
+    "Untitled.base",
     "attachements",
     "scripts/vectors.json",
-    "QWEN/Building Custom Linux for QEMU Virtual Environment - Proof of Concept.md",
-    "QWEN/Building Custom Linux for QEMU Virtual Environment - Proof of Concept For Arch Linux.md",
-    "custom Linux distribution from scratch.md",
-    "QWEN",
-    "0000 Init Claude Prompt.md",
-    "Initial Response with Canvas.md",
-    "Hardware Procurement Specification.md",
-    "Cognitive Internet - Repository Structure.md",
-    "Cognitive OS - Complete Setup Guide.md"
+    "QWEN"
   ]
 }

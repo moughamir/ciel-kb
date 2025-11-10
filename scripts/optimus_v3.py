@@ -1,0 +1,1 @@
+            response = await self.supabase.table("product_options").upsert(option_records, on_conflict="id").execute()

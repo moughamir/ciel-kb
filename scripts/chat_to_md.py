@@ -22,27 +22,33 @@ def convert_chat_to_markdown(chat_export_data: dict, output_dir: str):
         f.write(f"**Chat ID:** `{chat_id}`\n")
         
         created_at_ts = chat_export_data.get("created_at")
-        if created_at_ts:
-            f.write(f"**Created At:** {datetime.fromtimestamp(created_at_ts / 1000).strftime('%Y-%m-%d %H:%M:%S')}\n")
-        
         updated_at_ts = chat_export_data.get("updated_at")
-        if updated_at_ts:
-            f.write(f"**Updated At:** {datetime.fromtimestamp(updated_at_ts / 1000).strftime('%Y-%m-%d %H:%M:%S')}\n")
-        
-        f.write("\n## Chat History\n\n")
 
         messages_map = chat_export_data.get("chat", {}).get("history", {}).get("messages", {})
         
-        # Convert message map to a list and sort by timestamp if available
-        # Assuming 'timestamp' is available in each message object
+        # Convert message map to a list and sort by timestamp or created_at
         sorted_messages = []
         for msg_id, message in messages_map.items():
             message['msg_id_key'] = msg_id # Store the key for later reference if needed
             sorted_messages.append(message)
         
-        # Sort by timestamp, if not present, fall back to message ID (which is a UUID, so not truly chronological)
+        # Try to get created_at/updated_at from the first message if not available at top level
+        if not created_at_ts and sorted_messages:
+            created_at_ts = sorted_messages[0].get("created_at")
+        if not updated_at_ts and sorted_messages:
+            updated_at_ts = sorted_messages[-1].get("created_at") # Use last message's created_at as updated_at
+
+        if created_at_ts:
+            f.write(f"**Created At:** {datetime.fromtimestamp(created_at_ts / 1000).strftime('%Y-%m-%d %H:%M:%S')}\n")
+        
+        if updated_at_ts:
+            f.write(f"**Updated At:** {datetime.fromtimestamp(updated_at_ts / 1000).strftime('%Y-%m-%d %H:%M:%S')}\n")
+        
+        f.write("\n## Chat History\n\n")
+
+        # Sort by created_at, if not present, fall back to message ID (which is a UUID, so not truly chronological)
         try:
-            sorted_messages.sort(key=lambda x: x.get("timestamp", 0))
+            sorted_messages.sort(key=lambda x: x.get("created_at", 0))
         except TypeError: # Fallback if some timestamps are missing or invalid
             pass # Keep original order if sorting fails
 
@@ -57,7 +63,8 @@ def convert_chat_to_markdown(chat_export_data: dict, output_dir: str):
                 f.write("#### Attached Files:\n")
                 for file_info in message["files"]:
                     file_name = file_info.get("name", "Unknown File")
-                    file_url = file_info.get("url", "#")
+                    # Correctly extract cdn_url for Z.AI exports
+                    file_url = file_info.get("file", {}).get("cdn_url", file_info.get("url", "#"))
                     f.write(f"- [{file_name}]({file_url})\n")
                 f.write("\n")
     print(f"Generated markdown for '{title}' at '{filepath}'")

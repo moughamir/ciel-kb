@@ -4,7 +4,7 @@ This note serves as a table of contents for your knowledge base.
 
 ## Main Topics
 
-### [[Cognitive Internet Project]]
+### [[Cognitive Internet Project Whitepaper]]
 
 The main project to create a distributed, self-governing mesh of AI nodes.
 
@@ -19,6 +19,7 @@ The main project to create a distributed, self-governing mesh of AI nodes.
 - [[Social Media Marketing Startup Ideas]]
 - [[Digital Flow Meeting Report]]
 - [[Abdelghani Gomrani Profile & Strategy]]
+- [[Karba Link]]
 
 ### Technical Projects
 
@@ -45,10 +46,14 @@ The main project to create a distributed, self-governing mesh of AI nodes.
 
 - [[Tribes Around The World Blog]]
 - [[Omnizya Brand Identity]]
+- [[Custom Art Branding]]
+- [[Moroccan AI Podcast Launch]]
+- [[Social Media Marketing Panels (SMM)]]
+- [[Video Game Content Creation]]
 - [[Fitness Coach Brand Names]]
 - [[Content Strategy for Sultan Boomer]]
 - [[WhatsApp Marketing for Auto-entrepreneurs]]
-- [[Blog/Portfolio Development Work]]
+- [[Blog_Portfolio Development Work]]
 - [[Cacti Decor Ideas]]
 - [[Random Adventures Podcast]]
 - [[Nadra Mijharia Blog]]
@@ -56,6 +61,10 @@ The main project to create a distributed, self-governing mesh of AI nodes.
 ### Personal
 
 - [[UpWork Freelancer Bio]]
+- [[CV Technicien Auto Qualifié]]
+- [[Creative Tinder Profile]]
+- [[Personal Fitness and Health]]
+- [[Thinking Better with Kahneman]]
 - [[Learning Moroccan Arabic]]
 - [[Interactive Novel Writing]]
 - [[CV and Resume Tips]]
@@ -74,6 +83,7 @@ The main project to create a distributed, self-governing mesh of AI nodes.
 - [[Dogs and Cats Behavior]]
 - [[Entertainment Recommendations]]
 - [[Talos Story (Moroccan Dialect)]]
+- [[Champions League Data Analysis]]
 
 ## Raw Chat Transcripts
 

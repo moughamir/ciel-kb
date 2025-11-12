@@ -1,3 +1,16 @@
+---
+category: "Business"
+tags:
+  - Omnizya
+  - DigitalFlowShop
+  - startup
+  - business-plan
+  - roadmap
+topics:
+  - "Startup Development"
+  - "Digital Agency"
+  - "Business Strategy"
+---
 # Startup Roadmap Omnizya
 
 This note summarizes the journey of Omnizya from a personal brand to a startup, founded by Mohamed Moughamir, and introduces the Digital Flow Shop (DFS) initiative.
@@ -14,7 +27,7 @@ This note summarizes the journey of Omnizya from a personal brand to a startup, 
 
 -   **Concept:** An online digital agency helping content creators find their way and define their goals before kickstarting a Digital Content Creator Career.
 -   **Launch:** Started in Q1 2023 with 2 members, growing to 8 active members by the end of March.
--   **Community:** "Digital Flow Creative Society | مجتمع الإنسياب الرقمي للخـلاّقـيـن" on WhatsApp.
+-   **Community:** "Digital Flow Creative Society | مجتمع اﻹنسياب الرقمي للخلاّقـيـن" on WhatsApp.
 -   **Core Team:**
     -   Mohamed Moughamir (EisenUlfr) - Founding Member
     -   Ora BoRass - Community Manager and Founding Member
@@ -54,3 +67,8 @@ This note summarizes the journey of Omnizya from a personal brand to a startup, 
 ## Related Documents
 
 - [[30-All-Notes/Omnizya_Startup_Launch..md]]
+
+## Related Notes
+
+- [[Omnizya and Digital Flow Shop]]
+- [[Abdelghani Gomrani Profile & Strategy]]

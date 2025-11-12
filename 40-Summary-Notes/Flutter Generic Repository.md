@@ -1,3 +1,16 @@
+---
+category: "Technical"
+tags:
+  - Flutter
+  - Dart
+  - repository-pattern
+  - Supabase
+  - mobile-development
+topics:
+  - "Flutter Development"
+  - "Software Architecture"
+  - "Mobile App Development"
+---
 # Flutter Generic Repository
 
 This note summarizes the discussion and implementation details for creating a generic repository in Flutter, including integration with Supabase.
@@ -73,3 +86,7 @@ class GenericRepository<T> {
 ## Related Documents
 
 - [[30-All-Notes/Create_generic_repository_Flutter.md]]
+
+## Related Notes
+
+- [[Software Development Technical Notes]]

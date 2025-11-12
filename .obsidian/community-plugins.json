@@ -26,5 +26,7 @@
   "auto-note-mover",
   "khoj",
   "obsidian-auto-link-title",
-  "image-converter"
+  "image-converter",
+  "obsidian-local-rest-api",
+  "obsidian-custom-frames"
 ]

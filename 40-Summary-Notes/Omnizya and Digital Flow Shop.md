@@ -1,6 +1,18 @@
+---
+category: "Business"
+tags:
+  - Omnizya
+  - DigitalFlowShop
+  - startup
+  - business-plan
+topics:
+  - "Startup Development"
+  - "Digital Agency"
+  - "Business Strategy"
+---
 # Omnizya and Digital Flow Shop
 
-This note summarizes information about the startup Omnizya and its project, the Digital Flow Shop (DFS).
+This note summarizes information about the startup Omnizya and its project, the Digital Flow Shop (DFS). For a more detailed roadmap, see [[Startup Roadmap Omnizya]].
 
 ## Omnizya
 
@@ -36,3 +48,4 @@ A new multi-tenant platform service by Omnizya for creating blogs and public pro
 ## Related Documents
 
 - [[30-All-Notes/Omnizya_Startup_Launch..md]]
+- [[Startup Roadmap Omnizya]]

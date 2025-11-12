@@ -1,3 +1,16 @@
+---
+category: "Technical"
+tags:
+  - Next.js
+  - multi-tenancy
+  - web-development
+  - SaaS
+  - React
+topics:
+  - "Next.js Development"
+  - "Multi-tenant Architecture"
+  - "Web Application Development"
+---
 # Next.js Multi-tenant Apps
 
 This note summarizes the discussion on using Next.js for building multi-tenant applications, including its suitability and examples.
@@ -27,3 +40,7 @@ This note summarizes the discussion on using Next.js for building multi-tenant a
 ## Related Documents
 
 - [[30-All-Notes/Omnizya_Startup_Launch..md]]
+
+## Related Notes
+
+- [[Software Development Technical Notes]]

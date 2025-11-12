@@ -1,3 +1,17 @@
+---
+category: "Technical"
+tags:
+  - CRUD
+  - FastAPI
+  - PostgreSQL
+  - Python
+  - API-development
+  - CRM
+topics:
+  - "API Development"
+  - "Database Design"
+  - "Python Web Development"
+---
 # CRUD Contact Model
 
 This note summarizes the design and implementation of a CRM system for managing contacts, utilizing FastAPI and PostgreSQL, with a focus on data modeling and API development.
@@ -72,3 +86,8 @@ The `Contact` model evolves to support rich contact information:
 ## Related Documents
 
 - [[30-All-Notes/CRUD_Contact_Model.md]]
+
+## Related Notes
+
+- [[Python Technical Notes]]
+- [[Software Development Technical Notes]]

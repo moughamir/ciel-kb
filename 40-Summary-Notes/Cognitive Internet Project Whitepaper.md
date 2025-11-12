@@ -1,3 +1,18 @@
+---
+category: "Project"
+tags:
+  - CognitiveInternet
+  - AI
+  - decentralized-AI
+  - edge-computing
+  - blockchain
+  - whitepaper
+topics:
+  - "Cognitive Internet Project"
+  - "Decentralized AI"
+  - "Edge AI"
+  - "Blockchain Governance"
+---
 # Cognitive Internet Project Whitepaper
 
 This note summarizes the detailed LaTeX document outlining the "Cognitive Internet" (CIL) project, which aims to create a distributed, self-governing mesh of edge nodes for collaborative AI.
@@ -26,19 +41,19 @@ A logical overlay binding together:
 -   **Storage Layer:** IPFS-style content-addressable storage for model shards, encrypted with AEAD.
 -   **Governance Layer:** DAO smart contracts governing model acceptance, reputation accrual, and token rewards.
 
-### Trust-Weighted Participation Factor ($\\pi_i$)
+### Trust-Weighted Participation Factor ($\pi_i$)
 
 A formula to determine a node's influence:
-$\\pi_i = \\frac{R_i}{\\displaystyle\\sum_{j=1}^{N} R_j}\\; \\exp(\\bigl(-\\lambda \\; \\text{age}_i\bigr))$
+$\pi_i = \frac{R_i}{\displaystyle\sum_{j=1}^{N} R_j}\; \exp(\bigl(-\lambda \; \text{age}_i\bigr))$
 -   $R_i$: Reputation score (on-chain attestations, latency, accuracy).
--   $\\lambda$: Decay constant (penalizes stale contributions).
--   $\\text{age}_i$: Time since the last verified update.
+-   $\lambda$: Decay constant (penalizes stale contributions).
+-   $\text{age}_i$: Time since the last verified update.
 
 ### Federated Update Rule (Extended)
 
-$W^{t+1}=W^{t}+ \\eta \\;\\sum_{i=1}^{N}\\pi_i \\;\\Delta W_i^{t}$
--   $\\eta$: Global learning rate.
--   $\\Delta W_i^{t}$: Locally computed gradient or delta, signed and timestamped on-chain.
+$W^{t+1}=W^{t}+ \eta \;\sum_{i=1}^{N}\pi_i \;\Delta W_i^{t}$
+-   $\eta$: Global learning rate.
+-   $\Delta W_i^{t}$: Locally computed gradient or delta, signed and timestamped on-chain.
 
 ## Related Work (Key Research Domains)
 
@@ -57,13 +72,13 @@ $W^{t+1}=W^{t}+ \\eta \\;\\sum_{i=1}^{N}\\pi_i \\;\\Delta W_i^{t}$
 ## Results
 
 -   Significant performance improvements with Hailo-8L (e.g., Prompt latency -71%, Power consumption -33%).
--   Faster nodes accrue higher $\\pi_i$ values, stabilizing reputation.
+-   Faster nodes accrue higher $\pi_i$ values, stabilizing reputation.
 
 ## Discussion
 
 -   **Scalability:** PCIe x1 limit on Pi 5 caps bandwidth; large model sharding needs multi-lane adapters or hierarchical aggregation.
 -   **Security:** Verified-boot chain mitigates supply-chain attacks; NPU side-channel leakage is open research (TEE enclaves needed).
--   **Economic Incentives:** Token rewards tied to $\\pi_i$ create a market for high-quality contributions; Sybil attack countermeasures (stake-bonded identity, challenge-response audits).
+-   **Economic Incentives:** Token rewards tied to $\pi_i$ create a market for high-quality contributions; Sybil attack countermeasures (stake-bonded identity, challenge-response audits).
 -   **Governance Overhead:** DAO voting latency (30s on Sepolia) acceptable for model upgrades, but too slow for per-inference decisions (separates fast-path inference from slow-path governance).
 
 ## Future Work
@@ -87,3 +102,8 @@ The CIL demonstrates a viable pathway toward a decentralized, sovereign AI fabri
 - [[10-Project-CIEL/13-Cognitive-OS/QWEN/Building Custom Linux for QEMU Virtual Environment - Proof of Concept For Arch Linux.md]]
 - [[10-Project-CIEL/12-Hardware/Hardware Procurement Specification.md]]
 - [[10-Project-CIEL/13-Cognitive-OS/custom Linux distribution from scratch.md]]
+
+## Related Notes
+
+- [[Custom Arch Linux Optimization]]
+- [[Software Development Technical Notes]]

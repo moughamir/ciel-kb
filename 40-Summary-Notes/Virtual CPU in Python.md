@@ -1,3 +1,15 @@
+---
+category: "Technical"
+tags:
+  - Python
+  - CPU
+  - virtualization
+  - computer-architecture
+topics:
+  - "Virtual Machines"
+  - "Computer Architecture"
+  - "Python Programming"
+---
 # Virtual CPU in Python
 
 This note summarizes discussions and code examples for creating a virtual CPU in Python.
@@ -81,3 +93,7 @@ print("Register 1 value:", cpu.registers[1])
 ## Related Documents
 
 - [[30-All-Notes/Virtual_CPU_in_Python.md]]
+
+## Related Notes
+
+- [[Python Technical Notes]]

@@ -4,17 +4,37 @@
     "type": "split",
     "children": [
       {
-        "id": "f75fcd8ecd3e01bc",
+        "id": "50d3bc7323841926",
         "type": "tabs",
         "children": [
           {
-            "id": "0210b184cf91505a",
+            "id": "7279814097a86a54",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Clippings/Agentic Engineering.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Agentic Engineering"
+            }
+          },
+          {
+            "id": "270bb1d7f8f371ac",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "20-Notes/notes/Homepage.md",
+                "mode": "preview",
+                "source": false
+              },
+              "pinned": true,
+              "icon": "lucide-file",
+              "title": "Homepage"
             }
           }
         ]
@@ -36,7 +56,8 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
+                "sortOrder": "alphabetical",
+                "autoReveal": false
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -65,8 +86,8 @@
             "state": {
               "type": "starred",
               "state": {},
-              "icon": "lucide-file",
-              "title": "Plugin no longer active"
+              "icon": "lucide-ghost",
+              "title": "starred"
             }
           },
           {
@@ -159,16 +180,6 @@
             }
           },
           {
-            "id": "8a501e4c5afbe9b9",
-            "type": "leaf",
-            "state": {
-              "type": "chat",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "Plugin no longer active"
-            }
-          },
-          {
             "id": "c11be29e8fe61b87",
             "type": "leaf",
             "state": {
@@ -183,17 +194,7 @@
             }
           },
           {
-            "id": "bb58724b08c3f977",
-            "type": "leaf",
-            "state": {
-              "type": "review-queue-list-view",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "Plugin no longer active"
-            }
-          },
-          {
-            "id": "ff1cb571a4b61f50",
+            "id": "caab0e2c74d43cfb",
             "type": "leaf",
             "state": {
               "type": "review-queue-list-view",
@@ -201,9 +202,19 @@
               "icon": "SpacedRepIcon",
               "title": "Notes Review Queue"
             }
+          },
+          {
+            "id": "c868d212ebd2c1a6",
+            "type": "leaf",
+            "state": {
+              "type": "khoj-chat-view",
+              "state": {},
+              "icon": "message-circle",
+              "title": "Khoj Chat"
+            }
           }
         ],
-        "currentTab": 8
+        "currentTab": 4
       },
       {
         "id": "fb7584ac7010d526",
@@ -216,6 +227,7 @@
             "state": {
               "type": "localgraph",
               "state": {
+                "file": "Clippings/Agentic Engineering.md",
                 "options": {
                   "collapse-filter": true,
                   "search": "",
@@ -243,18 +255,20 @@
                 }
               },
               "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "title": "Graph of Agentic Engineering"
             }
           }
         ]
       }
     ],
     "direction": "horizontal",
-    "width": 340.5,
+    "width": 598.5,
     "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
+      "homepage:Open homepage": false,
+      "bases:Create new base": false,
       "khoj:Khoj": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
@@ -267,40 +281,60 @@
       "workspaces:Manage workspace layouts": false,
       "smart-random-note:Open Random Note from Search": false,
       "table-editor-obsidian:Advanced Tables Toolbar": false,
-      "obsidian-excalidraw-plugin:Create new drawing": false,
-      "homepage:Open homepage": false,
       "templater-obsidian:Templater": false,
       "obsidian-spaced-repetition:Review flashcards": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "obsidian-kanban:Create new board": false,
       "periodic-notes:Open this month": false
     }
   },
-  "active": "0210b184cf91505a",
+  "active": "08a20692f1bf5ffb",
   "lastOpenFiles": [
-    "a.json",
-    "screenshots/web-clipper.png",
-    "screenshots/web-clipper-template.png",
-    "screenshots/image.png",
-    "notes/Homepage.md",
-    "notes/(Kanban) Reading list.md",
-    "notes/books/20210829094148 - (Book) Range - Why Generalists Triumph in a Specialized World.md",
-    "notes/typography/20210829093738 - Kerning (typography).md",
-    "notes/typography/20210829093905 - Typeface (typography).md",
-    "notes/typography/20210829094032 - Typography terms (Resource).md",
-    "notes/20210829093439 - Zettelkasten.md",
-    "templates/daily/Daily Note  - System.md",
-    "README.md",
-    "screenshots/screenshot-1.png",
-    "screenshots/screenshot-2.png",
-    "screenshots/edit-mode.png",
-    "screenshots/preview-mode.png",
-    "notes/monthly/2021-08.md",
-    "notes/monthly/2021-09.md",
-    "notes/thoughts/20210903091900 - (Thought) We should improve our web performance.md",
-    "notes/(Kanban) Books.md",
-    "notes/20210903091505 - My thoughts (resource).md",
-    "notes/uncategorized/20210829094555 - Todo term.md",
-    "notes/books/20210829094933 - (Book) The war of art.md",
-    "templates/ID.md",
-    "notes/uncategorized/20221002101404.md"
+    "venv/lib/python3.13/site-packages/pyyaml-6.0.3.dist-info/REQUESTED",
+    "venv/lib/python3.13/site-packages/pyyaml-6.0.3.dist-info/INSTALLER",
+    "venv/lib/python3.13/site-packages/pyyaml-6.0.3.dist-info/INSTALLERpxl763c0.tmp",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/tokens.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/serializer.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/scanner.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/resolver.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/representer.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/reader.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/parser.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/yaml/__pycache__/nodes.cpython-313.pyc",
+    "venv/lib/python3.13/site-packages/pip-25.2.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md",
+    "20-Notes/notes/Homepage.md",
+    "Clippings/Agentic Engineering.md",
+    "20-Notes/21-Daily/2025-11-12.md",
+    "20-Notes/notes/books/20210829094148 - (Book) Range - Why Generalists Triumph in a Specialized World.md",
+    "Excalidraw/Drawing 2025-11-12 17.13.19.excalidraw.md",
+    "00-Inbox/Chat Exports/Developing_with_ThreeJs.md",
+    "Organizing Your Linux Home Directory.md",
+    "scripts/venv/lib/python3.13/site-packages/torchgen/packaged/autograd/README.md",
+    "scripts/venv/lib/python3.13/site-packages/networkx/drawing/tests/baseline/test_house_with_colors.png",
+    "scripts/venv/lib/python3.13/site-packages/networkx/drawing/tests/baseline/test_display_shortest_path.png",
+    "scripts/venv/lib/python3.13/site-packages/networkx/drawing/tests/baseline/test_display_labels_and_colors.png",
+    "scripts/venv/lib/python3.13/site-packages/networkx/drawing/tests/baseline/test_display_house_with_colors.png",
+    "scripts/venv/lib/python3.13/site-packages/networkx/drawing/tests/baseline/test_display_empty_graph.png",
+    "scripts/venv/lib/python3.13/site-packages/networkx/drawing/tests/baseline/test_display_complex.png",
+    "scripts/venv/lib/python3.13/site-packages/numpy/random/LICENSE.md",
+    "scripts/venv/lib/python3.13/site-packages/sympy/plotting/tests/test_region_xor.png",
+    "scripts/venv/lib/python3.13/site-packages/sympy/plotting/tests/test_region_or.png",
+    "scripts/venv/lib/python3.13/site-packages/sympy/plotting/tests/test_region_not.png",
+    "scripts/venv/lib/python3.13/site-packages/sympy/plotting/tests/test_region_and.png",
+    "scripts/venv/lib/python3.13/site-packages/pip-25.2.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md",
+    "31-Archive/STAND-BY_Command.md",
+    "31-Archive/Quran_Training_Scope.md",
+    "31-Archive/New_Chat.md",
+    "31-Archive/New_chat.md",
+    "31-Archive/Multi-talented_Educator..md",
+    "31-Archive/Microscopic_View..md",
+    "31-Archive/Memory_Recall_Requested..md",
+    "31-Archive/Meeting_Report_Request..md",
+    "31-Archive/Generate_NDA_Contract.md",
+    "31-Archive/Fitness_Coaching_Website.md",
+    "31-Archive/Fitness_Coach_Brand_Names..md",
+    "31-Archive/Entertainment_Recommendations..md",
+    "31-Archive/Chat_Export_unknown_id.md",
+    "31-Archive/Assistance_with_User_Request.md"
   ]
 }

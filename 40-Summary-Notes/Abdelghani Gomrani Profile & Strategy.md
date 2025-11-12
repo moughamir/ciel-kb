@@ -1,3 +1,16 @@
+---
+category: "Business"
+tags:
+  - content-creation
+  - strategy
+  - social-media
+  - branding
+  - DigitalFlowShop
+topics:
+  - "Content Strategy"
+  - "Social Media Marketing"
+  - "Personal Branding"
+---
 # Abdelghani Gomrani Profile & Strategy
 
 This note summarizes the detailed analysis of Abdelghani Gomrani's profile and the content creation strategy developed for his bird breeding project, primarily in Arabic.
@@ -61,3 +74,8 @@ This note summarizes the detailed analysis of Abdelghani Gomrani's profile and t
 ## Related Documents
 
 - [[30-All-Notes/Meeting_Report_Request..md]]
+
+## Related Notes
+
+- [[Startup Roadmap Omnizya]]
+- [[Omnizya and Digital Flow Shop]]

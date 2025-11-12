@@ -1,0 +1,17 @@
+{
+  "frames": [
+    {
+      "url": "https://moughamir.github.io",
+      "displayName": "MGR",
+      "icon": "user-star",
+      "hideOnMobile": true,
+      "addRibbonIcon": true,
+      "openInCenter": true,
+      "zoomLevel": 0.8,
+      "forceIframe": false,
+      "customCss": "",
+      "customJs": ""
+    }
+  ],
+  "padding": 5
+}

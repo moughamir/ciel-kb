@@ -1,3 +1,16 @@
+---
+category: "Technical"
+tags:
+  - software-development
+  - refactoring
+  - typescript
+  - javascript
+  - testing
+topics:
+  - "Software Development"
+  - "Web Development"
+  - "JavaScript"
+---
 # Software Development Technical Notes
 
 This note summarizes various technical discussions related to software development, including refactoring, project setup, and testing.
@@ -86,3 +99,10 @@ This note summarizes various technical discussions related to software developme
 
 - [[30-All-Notes/PHP_UML_Design..md]]
 - [[30-All-Notes/Entertainment_Recommendations..md]]
+
+## Related Notes
+
+- [[Developing with Three.js]]
+- [[Flutter Generic Repository]]
+- [[Scheme Language Exploration]]
+- [[Next.js Multi-tenant Apps]]

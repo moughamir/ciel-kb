@@ -1,20 +1,21 @@
 {
-  "version": 3,
+  "version": 4,
   "homepages": {
     "Main Homepage": {
-      "value": "notes/Homepage",
+      "value": "20-Notes/notes/Homepage",
       "kind": "File",
       "openOnStartup": true,
       "hasRibbonIcon": true,
       "openMode": "Replace all open notes",
       "manualOpenMode": "Keep open notes",
-      "view": "Default view",
+      "view": "Reading view",
       "revertView": true,
-      "refreshDataview": false,
+      "refreshDataview": true,
       "autoCreate": true,
       "autoScroll": false,
-      "pin": false,
-      "commands": []
+      "pin": true,
+      "commands": [],
+      "openWhenEmpty": true
     }
   },
   "separateMobile": false

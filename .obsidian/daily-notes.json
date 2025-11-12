@@ -1,1 +1,6 @@
-{"format":"","autorun":false,"folder":"notes/daily","template":"templates/daily/Daily Note"}
+{
+  "format": "",
+  "autorun": true,
+  "folder": "20-Notes/21-Daily",
+  "template": "99-Templates/daily/Daily Note"
+}

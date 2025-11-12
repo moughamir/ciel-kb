@@ -1,3 +1,16 @@
+---
+category: "Technical"
+tags:
+  - ArchLinux
+  - optimization
+  - Linux
+  - kernel-development
+  - CognitiveInternet
+topics:
+  - "Linux Customization"
+  - "Operating System Optimization"
+  - "Kernel Development"
+---
 # Custom Arch Linux Optimization
 
 This note summarizes the user's goal and strategy for building an optimized Arch Linux operating system tailored for specific hardware and development needs.
@@ -36,3 +49,8 @@ Build an optimized Arch Linux version specifically for the i7-5600U CPU, with:
 - [[10-Project-CIEL/13-Cognitive-OS/custom Linux distribution from scratch.md]]
 - [[10-Project-CIEL/13-Cognitive-OS/QWEN/Building Custom Linux for QEMU Virtual Environment - Proof of Concept For Arch Linux.md]]
 - [[10-Project-CIEL/13-Cognitive-OS/QWEN/Building Custom Linux for QEMU Virtual Environment - Proof of Concept.md]]
+
+## Related Notes
+
+- [[Cognitive Internet Project Whitepaper]]
+- [[Software Development Technical Notes]]

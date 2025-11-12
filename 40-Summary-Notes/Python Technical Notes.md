@@ -1,3 +1,13 @@
+---
+category: "Technical"
+tags:
+  - Python
+  - technical-notes
+  - programming
+topics:
+  - "Python Programming"
+  - "Software Development"
+---
 # Python Technical Notes
 
 This note summarizes various technical discussions and code examples in Python.
@@ -21,7 +31,7 @@ This note summarizes various technical discussions and code examples in Python.
 -   Uses the `networkx` library to represent and analyze file relations.
 -   `FileRelationsGraph` class:
     -   `add_file_relation(file1, file2)`: Adds an edge between two files.
-    -   `visualize_graph()`: Visualizes the graph using `matplotlib.pyplot`.
+    -   `visualize_graph()`: Visualizes the graph using `matplotlib.pyplot`.\n
 
 ## Tools to Parse Text and Execute Instructions
 
@@ -59,4 +69,9 @@ This note summarizes various technical discussions and code examples in Python.
 
 ## Related Documents
 
-- [[30-All-Notes/Python_Markdown_Files_Organized.md]]
+- [[30-All-Notes/PHP_UML_Design..md]]
+- [[30-All-Notes/Entertainment_Recommendations..md]]
+
+## Related Notes
+
+- [[Virtual CPU in Python]]

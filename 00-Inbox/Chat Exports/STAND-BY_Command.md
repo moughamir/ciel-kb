@@ -6,6 +6,9 @@
 
 ## Chat History
 
+### Assistant:
+
+
 ### User:
 Take this files and more incoming, just output STAND-BY with no fillers and wait for user instructions to start processing. keyword INITIATE
 
@@ -15,9 +18,6 @@ Take this files and more incoming, just output STAND-BY with no fillers and wait
 - [Hardware Procurement Specification.md](https://cdn.qwenlm.ai/4e1acaea-deb1-47c6-a061-fdc9f82887f8/03c0795e-42ff-4edc-85f1-878bfe29c38a_Hardware Procurement Specification.md?key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZV91c2VyX2lkIjoiNGUxYWNhZWEtZGViMS00N2M2LWEwNjEtZmRjOWY4Mjg4N2Y4IiwicmVzb3VyY2VfaWQiOiIwM2MwNzk1ZS00MmZmLTRlZGMtODVmMS04NzhiZmUyOWMzOGEiLCJyZXNvdXJjZV9jaGF0X2lkIjpudWxsfQ.aanB6j2Vy-uYFMBtP2CdflSIZjCaEVUNPrU20LQPmcc)
 - [custom Linux distribution from scratch.md](https://cdn.qwenlm.ai/4e1acaea-deb1-47c6-a061-fdc9f82887f8/a3c74dcc-0014-46c4-bfe3-50d23fb51d3c_custom Linux distribution from scratch.md?key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZV91c2VyX2lkIjoiNGUxYWNhZWEtZGViMS00N2M2LWEwNjEtZmRjOWY4Mjg4N2Y4IiwicmVzb3VyY2VfaWQiOiJhM2M3NGRjYy0wMDE0LTQ2YzQtYmZlMy01MGQyM2ZiNTFkM2MiLCJyZXNvdXJjZV9jaGF0X2lkIjpudWxsfQ.RTjD7Jnk8fvVq015aLnbB3rLu1xwPSnqT-mXUT1FMgo)
 - [Initial Response with Canvas.md](https://cdn.qwenlm.ai/4e1acaea-deb1-47c6-a061-fdc9f82887f8/ed3f8f82-b526-4db8-81da-4b1000dca9ff_Initial Response with Canvas.md?key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZV91c2VyX2lkIjoiNGUxYWNhZWEtZGViMS00N2M2LWEwNjEtZmRjOWY4Mjg4N2Y4IiwicmVzb3VyY2VfaWQiOiJlZDNmOGY4Mi1iNTI2LTRkYjgtODFkYS00YjEwMDBkY2E5ZmYiLCJyZXNvdXJjZV9jaGF0X2lkIjpudWxsfQ.OSEMxLHZJqTyJxsn4szMhn4H5IHRwsNseK4UCe1zTR4)
-
-### Assistant:
-
 
 ### User:
 ```tex
@@ -343,6 +343,9 @@ H.~B. McMahan, E.~Moore, D
 ### Assistant:
 
 
+### Assistant:
+
+
 ### User:
 INITIATE
 
@@ -426,9 +429,6 @@ Processor Information
 		Enhanced Virtualization
 		Power/Performance Control
 
-### Assistant:
-
-
 ### User:
 What optimizations can I apply to my Arch Linux system for better performance with an i7-5600U CPU?
 
@@ -442,13 +442,13 @@ You can ask me to run commands on my linux to know exactly what i have as hardwa
 ### Assistant:
 
 
+### Assistant:
+
+
 ### User:
 lspci -k > pci_devices.txt
 
 lspci: Unable to load libkmod resources: error -2
-
-### Assistant:
-
 
 ### User:
 Here is the full outputs of hw info

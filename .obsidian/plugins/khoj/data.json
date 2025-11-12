@@ -1,9 +1,30 @@
 {
-  "enableOfflineChat": true,
   "resultsCount": 6,
   "khojUrl": "http://127.0.0.1:42110",
+  "khojApiKey": "kk-_CSaSUEypAUazRKvVRE-ExJpvcFv4wM3jfmuJxCUk_Y",
   "connectedToBackend": true,
   "autoConfigure": true,
-  "openaiApiKey": "",
+  "lastSync": {},
+  "syncFileType": {
+    "markdown": true,
+    "images": true,
+    "pdf": true
+  },
+  "userInfo": {
+    "email": "default@example.com",
+    "username": "default",
+    "photo": null,
+    "is_active": true,
+    "has_documents": false,
+    "khoj_version": "1.42.10"
+  },
+  "syncFolders": [],
+  "syncInterval": 1440,
+  "autoVoiceResponse": true,
+  "fileAccessMode": "read",
+  "selectedChatModelId": null,
+  "availableChatModels": [],
+  "enableOfflineChat": true,
+  "openaiApiKey": "kk-_CSaSUEypAUazRKvVRE-ExJpvcFv4wM3jfmuJxCUk_Y",
   "lastSyncedFiles": []
 }

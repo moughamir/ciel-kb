@@ -1,3 +1,16 @@
+---
+category: "Technical"
+tags:
+  - Scheme
+  - Lisp
+  - functional-programming
+  - AI
+  - linear-regression
+topics:
+  - "Scheme Programming"
+  - "Functional Programming"
+  - "Programming Language Concepts"
+---
 # Scheme Language Exploration
 
 This note summarizes discussions about the Scheme programming language, its use cases, and its application in AI, including a linear regression example.
@@ -62,3 +75,7 @@ A basic implementation of a linear regression algorithm in Scheme:
 
 - [[30-All-Notes/Scheme_Language__Use_Cases.md]]
 - [[30-All-Notes/Scheme_HTTP_FFI.md]]
+
+## Related Notes
+
+- [[Software Development Technical Notes]]

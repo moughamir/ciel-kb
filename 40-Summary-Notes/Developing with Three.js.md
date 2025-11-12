@@ -1,3 +1,17 @@
+---
+category: "Technical"
+tags:
+  - Three.js
+  - JavaScript
+  - 3D
+  - WebGL
+  - Vite
+  - React
+topics:
+  - "3D Web Development"
+  - "Three.js"
+  - "JavaScript Libraries"
+---
 # Developing with Three.js
 
 This note summarizes discussions and guidance on working with the Three.js library for 3D web development.
@@ -101,3 +115,7 @@ animate();
 
 - [[30-All-Notes/Developing_with_ThreeJs.md]]
 - [[30-All-Notes/Omnizya_Startup_Launch..md]]
+
+## Related Notes
+
+- [[Software Development Technical Notes]]

@@ -9,9 +9,6 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -29,4375 +26,982 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var __accessCheck = (obj, member, msg) => {
-  if (!member.has(obj))
-    throw TypeError("Cannot " + msg);
-};
-var __privateGet = (obj, member, getter) => {
-  __accessCheck(obj, member, "read from private field");
-  return getter ? getter.call(obj) : member.get(obj);
-};
-var __privateAdd = (obj, member, value) => {
-  if (member.has(obj))
-    throw TypeError("Cannot add the same private member more than once");
-  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-};
-var __privateSet = (obj, member, value, setter) => {
-  __accessCheck(obj, member, "write to private field");
-  setter ? setter.call(obj, value) : member.set(obj, value);
-  return value;
-};
 
-// node_modules/web-streams-polyfill/dist/ponyfill.es2018.js
-var require_ponyfill_es2018 = __commonJS({
-  "node_modules/web-streams-polyfill/dist/ponyfill.es2018.js"(exports, module2) {
-    (function(global2, factory) {
-      typeof exports === "object" && typeof module2 !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global2 = typeof globalThis !== "undefined" ? globalThis : global2 || self, factory(global2.WebStreamsPolyfill = {}));
-    })(exports, function(exports2) {
-      "use strict";
-      const SymbolPolyfill = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? Symbol : (description) => `Symbol(${description})`;
-      function noop2() {
-        return void 0;
-      }
-      function getGlobals() {
-        if (typeof self !== "undefined") {
-          return self;
-        } else if (typeof window !== "undefined") {
-          return window;
-        } else if (typeof global !== "undefined") {
-          return global;
-        }
-        return void 0;
-      }
-      const globals = getGlobals();
-      function typeIsObject(x2) {
-        return typeof x2 === "object" && x2 !== null || typeof x2 === "function";
-      }
-      const rethrowAssertionErrorRejection = noop2;
-      const originalPromise = Promise;
-      const originalPromiseThen = Promise.prototype.then;
-      const originalPromiseResolve = Promise.resolve.bind(originalPromise);
-      const originalPromiseReject = Promise.reject.bind(originalPromise);
-      function newPromise(executor) {
-        return new originalPromise(executor);
-      }
-      function promiseResolvedWith(value) {
-        return originalPromiseResolve(value);
-      }
-      function promiseRejectedWith(reason) {
-        return originalPromiseReject(reason);
-      }
-      function PerformPromiseThen(promise, onFulfilled, onRejected) {
-        return originalPromiseThen.call(promise, onFulfilled, onRejected);
-      }
-      function uponPromise(promise, onFulfilled, onRejected) {
-        PerformPromiseThen(PerformPromiseThen(promise, onFulfilled, onRejected), void 0, rethrowAssertionErrorRejection);
-      }
-      function uponFulfillment(promise, onFulfilled) {
-        uponPromise(promise, onFulfilled);
-      }
-      function uponRejection(promise, onRejected) {
-        uponPromise(promise, void 0, onRejected);
-      }
-      function transformPromiseWith(promise, fulfillmentHandler, rejectionHandler) {
-        return PerformPromiseThen(promise, fulfillmentHandler, rejectionHandler);
-      }
-      function setPromiseIsHandledToTrue(promise) {
-        PerformPromiseThen(promise, void 0, rethrowAssertionErrorRejection);
-      }
-      const queueMicrotask = (() => {
-        const globalQueueMicrotask = globals && globals.queueMicrotask;
-        if (typeof globalQueueMicrotask === "function") {
-          return globalQueueMicrotask;
-        }
-        const resolvedPromise = promiseResolvedWith(void 0);
-        return (fn) => PerformPromiseThen(resolvedPromise, fn);
-      })();
-      function reflectCall(F2, V, args) {
-        if (typeof F2 !== "function") {
-          throw new TypeError("Argument is not a function");
-        }
-        return Function.prototype.apply.call(F2, V, args);
-      }
-      function promiseCall(F2, V, args) {
-        try {
-          return promiseResolvedWith(reflectCall(F2, V, args));
-        } catch (value) {
-          return promiseRejectedWith(value);
-        }
-      }
-      const QUEUE_MAX_ARRAY_SIZE = 16384;
-      class SimpleQueue {
-        constructor() {
-          this._cursor = 0;
-          this._size = 0;
-          this._front = {
-            _elements: [],
-            _next: void 0
-          };
-          this._back = this._front;
-          this._cursor = 0;
-          this._size = 0;
-        }
-        get length() {
-          return this._size;
-        }
-        push(element) {
-          const oldBack = this._back;
-          let newBack = oldBack;
-          if (oldBack._elements.length === QUEUE_MAX_ARRAY_SIZE - 1) {
-            newBack = {
-              _elements: [],
-              _next: void 0
-            };
-          }
-          oldBack._elements.push(element);
-          if (newBack !== oldBack) {
-            this._back = newBack;
-            oldBack._next = newBack;
-          }
-          ++this._size;
-        }
-        shift() {
-          const oldFront = this._front;
-          let newFront = oldFront;
-          const oldCursor = this._cursor;
-          let newCursor = oldCursor + 1;
-          const elements = oldFront._elements;
-          const element = elements[oldCursor];
-          if (newCursor === QUEUE_MAX_ARRAY_SIZE) {
-            newFront = oldFront._next;
-            newCursor = 0;
-          }
-          --this._size;
-          this._cursor = newCursor;
-          if (oldFront !== newFront) {
-            this._front = newFront;
-          }
-          elements[oldCursor] = void 0;
-          return element;
-        }
-        forEach(callback) {
-          let i2 = this._cursor;
-          let node = this._front;
-          let elements = node._elements;
-          while (i2 !== elements.length || node._next !== void 0) {
-            if (i2 === elements.length) {
-              node = node._next;
-              elements = node._elements;
-              i2 = 0;
-              if (elements.length === 0) {
-                break;
-              }
-            }
-            callback(elements[i2]);
-            ++i2;
-          }
-        }
-        peek() {
-          const front = this._front;
-          const cursor = this._cursor;
-          return front._elements[cursor];
-        }
-      }
-      function ReadableStreamReaderGenericInitialize(reader, stream) {
-        reader._ownerReadableStream = stream;
-        stream._reader = reader;
-        if (stream._state === "readable") {
-          defaultReaderClosedPromiseInitialize(reader);
-        } else if (stream._state === "closed") {
-          defaultReaderClosedPromiseInitializeAsResolved(reader);
-        } else {
-          defaultReaderClosedPromiseInitializeAsRejected(reader, stream._storedError);
-        }
-      }
-      function ReadableStreamReaderGenericCancel(reader, reason) {
-        const stream = reader._ownerReadableStream;
-        return ReadableStreamCancel(stream, reason);
-      }
-      function ReadableStreamReaderGenericRelease(reader) {
-        if (reader._ownerReadableStream._state === "readable") {
-          defaultReaderClosedPromiseReject(reader, new TypeError(`Reader was released and can no longer be used to monitor the stream's closedness`));
-        } else {
-          defaultReaderClosedPromiseResetToRejected(reader, new TypeError(`Reader was released and can no longer be used to monitor the stream's closedness`));
-        }
-        reader._ownerReadableStream._reader = void 0;
-        reader._ownerReadableStream = void 0;
-      }
-      function readerLockException(name) {
-        return new TypeError("Cannot " + name + " a stream using a released reader");
-      }
-      function defaultReaderClosedPromiseInitialize(reader) {
-        reader._closedPromise = newPromise((resolve, reject) => {
-          reader._closedPromise_resolve = resolve;
-          reader._closedPromise_reject = reject;
-        });
-      }
-      function defaultReaderClosedPromiseInitializeAsRejected(reader, reason) {
-        defaultReaderClosedPromiseInitialize(reader);
-        defaultReaderClosedPromiseReject(reader, reason);
-      }
-      function defaultReaderClosedPromiseInitializeAsResolved(reader) {
-        defaultReaderClosedPromiseInitialize(reader);
-        defaultReaderClosedPromiseResolve(reader);
-      }
-      function defaultReaderClosedPromiseReject(reader, reason) {
-        if (reader._closedPromise_reject === void 0) {
-          return;
-        }
-        setPromiseIsHandledToTrue(reader._closedPromise);
-        reader._closedPromise_reject(reason);
-        reader._closedPromise_resolve = void 0;
-        reader._closedPromise_reject = void 0;
-      }
-      function defaultReaderClosedPromiseResetToRejected(reader, reason) {
-        defaultReaderClosedPromiseInitializeAsRejected(reader, reason);
-      }
-      function defaultReaderClosedPromiseResolve(reader) {
-        if (reader._closedPromise_resolve === void 0) {
-          return;
-        }
-        reader._closedPromise_resolve(void 0);
-        reader._closedPromise_resolve = void 0;
-        reader._closedPromise_reject = void 0;
-      }
-      const AbortSteps = SymbolPolyfill("[[AbortSteps]]");
-      const ErrorSteps = SymbolPolyfill("[[ErrorSteps]]");
-      const CancelSteps = SymbolPolyfill("[[CancelSteps]]");
-      const PullSteps = SymbolPolyfill("[[PullSteps]]");
-      const NumberIsFinite = Number.isFinite || function(x2) {
-        return typeof x2 === "number" && isFinite(x2);
+// node_modules/dompurify/dist/purify.cjs.js
+var require_purify_cjs = __commonJS({
+  "node_modules/dompurify/dist/purify.cjs.js"(exports, module2) {
+    "use strict";
+    var {
+      entries,
+      setPrototypeOf,
+      isFrozen,
+      getPrototypeOf,
+      getOwnPropertyDescriptor
+    } = Object;
+    var {
+      freeze,
+      seal,
+      create
+    } = Object;
+    var {
+      apply,
+      construct
+    } = typeof Reflect !== "undefined" && Reflect;
+    if (!freeze) {
+      freeze = function freeze2(x) {
+        return x;
       };
-      const MathTrunc = Math.trunc || function(v) {
-        return v < 0 ? Math.ceil(v) : Math.floor(v);
-      };
-      function isDictionary(x2) {
-        return typeof x2 === "object" || typeof x2 === "function";
-      }
-      function assertDictionary(obj, context) {
-        if (obj !== void 0 && !isDictionary(obj)) {
-          throw new TypeError(`${context} is not an object.`);
-        }
-      }
-      function assertFunction(x2, context) {
-        if (typeof x2 !== "function") {
-          throw new TypeError(`${context} is not a function.`);
-        }
-      }
-      function isObject(x2) {
-        return typeof x2 === "object" && x2 !== null || typeof x2 === "function";
-      }
-      function assertObject(x2, context) {
-        if (!isObject(x2)) {
-          throw new TypeError(`${context} is not an object.`);
-        }
-      }
-      function assertRequiredArgument(x2, position, context) {
-        if (x2 === void 0) {
-          throw new TypeError(`Parameter ${position} is required in '${context}'.`);
-        }
-      }
-      function assertRequiredField(x2, field, context) {
-        if (x2 === void 0) {
-          throw new TypeError(`${field} is required in '${context}'.`);
-        }
-      }
-      function convertUnrestrictedDouble(value) {
-        return Number(value);
-      }
-      function censorNegativeZero(x2) {
-        return x2 === 0 ? 0 : x2;
-      }
-      function integerPart(x2) {
-        return censorNegativeZero(MathTrunc(x2));
-      }
-      function convertUnsignedLongLongWithEnforceRange(value, context) {
-        const lowerBound = 0;
-        const upperBound = Number.MAX_SAFE_INTEGER;
-        let x2 = Number(value);
-        x2 = censorNegativeZero(x2);
-        if (!NumberIsFinite(x2)) {
-          throw new TypeError(`${context} is not a finite number`);
-        }
-        x2 = integerPart(x2);
-        if (x2 < lowerBound || x2 > upperBound) {
-          throw new TypeError(`${context} is outside the accepted range of ${lowerBound} to ${upperBound}, inclusive`);
-        }
-        if (!NumberIsFinite(x2) || x2 === 0) {
-          return 0;
-        }
-        return x2;
-      }
-      function assertReadableStream(x2, context) {
-        if (!IsReadableStream(x2)) {
-          throw new TypeError(`${context} is not a ReadableStream.`);
-        }
-      }
-      function AcquireReadableStreamDefaultReader(stream) {
-        return new ReadableStreamDefaultReader(stream);
-      }
-      function ReadableStreamAddReadRequest(stream, readRequest) {
-        stream._reader._readRequests.push(readRequest);
-      }
-      function ReadableStreamFulfillReadRequest(stream, chunk, done) {
-        const reader = stream._reader;
-        const readRequest = reader._readRequests.shift();
-        if (done) {
-          readRequest._closeSteps();
-        } else {
-          readRequest._chunkSteps(chunk);
-        }
-      }
-      function ReadableStreamGetNumReadRequests(stream) {
-        return stream._reader._readRequests.length;
-      }
-      function ReadableStreamHasDefaultReader(stream) {
-        const reader = stream._reader;
-        if (reader === void 0) {
-          return false;
-        }
-        if (!IsReadableStreamDefaultReader(reader)) {
-          return false;
-        }
-        return true;
-      }
-      class ReadableStreamDefaultReader {
-        constructor(stream) {
-          assertRequiredArgument(stream, 1, "ReadableStreamDefaultReader");
-          assertReadableStream(stream, "First parameter");
-          if (IsReadableStreamLocked(stream)) {
-            throw new TypeError("This stream has already been locked for exclusive reading by another reader");
-          }
-          ReadableStreamReaderGenericInitialize(this, stream);
-          this._readRequests = new SimpleQueue();
-        }
-        get closed() {
-          if (!IsReadableStreamDefaultReader(this)) {
-            return promiseRejectedWith(defaultReaderBrandCheckException("closed"));
-          }
-          return this._closedPromise;
-        }
-        cancel(reason = void 0) {
-          if (!IsReadableStreamDefaultReader(this)) {
-            return promiseRejectedWith(defaultReaderBrandCheckException("cancel"));
-          }
-          if (this._ownerReadableStream === void 0) {
-            return promiseRejectedWith(readerLockException("cancel"));
-          }
-          return ReadableStreamReaderGenericCancel(this, reason);
-        }
-        read() {
-          if (!IsReadableStreamDefaultReader(this)) {
-            return promiseRejectedWith(defaultReaderBrandCheckException("read"));
-          }
-          if (this._ownerReadableStream === void 0) {
-            return promiseRejectedWith(readerLockException("read from"));
-          }
-          let resolvePromise;
-          let rejectPromise;
-          const promise = newPromise((resolve, reject) => {
-            resolvePromise = resolve;
-            rejectPromise = reject;
-          });
-          const readRequest = {
-            _chunkSteps: (chunk) => resolvePromise({ value: chunk, done: false }),
-            _closeSteps: () => resolvePromise({ value: void 0, done: true }),
-            _errorSteps: (e2) => rejectPromise(e2)
-          };
-          ReadableStreamDefaultReaderRead(this, readRequest);
-          return promise;
-        }
-        releaseLock() {
-          if (!IsReadableStreamDefaultReader(this)) {
-            throw defaultReaderBrandCheckException("releaseLock");
-          }
-          if (this._ownerReadableStream === void 0) {
-            return;
-          }
-          if (this._readRequests.length > 0) {
-            throw new TypeError("Tried to release a reader lock when that reader has pending read() calls un-settled");
-          }
-          ReadableStreamReaderGenericRelease(this);
-        }
-      }
-      Object.defineProperties(ReadableStreamDefaultReader.prototype, {
-        cancel: { enumerable: true },
-        read: { enumerable: true },
-        releaseLock: { enumerable: true },
-        closed: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(ReadableStreamDefaultReader.prototype, SymbolPolyfill.toStringTag, {
-          value: "ReadableStreamDefaultReader",
-          configurable: true
-        });
-      }
-      function IsReadableStreamDefaultReader(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_readRequests")) {
-          return false;
-        }
-        return x2 instanceof ReadableStreamDefaultReader;
-      }
-      function ReadableStreamDefaultReaderRead(reader, readRequest) {
-        const stream = reader._ownerReadableStream;
-        stream._disturbed = true;
-        if (stream._state === "closed") {
-          readRequest._closeSteps();
-        } else if (stream._state === "errored") {
-          readRequest._errorSteps(stream._storedError);
-        } else {
-          stream._readableStreamController[PullSteps](readRequest);
-        }
-      }
-      function defaultReaderBrandCheckException(name) {
-        return new TypeError(`ReadableStreamDefaultReader.prototype.${name} can only be used on a ReadableStreamDefaultReader`);
-      }
-      const AsyncIteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf(async function* () {
-      }).prototype);
-      class ReadableStreamAsyncIteratorImpl {
-        constructor(reader, preventCancel) {
-          this._ongoingPromise = void 0;
-          this._isFinished = false;
-          this._reader = reader;
-          this._preventCancel = preventCancel;
-        }
-        next() {
-          const nextSteps = () => this._nextSteps();
-          this._ongoingPromise = this._ongoingPromise ? transformPromiseWith(this._ongoingPromise, nextSteps, nextSteps) : nextSteps();
-          return this._ongoingPromise;
-        }
-        return(value) {
-          const returnSteps = () => this._returnSteps(value);
-          return this._ongoingPromise ? transformPromiseWith(this._ongoingPromise, returnSteps, returnSteps) : returnSteps();
-        }
-        _nextSteps() {
-          if (this._isFinished) {
-            return Promise.resolve({ value: void 0, done: true });
-          }
-          const reader = this._reader;
-          if (reader._ownerReadableStream === void 0) {
-            return promiseRejectedWith(readerLockException("iterate"));
-          }
-          let resolvePromise;
-          let rejectPromise;
-          const promise = newPromise((resolve, reject) => {
-            resolvePromise = resolve;
-            rejectPromise = reject;
-          });
-          const readRequest = {
-            _chunkSteps: (chunk) => {
-              this._ongoingPromise = void 0;
-              queueMicrotask(() => resolvePromise({ value: chunk, done: false }));
-            },
-            _closeSteps: () => {
-              this._ongoingPromise = void 0;
-              this._isFinished = true;
-              ReadableStreamReaderGenericRelease(reader);
-              resolvePromise({ value: void 0, done: true });
-            },
-            _errorSteps: (reason) => {
-              this._ongoingPromise = void 0;
-              this._isFinished = true;
-              ReadableStreamReaderGenericRelease(reader);
-              rejectPromise(reason);
-            }
-          };
-          ReadableStreamDefaultReaderRead(reader, readRequest);
-          return promise;
-        }
-        _returnSteps(value) {
-          if (this._isFinished) {
-            return Promise.resolve({ value, done: true });
-          }
-          this._isFinished = true;
-          const reader = this._reader;
-          if (reader._ownerReadableStream === void 0) {
-            return promiseRejectedWith(readerLockException("finish iterating"));
-          }
-          if (!this._preventCancel) {
-            const result = ReadableStreamReaderGenericCancel(reader, value);
-            ReadableStreamReaderGenericRelease(reader);
-            return transformPromiseWith(result, () => ({ value, done: true }));
-          }
-          ReadableStreamReaderGenericRelease(reader);
-          return promiseResolvedWith({ value, done: true });
-        }
-      }
-      const ReadableStreamAsyncIteratorPrototype = {
-        next() {
-          if (!IsReadableStreamAsyncIterator(this)) {
-            return promiseRejectedWith(streamAsyncIteratorBrandCheckException("next"));
-          }
-          return this._asyncIteratorImpl.next();
-        },
-        return(value) {
-          if (!IsReadableStreamAsyncIterator(this)) {
-            return promiseRejectedWith(streamAsyncIteratorBrandCheckException("return"));
-          }
-          return this._asyncIteratorImpl.return(value);
-        }
-      };
-      if (AsyncIteratorPrototype !== void 0) {
-        Object.setPrototypeOf(ReadableStreamAsyncIteratorPrototype, AsyncIteratorPrototype);
-      }
-      function AcquireReadableStreamAsyncIterator(stream, preventCancel) {
-        const reader = AcquireReadableStreamDefaultReader(stream);
-        const impl = new ReadableStreamAsyncIteratorImpl(reader, preventCancel);
-        const iterator = Object.create(ReadableStreamAsyncIteratorPrototype);
-        iterator._asyncIteratorImpl = impl;
-        return iterator;
-      }
-      function IsReadableStreamAsyncIterator(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_asyncIteratorImpl")) {
-          return false;
-        }
-        try {
-          return x2._asyncIteratorImpl instanceof ReadableStreamAsyncIteratorImpl;
-        } catch (_a4) {
-          return false;
-        }
-      }
-      function streamAsyncIteratorBrandCheckException(name) {
-        return new TypeError(`ReadableStreamAsyncIterator.${name} can only be used on a ReadableSteamAsyncIterator`);
-      }
-      const NumberIsNaN = Number.isNaN || function(x2) {
-        return x2 !== x2;
-      };
-      function CreateArrayFromList(elements) {
-        return elements.slice();
-      }
-      function CopyDataBlockBytes(dest, destOffset, src, srcOffset, n) {
-        new Uint8Array(dest).set(new Uint8Array(src, srcOffset, n), destOffset);
-      }
-      function TransferArrayBuffer(O) {
-        return O;
-      }
-      function IsDetachedBuffer(O) {
-        return false;
-      }
-      function ArrayBufferSlice(buffer, begin, end) {
-        if (buffer.slice) {
-          return buffer.slice(begin, end);
-        }
-        const length = end - begin;
-        const slice = new ArrayBuffer(length);
-        CopyDataBlockBytes(slice, 0, buffer, begin, length);
-        return slice;
-      }
-      function IsNonNegativeNumber(v) {
-        if (typeof v !== "number") {
-          return false;
-        }
-        if (NumberIsNaN(v)) {
-          return false;
-        }
-        if (v < 0) {
-          return false;
-        }
-        return true;
-      }
-      function CloneAsUint8Array(O) {
-        const buffer = ArrayBufferSlice(O.buffer, O.byteOffset, O.byteOffset + O.byteLength);
-        return new Uint8Array(buffer);
-      }
-      function DequeueValue(container) {
-        const pair = container._queue.shift();
-        container._queueTotalSize -= pair.size;
-        if (container._queueTotalSize < 0) {
-          container._queueTotalSize = 0;
-        }
-        return pair.value;
-      }
-      function EnqueueValueWithSize(container, value, size) {
-        if (!IsNonNegativeNumber(size) || size === Infinity) {
-          throw new RangeError("Size must be a finite, non-NaN, non-negative number.");
-        }
-        container._queue.push({ value, size });
-        container._queueTotalSize += size;
-      }
-      function PeekQueueValue(container) {
-        const pair = container._queue.peek();
-        return pair.value;
-      }
-      function ResetQueue(container) {
-        container._queue = new SimpleQueue();
-        container._queueTotalSize = 0;
-      }
-      class ReadableStreamBYOBRequest {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get view() {
-          if (!IsReadableStreamBYOBRequest(this)) {
-            throw byobRequestBrandCheckException("view");
-          }
-          return this._view;
-        }
-        respond(bytesWritten) {
-          if (!IsReadableStreamBYOBRequest(this)) {
-            throw byobRequestBrandCheckException("respond");
-          }
-          assertRequiredArgument(bytesWritten, 1, "respond");
-          bytesWritten = convertUnsignedLongLongWithEnforceRange(bytesWritten, "First parameter");
-          if (this._associatedReadableByteStreamController === void 0) {
-            throw new TypeError("This BYOB request has been invalidated");
-          }
-          if (IsDetachedBuffer(this._view.buffer))
-            ;
-          ReadableByteStreamControllerRespond(this._associatedReadableByteStreamController, bytesWritten);
-        }
-        respondWithNewView(view) {
-          if (!IsReadableStreamBYOBRequest(this)) {
-            throw byobRequestBrandCheckException("respondWithNewView");
-          }
-          assertRequiredArgument(view, 1, "respondWithNewView");
-          if (!ArrayBuffer.isView(view)) {
-            throw new TypeError("You can only respond with array buffer views");
-          }
-          if (this._associatedReadableByteStreamController === void 0) {
-            throw new TypeError("This BYOB request has been invalidated");
-          }
-          if (IsDetachedBuffer(view.buffer))
-            ;
-          ReadableByteStreamControllerRespondWithNewView(this._associatedReadableByteStreamController, view);
-        }
-      }
-      Object.defineProperties(ReadableStreamBYOBRequest.prototype, {
-        respond: { enumerable: true },
-        respondWithNewView: { enumerable: true },
-        view: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(ReadableStreamBYOBRequest.prototype, SymbolPolyfill.toStringTag, {
-          value: "ReadableStreamBYOBRequest",
-          configurable: true
-        });
-      }
-      class ReadableByteStreamController {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get byobRequest() {
-          if (!IsReadableByteStreamController(this)) {
-            throw byteStreamControllerBrandCheckException("byobRequest");
-          }
-          return ReadableByteStreamControllerGetBYOBRequest(this);
-        }
-        get desiredSize() {
-          if (!IsReadableByteStreamController(this)) {
-            throw byteStreamControllerBrandCheckException("desiredSize");
-          }
-          return ReadableByteStreamControllerGetDesiredSize(this);
-        }
-        close() {
-          if (!IsReadableByteStreamController(this)) {
-            throw byteStreamControllerBrandCheckException("close");
-          }
-          if (this._closeRequested) {
-            throw new TypeError("The stream has already been closed; do not close it again!");
-          }
-          const state = this._controlledReadableByteStream._state;
-          if (state !== "readable") {
-            throw new TypeError(`The stream (in ${state} state) is not in the readable state and cannot be closed`);
-          }
-          ReadableByteStreamControllerClose(this);
-        }
-        enqueue(chunk) {
-          if (!IsReadableByteStreamController(this)) {
-            throw byteStreamControllerBrandCheckException("enqueue");
-          }
-          assertRequiredArgument(chunk, 1, "enqueue");
-          if (!ArrayBuffer.isView(chunk)) {
-            throw new TypeError("chunk must be an array buffer view");
-          }
-          if (chunk.byteLength === 0) {
-            throw new TypeError("chunk must have non-zero byteLength");
-          }
-          if (chunk.buffer.byteLength === 0) {
-            throw new TypeError(`chunk's buffer must have non-zero byteLength`);
-          }
-          if (this._closeRequested) {
-            throw new TypeError("stream is closed or draining");
-          }
-          const state = this._controlledReadableByteStream._state;
-          if (state !== "readable") {
-            throw new TypeError(`The stream (in ${state} state) is not in the readable state and cannot be enqueued to`);
-          }
-          ReadableByteStreamControllerEnqueue(this, chunk);
-        }
-        error(e2 = void 0) {
-          if (!IsReadableByteStreamController(this)) {
-            throw byteStreamControllerBrandCheckException("error");
-          }
-          ReadableByteStreamControllerError(this, e2);
-        }
-        [CancelSteps](reason) {
-          ReadableByteStreamControllerClearPendingPullIntos(this);
-          ResetQueue(this);
-          const result = this._cancelAlgorithm(reason);
-          ReadableByteStreamControllerClearAlgorithms(this);
-          return result;
-        }
-        [PullSteps](readRequest) {
-          const stream = this._controlledReadableByteStream;
-          if (this._queueTotalSize > 0) {
-            const entry = this._queue.shift();
-            this._queueTotalSize -= entry.byteLength;
-            ReadableByteStreamControllerHandleQueueDrain(this);
-            const view = new Uint8Array(entry.buffer, entry.byteOffset, entry.byteLength);
-            readRequest._chunkSteps(view);
-            return;
-          }
-          const autoAllocateChunkSize = this._autoAllocateChunkSize;
-          if (autoAllocateChunkSize !== void 0) {
-            let buffer;
-            try {
-              buffer = new ArrayBuffer(autoAllocateChunkSize);
-            } catch (bufferE) {
-              readRequest._errorSteps(bufferE);
-              return;
-            }
-            const pullIntoDescriptor = {
-              buffer,
-              bufferByteLength: autoAllocateChunkSize,
-              byteOffset: 0,
-              byteLength: autoAllocateChunkSize,
-              bytesFilled: 0,
-              elementSize: 1,
-              viewConstructor: Uint8Array,
-              readerType: "default"
-            };
-            this._pendingPullIntos.push(pullIntoDescriptor);
-          }
-          ReadableStreamAddReadRequest(stream, readRequest);
-          ReadableByteStreamControllerCallPullIfNeeded(this);
-        }
-      }
-      Object.defineProperties(ReadableByteStreamController.prototype, {
-        close: { enumerable: true },
-        enqueue: { enumerable: true },
-        error: { enumerable: true },
-        byobRequest: { enumerable: true },
-        desiredSize: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(ReadableByteStreamController.prototype, SymbolPolyfill.toStringTag, {
-          value: "ReadableByteStreamController",
-          configurable: true
-        });
-      }
-      function IsReadableByteStreamController(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_controlledReadableByteStream")) {
-          return false;
-        }
-        return x2 instanceof ReadableByteStreamController;
-      }
-      function IsReadableStreamBYOBRequest(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_associatedReadableByteStreamController")) {
-          return false;
-        }
-        return x2 instanceof ReadableStreamBYOBRequest;
-      }
-      function ReadableByteStreamControllerCallPullIfNeeded(controller) {
-        const shouldPull = ReadableByteStreamControllerShouldCallPull(controller);
-        if (!shouldPull) {
-          return;
-        }
-        if (controller._pulling) {
-          controller._pullAgain = true;
-          return;
-        }
-        controller._pulling = true;
-        const pullPromise = controller._pullAlgorithm();
-        uponPromise(pullPromise, () => {
-          controller._pulling = false;
-          if (controller._pullAgain) {
-            controller._pullAgain = false;
-            ReadableByteStreamControllerCallPullIfNeeded(controller);
-          }
-        }, (e2) => {
-          ReadableByteStreamControllerError(controller, e2);
-        });
-      }
-      function ReadableByteStreamControllerClearPendingPullIntos(controller) {
-        ReadableByteStreamControllerInvalidateBYOBRequest(controller);
-        controller._pendingPullIntos = new SimpleQueue();
-      }
-      function ReadableByteStreamControllerCommitPullIntoDescriptor(stream, pullIntoDescriptor) {
-        let done = false;
-        if (stream._state === "closed") {
-          done = true;
-        }
-        const filledView = ReadableByteStreamControllerConvertPullIntoDescriptor(pullIntoDescriptor);
-        if (pullIntoDescriptor.readerType === "default") {
-          ReadableStreamFulfillReadRequest(stream, filledView, done);
-        } else {
-          ReadableStreamFulfillReadIntoRequest(stream, filledView, done);
-        }
-      }
-      function ReadableByteStreamControllerConvertPullIntoDescriptor(pullIntoDescriptor) {
-        const bytesFilled = pullIntoDescriptor.bytesFilled;
-        const elementSize = pullIntoDescriptor.elementSize;
-        return new pullIntoDescriptor.viewConstructor(pullIntoDescriptor.buffer, pullIntoDescriptor.byteOffset, bytesFilled / elementSize);
-      }
-      function ReadableByteStreamControllerEnqueueChunkToQueue(controller, buffer, byteOffset, byteLength) {
-        controller._queue.push({ buffer, byteOffset, byteLength });
-        controller._queueTotalSize += byteLength;
-      }
-      function ReadableByteStreamControllerFillPullIntoDescriptorFromQueue(controller, pullIntoDescriptor) {
-        const elementSize = pullIntoDescriptor.elementSize;
-        const currentAlignedBytes = pullIntoDescriptor.bytesFilled - pullIntoDescriptor.bytesFilled % elementSize;
-        const maxBytesToCopy = Math.min(controller._queueTotalSize, pullIntoDescriptor.byteLength - pullIntoDescriptor.bytesFilled);
-        const maxBytesFilled = pullIntoDescriptor.bytesFilled + maxBytesToCopy;
-        const maxAlignedBytes = maxBytesFilled - maxBytesFilled % elementSize;
-        let totalBytesToCopyRemaining = maxBytesToCopy;
-        let ready = false;
-        if (maxAlignedBytes > currentAlignedBytes) {
-          totalBytesToCopyRemaining = maxAlignedBytes - pullIntoDescriptor.bytesFilled;
-          ready = true;
-        }
-        const queue = controller._queue;
-        while (totalBytesToCopyRemaining > 0) {
-          const headOfQueue = queue.peek();
-          const bytesToCopy = Math.min(totalBytesToCopyRemaining, headOfQueue.byteLength);
-          const destStart = pullIntoDescriptor.byteOffset + pullIntoDescriptor.bytesFilled;
-          CopyDataBlockBytes(pullIntoDescriptor.buffer, destStart, headOfQueue.buffer, headOfQueue.byteOffset, bytesToCopy);
-          if (headOfQueue.byteLength === bytesToCopy) {
-            queue.shift();
-          } else {
-            headOfQueue.byteOffset += bytesToCopy;
-            headOfQueue.byteLength -= bytesToCopy;
-          }
-          controller._queueTotalSize -= bytesToCopy;
-          ReadableByteStreamControllerFillHeadPullIntoDescriptor(controller, bytesToCopy, pullIntoDescriptor);
-          totalBytesToCopyRemaining -= bytesToCopy;
-        }
-        return ready;
-      }
-      function ReadableByteStreamControllerFillHeadPullIntoDescriptor(controller, size, pullIntoDescriptor) {
-        pullIntoDescriptor.bytesFilled += size;
-      }
-      function ReadableByteStreamControllerHandleQueueDrain(controller) {
-        if (controller._queueTotalSize === 0 && controller._closeRequested) {
-          ReadableByteStreamControllerClearAlgorithms(controller);
-          ReadableStreamClose(controller._controlledReadableByteStream);
-        } else {
-          ReadableByteStreamControllerCallPullIfNeeded(controller);
-        }
-      }
-      function ReadableByteStreamControllerInvalidateBYOBRequest(controller) {
-        if (controller._byobRequest === null) {
-          return;
-        }
-        controller._byobRequest._associatedReadableByteStreamController = void 0;
-        controller._byobRequest._view = null;
-        controller._byobRequest = null;
-      }
-      function ReadableByteStreamControllerProcessPullIntoDescriptorsUsingQueue(controller) {
-        while (controller._pendingPullIntos.length > 0) {
-          if (controller._queueTotalSize === 0) {
-            return;
-          }
-          const pullIntoDescriptor = controller._pendingPullIntos.peek();
-          if (ReadableByteStreamControllerFillPullIntoDescriptorFromQueue(controller, pullIntoDescriptor)) {
-            ReadableByteStreamControllerShiftPendingPullInto(controller);
-            ReadableByteStreamControllerCommitPullIntoDescriptor(controller._controlledReadableByteStream, pullIntoDescriptor);
-          }
-        }
-      }
-      function ReadableByteStreamControllerPullInto(controller, view, readIntoRequest) {
-        const stream = controller._controlledReadableByteStream;
-        let elementSize = 1;
-        if (view.constructor !== DataView) {
-          elementSize = view.constructor.BYTES_PER_ELEMENT;
-        }
-        const ctor = view.constructor;
-        const buffer = TransferArrayBuffer(view.buffer);
-        const pullIntoDescriptor = {
-          buffer,
-          bufferByteLength: buffer.byteLength,
-          byteOffset: view.byteOffset,
-          byteLength: view.byteLength,
-          bytesFilled: 0,
-          elementSize,
-          viewConstructor: ctor,
-          readerType: "byob"
-        };
-        if (controller._pendingPullIntos.length > 0) {
-          controller._pendingPullIntos.push(pullIntoDescriptor);
-          ReadableStreamAddReadIntoRequest(stream, readIntoRequest);
-          return;
-        }
-        if (stream._state === "closed") {
-          const emptyView = new ctor(pullIntoDescriptor.buffer, pullIntoDescriptor.byteOffset, 0);
-          readIntoRequest._closeSteps(emptyView);
-          return;
-        }
-        if (controller._queueTotalSize > 0) {
-          if (ReadableByteStreamControllerFillPullIntoDescriptorFromQueue(controller, pullIntoDescriptor)) {
-            const filledView = ReadableByteStreamControllerConvertPullIntoDescriptor(pullIntoDescriptor);
-            ReadableByteStreamControllerHandleQueueDrain(controller);
-            readIntoRequest._chunkSteps(filledView);
-            return;
-          }
-          if (controller._closeRequested) {
-            const e2 = new TypeError("Insufficient bytes to fill elements in the given buffer");
-            ReadableByteStreamControllerError(controller, e2);
-            readIntoRequest._errorSteps(e2);
-            return;
-          }
-        }
-        controller._pendingPullIntos.push(pullIntoDescriptor);
-        ReadableStreamAddReadIntoRequest(stream, readIntoRequest);
-        ReadableByteStreamControllerCallPullIfNeeded(controller);
-      }
-      function ReadableByteStreamControllerRespondInClosedState(controller, firstDescriptor) {
-        const stream = controller._controlledReadableByteStream;
-        if (ReadableStreamHasBYOBReader(stream)) {
-          while (ReadableStreamGetNumReadIntoRequests(stream) > 0) {
-            const pullIntoDescriptor = ReadableByteStreamControllerShiftPendingPullInto(controller);
-            ReadableByteStreamControllerCommitPullIntoDescriptor(stream, pullIntoDescriptor);
-          }
-        }
-      }
-      function ReadableByteStreamControllerRespondInReadableState(controller, bytesWritten, pullIntoDescriptor) {
-        ReadableByteStreamControllerFillHeadPullIntoDescriptor(controller, bytesWritten, pullIntoDescriptor);
-        if (pullIntoDescriptor.bytesFilled < pullIntoDescriptor.elementSize) {
-          return;
-        }
-        ReadableByteStreamControllerShiftPendingPullInto(controller);
-        const remainderSize = pullIntoDescriptor.bytesFilled % pullIntoDescriptor.elementSize;
-        if (remainderSize > 0) {
-          const end = pullIntoDescriptor.byteOffset + pullIntoDescriptor.bytesFilled;
-          const remainder = ArrayBufferSlice(pullIntoDescriptor.buffer, end - remainderSize, end);
-          ReadableByteStreamControllerEnqueueChunkToQueue(controller, remainder, 0, remainder.byteLength);
-        }
-        pullIntoDescriptor.bytesFilled -= remainderSize;
-        ReadableByteStreamControllerCommitPullIntoDescriptor(controller._controlledReadableByteStream, pullIntoDescriptor);
-        ReadableByteStreamControllerProcessPullIntoDescriptorsUsingQueue(controller);
-      }
-      function ReadableByteStreamControllerRespondInternal(controller, bytesWritten) {
-        const firstDescriptor = controller._pendingPullIntos.peek();
-        ReadableByteStreamControllerInvalidateBYOBRequest(controller);
-        const state = controller._controlledReadableByteStream._state;
-        if (state === "closed") {
-          ReadableByteStreamControllerRespondInClosedState(controller);
-        } else {
-          ReadableByteStreamControllerRespondInReadableState(controller, bytesWritten, firstDescriptor);
-        }
-        ReadableByteStreamControllerCallPullIfNeeded(controller);
-      }
-      function ReadableByteStreamControllerShiftPendingPullInto(controller) {
-        const descriptor = controller._pendingPullIntos.shift();
-        return descriptor;
-      }
-      function ReadableByteStreamControllerShouldCallPull(controller) {
-        const stream = controller._controlledReadableByteStream;
-        if (stream._state !== "readable") {
-          return false;
-        }
-        if (controller._closeRequested) {
-          return false;
-        }
-        if (!controller._started) {
-          return false;
-        }
-        if (ReadableStreamHasDefaultReader(stream) && ReadableStreamGetNumReadRequests(stream) > 0) {
-          return true;
-        }
-        if (ReadableStreamHasBYOBReader(stream) && ReadableStreamGetNumReadIntoRequests(stream) > 0) {
-          return true;
-        }
-        const desiredSize = ReadableByteStreamControllerGetDesiredSize(controller);
-        if (desiredSize > 0) {
-          return true;
-        }
-        return false;
-      }
-      function ReadableByteStreamControllerClearAlgorithms(controller) {
-        controller._pullAlgorithm = void 0;
-        controller._cancelAlgorithm = void 0;
-      }
-      function ReadableByteStreamControllerClose(controller) {
-        const stream = controller._controlledReadableByteStream;
-        if (controller._closeRequested || stream._state !== "readable") {
-          return;
-        }
-        if (controller._queueTotalSize > 0) {
-          controller._closeRequested = true;
-          return;
-        }
-        if (controller._pendingPullIntos.length > 0) {
-          const firstPendingPullInto = controller._pendingPullIntos.peek();
-          if (firstPendingPullInto.bytesFilled > 0) {
-            const e2 = new TypeError("Insufficient bytes to fill elements in the given buffer");
-            ReadableByteStreamControllerError(controller, e2);
-            throw e2;
-          }
-        }
-        ReadableByteStreamControllerClearAlgorithms(controller);
-        ReadableStreamClose(stream);
-      }
-      function ReadableByteStreamControllerEnqueue(controller, chunk) {
-        const stream = controller._controlledReadableByteStream;
-        if (controller._closeRequested || stream._state !== "readable") {
-          return;
-        }
-        const buffer = chunk.buffer;
-        const byteOffset = chunk.byteOffset;
-        const byteLength = chunk.byteLength;
-        const transferredBuffer = TransferArrayBuffer(buffer);
-        if (controller._pendingPullIntos.length > 0) {
-          const firstPendingPullInto = controller._pendingPullIntos.peek();
-          if (IsDetachedBuffer(firstPendingPullInto.buffer))
-            ;
-          firstPendingPullInto.buffer = TransferArrayBuffer(firstPendingPullInto.buffer);
-        }
-        ReadableByteStreamControllerInvalidateBYOBRequest(controller);
-        if (ReadableStreamHasDefaultReader(stream)) {
-          if (ReadableStreamGetNumReadRequests(stream) === 0) {
-            ReadableByteStreamControllerEnqueueChunkToQueue(controller, transferredBuffer, byteOffset, byteLength);
-          } else {
-            if (controller._pendingPullIntos.length > 0) {
-              ReadableByteStreamControllerShiftPendingPullInto(controller);
-            }
-            const transferredView = new Uint8Array(transferredBuffer, byteOffset, byteLength);
-            ReadableStreamFulfillReadRequest(stream, transferredView, false);
-          }
-        } else if (ReadableStreamHasBYOBReader(stream)) {
-          ReadableByteStreamControllerEnqueueChunkToQueue(controller, transferredBuffer, byteOffset, byteLength);
-          ReadableByteStreamControllerProcessPullIntoDescriptorsUsingQueue(controller);
-        } else {
-          ReadableByteStreamControllerEnqueueChunkToQueue(controller, transferredBuffer, byteOffset, byteLength);
-        }
-        ReadableByteStreamControllerCallPullIfNeeded(controller);
-      }
-      function ReadableByteStreamControllerError(controller, e2) {
-        const stream = controller._controlledReadableByteStream;
-        if (stream._state !== "readable") {
-          return;
-        }
-        ReadableByteStreamControllerClearPendingPullIntos(controller);
-        ResetQueue(controller);
-        ReadableByteStreamControllerClearAlgorithms(controller);
-        ReadableStreamError(stream, e2);
-      }
-      function ReadableByteStreamControllerGetBYOBRequest(controller) {
-        if (controller._byobRequest === null && controller._pendingPullIntos.length > 0) {
-          const firstDescriptor = controller._pendingPullIntos.peek();
-          const view = new Uint8Array(firstDescriptor.buffer, firstDescriptor.byteOffset + firstDescriptor.bytesFilled, firstDescriptor.byteLength - firstDescriptor.bytesFilled);
-          const byobRequest = Object.create(ReadableStreamBYOBRequest.prototype);
-          SetUpReadableStreamBYOBRequest(byobRequest, controller, view);
-          controller._byobRequest = byobRequest;
-        }
-        return controller._byobRequest;
-      }
-      function ReadableByteStreamControllerGetDesiredSize(controller) {
-        const state = controller._controlledReadableByteStream._state;
-        if (state === "errored") {
-          return null;
-        }
-        if (state === "closed") {
-          return 0;
-        }
-        return controller._strategyHWM - controller._queueTotalSize;
-      }
-      function ReadableByteStreamControllerRespond(controller, bytesWritten) {
-        const firstDescriptor = controller._pendingPullIntos.peek();
-        const state = controller._controlledReadableByteStream._state;
-        if (state === "closed") {
-          if (bytesWritten !== 0) {
-            throw new TypeError("bytesWritten must be 0 when calling respond() on a closed stream");
-          }
-        } else {
-          if (bytesWritten === 0) {
-            throw new TypeError("bytesWritten must be greater than 0 when calling respond() on a readable stream");
-          }
-          if (firstDescriptor.bytesFilled + bytesWritten > firstDescriptor.byteLength) {
-            throw new RangeError("bytesWritten out of range");
-          }
-        }
-        firstDescriptor.buffer = TransferArrayBuffer(firstDescriptor.buffer);
-        ReadableByteStreamControllerRespondInternal(controller, bytesWritten);
-      }
-      function ReadableByteStreamControllerRespondWithNewView(controller, view) {
-        const firstDescriptor = controller._pendingPullIntos.peek();
-        const state = controller._controlledReadableByteStream._state;
-        if (state === "closed") {
-          if (view.byteLength !== 0) {
-            throw new TypeError("The view's length must be 0 when calling respondWithNewView() on a closed stream");
-          }
-        } else {
-          if (view.byteLength === 0) {
-            throw new TypeError("The view's length must be greater than 0 when calling respondWithNewView() on a readable stream");
-          }
-        }
-        if (firstDescriptor.byteOffset + firstDescriptor.bytesFilled !== view.byteOffset) {
-          throw new RangeError("The region specified by view does not match byobRequest");
-        }
-        if (firstDescriptor.bufferByteLength !== view.buffer.byteLength) {
-          throw new RangeError("The buffer of view has different capacity than byobRequest");
-        }
-        if (firstDescriptor.bytesFilled + view.byteLength > firstDescriptor.byteLength) {
-          throw new RangeError("The region specified by view is larger than byobRequest");
-        }
-        const viewByteLength = view.byteLength;
-        firstDescriptor.buffer = TransferArrayBuffer(view.buffer);
-        ReadableByteStreamControllerRespondInternal(controller, viewByteLength);
-      }
-      function SetUpReadableByteStreamController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, autoAllocateChunkSize) {
-        controller._controlledReadableByteStream = stream;
-        controller._pullAgain = false;
-        controller._pulling = false;
-        controller._byobRequest = null;
-        controller._queue = controller._queueTotalSize = void 0;
-        ResetQueue(controller);
-        controller._closeRequested = false;
-        controller._started = false;
-        controller._strategyHWM = highWaterMark;
-        controller._pullAlgorithm = pullAlgorithm;
-        controller._cancelAlgorithm = cancelAlgorithm;
-        controller._autoAllocateChunkSize = autoAllocateChunkSize;
-        controller._pendingPullIntos = new SimpleQueue();
-        stream._readableStreamController = controller;
-        const startResult = startAlgorithm();
-        uponPromise(promiseResolvedWith(startResult), () => {
-          controller._started = true;
-          ReadableByteStreamControllerCallPullIfNeeded(controller);
-        }, (r2) => {
-          ReadableByteStreamControllerError(controller, r2);
-        });
-      }
-      function SetUpReadableByteStreamControllerFromUnderlyingSource(stream, underlyingByteSource, highWaterMark) {
-        const controller = Object.create(ReadableByteStreamController.prototype);
-        let startAlgorithm = () => void 0;
-        let pullAlgorithm = () => promiseResolvedWith(void 0);
-        let cancelAlgorithm = () => promiseResolvedWith(void 0);
-        if (underlyingByteSource.start !== void 0) {
-          startAlgorithm = () => underlyingByteSource.start(controller);
-        }
-        if (underlyingByteSource.pull !== void 0) {
-          pullAlgorithm = () => underlyingByteSource.pull(controller);
-        }
-        if (underlyingByteSource.cancel !== void 0) {
-          cancelAlgorithm = (reason) => underlyingByteSource.cancel(reason);
-        }
-        const autoAllocateChunkSize = underlyingByteSource.autoAllocateChunkSize;
-        if (autoAllocateChunkSize === 0) {
-          throw new TypeError("autoAllocateChunkSize must be greater than 0");
-        }
-        SetUpReadableByteStreamController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, autoAllocateChunkSize);
-      }
-      function SetUpReadableStreamBYOBRequest(request4, controller, view) {
-        request4._associatedReadableByteStreamController = controller;
-        request4._view = view;
-      }
-      function byobRequestBrandCheckException(name) {
-        return new TypeError(`ReadableStreamBYOBRequest.prototype.${name} can only be used on a ReadableStreamBYOBRequest`);
-      }
-      function byteStreamControllerBrandCheckException(name) {
-        return new TypeError(`ReadableByteStreamController.prototype.${name} can only be used on a ReadableByteStreamController`);
-      }
-      function AcquireReadableStreamBYOBReader(stream) {
-        return new ReadableStreamBYOBReader(stream);
-      }
-      function ReadableStreamAddReadIntoRequest(stream, readIntoRequest) {
-        stream._reader._readIntoRequests.push(readIntoRequest);
-      }
-      function ReadableStreamFulfillReadIntoRequest(stream, chunk, done) {
-        const reader = stream._reader;
-        const readIntoRequest = reader._readIntoRequests.shift();
-        if (done) {
-          readIntoRequest._closeSteps(chunk);
-        } else {
-          readIntoRequest._chunkSteps(chunk);
-        }
-      }
-      function ReadableStreamGetNumReadIntoRequests(stream) {
-        return stream._reader._readIntoRequests.length;
-      }
-      function ReadableStreamHasBYOBReader(stream) {
-        const reader = stream._reader;
-        if (reader === void 0) {
-          return false;
-        }
-        if (!IsReadableStreamBYOBReader(reader)) {
-          return false;
-        }
-        return true;
-      }
-      class ReadableStreamBYOBReader {
-        constructor(stream) {
-          assertRequiredArgument(stream, 1, "ReadableStreamBYOBReader");
-          assertReadableStream(stream, "First parameter");
-          if (IsReadableStreamLocked(stream)) {
-            throw new TypeError("This stream has already been locked for exclusive reading by another reader");
-          }
-          if (!IsReadableByteStreamController(stream._readableStreamController)) {
-            throw new TypeError("Cannot construct a ReadableStreamBYOBReader for a stream not constructed with a byte source");
-          }
-          ReadableStreamReaderGenericInitialize(this, stream);
-          this._readIntoRequests = new SimpleQueue();
-        }
-        get closed() {
-          if (!IsReadableStreamBYOBReader(this)) {
-            return promiseRejectedWith(byobReaderBrandCheckException("closed"));
-          }
-          return this._closedPromise;
-        }
-        cancel(reason = void 0) {
-          if (!IsReadableStreamBYOBReader(this)) {
-            return promiseRejectedWith(byobReaderBrandCheckException("cancel"));
-          }
-          if (this._ownerReadableStream === void 0) {
-            return promiseRejectedWith(readerLockException("cancel"));
-          }
-          return ReadableStreamReaderGenericCancel(this, reason);
-        }
-        read(view) {
-          if (!IsReadableStreamBYOBReader(this)) {
-            return promiseRejectedWith(byobReaderBrandCheckException("read"));
-          }
-          if (!ArrayBuffer.isView(view)) {
-            return promiseRejectedWith(new TypeError("view must be an array buffer view"));
-          }
-          if (view.byteLength === 0) {
-            return promiseRejectedWith(new TypeError("view must have non-zero byteLength"));
-          }
-          if (view.buffer.byteLength === 0) {
-            return promiseRejectedWith(new TypeError(`view's buffer must have non-zero byteLength`));
-          }
-          if (IsDetachedBuffer(view.buffer))
-            ;
-          if (this._ownerReadableStream === void 0) {
-            return promiseRejectedWith(readerLockException("read from"));
-          }
-          let resolvePromise;
-          let rejectPromise;
-          const promise = newPromise((resolve, reject) => {
-            resolvePromise = resolve;
-            rejectPromise = reject;
-          });
-          const readIntoRequest = {
-            _chunkSteps: (chunk) => resolvePromise({ value: chunk, done: false }),
-            _closeSteps: (chunk) => resolvePromise({ value: chunk, done: true }),
-            _errorSteps: (e2) => rejectPromise(e2)
-          };
-          ReadableStreamBYOBReaderRead(this, view, readIntoRequest);
-          return promise;
-        }
-        releaseLock() {
-          if (!IsReadableStreamBYOBReader(this)) {
-            throw byobReaderBrandCheckException("releaseLock");
-          }
-          if (this._ownerReadableStream === void 0) {
-            return;
-          }
-          if (this._readIntoRequests.length > 0) {
-            throw new TypeError("Tried to release a reader lock when that reader has pending read() calls un-settled");
-          }
-          ReadableStreamReaderGenericRelease(this);
-        }
-      }
-      Object.defineProperties(ReadableStreamBYOBReader.prototype, {
-        cancel: { enumerable: true },
-        read: { enumerable: true },
-        releaseLock: { enumerable: true },
-        closed: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(ReadableStreamBYOBReader.prototype, SymbolPolyfill.toStringTag, {
-          value: "ReadableStreamBYOBReader",
-          configurable: true
-        });
-      }
-      function IsReadableStreamBYOBReader(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_readIntoRequests")) {
-          return false;
-        }
-        return x2 instanceof ReadableStreamBYOBReader;
-      }
-      function ReadableStreamBYOBReaderRead(reader, view, readIntoRequest) {
-        const stream = reader._ownerReadableStream;
-        stream._disturbed = true;
-        if (stream._state === "errored") {
-          readIntoRequest._errorSteps(stream._storedError);
-        } else {
-          ReadableByteStreamControllerPullInto(stream._readableStreamController, view, readIntoRequest);
-        }
-      }
-      function byobReaderBrandCheckException(name) {
-        return new TypeError(`ReadableStreamBYOBReader.prototype.${name} can only be used on a ReadableStreamBYOBReader`);
-      }
-      function ExtractHighWaterMark(strategy, defaultHWM) {
-        const { highWaterMark } = strategy;
-        if (highWaterMark === void 0) {
-          return defaultHWM;
-        }
-        if (NumberIsNaN(highWaterMark) || highWaterMark < 0) {
-          throw new RangeError("Invalid highWaterMark");
-        }
-        return highWaterMark;
-      }
-      function ExtractSizeAlgorithm(strategy) {
-        const { size } = strategy;
-        if (!size) {
-          return () => 1;
-        }
-        return size;
-      }
-      function convertQueuingStrategy(init, context) {
-        assertDictionary(init, context);
-        const highWaterMark = init === null || init === void 0 ? void 0 : init.highWaterMark;
-        const size = init === null || init === void 0 ? void 0 : init.size;
-        return {
-          highWaterMark: highWaterMark === void 0 ? void 0 : convertUnrestrictedDouble(highWaterMark),
-          size: size === void 0 ? void 0 : convertQueuingStrategySize(size, `${context} has member 'size' that`)
-        };
-      }
-      function convertQueuingStrategySize(fn, context) {
-        assertFunction(fn, context);
-        return (chunk) => convertUnrestrictedDouble(fn(chunk));
-      }
-      function convertUnderlyingSink(original, context) {
-        assertDictionary(original, context);
-        const abort = original === null || original === void 0 ? void 0 : original.abort;
-        const close = original === null || original === void 0 ? void 0 : original.close;
-        const start = original === null || original === void 0 ? void 0 : original.start;
-        const type = original === null || original === void 0 ? void 0 : original.type;
-        const write = original === null || original === void 0 ? void 0 : original.write;
-        return {
-          abort: abort === void 0 ? void 0 : convertUnderlyingSinkAbortCallback(abort, original, `${context} has member 'abort' that`),
-          close: close === void 0 ? void 0 : convertUnderlyingSinkCloseCallback(close, original, `${context} has member 'close' that`),
-          start: start === void 0 ? void 0 : convertUnderlyingSinkStartCallback(start, original, `${context} has member 'start' that`),
-          write: write === void 0 ? void 0 : convertUnderlyingSinkWriteCallback(write, original, `${context} has member 'write' that`),
-          type
-        };
-      }
-      function convertUnderlyingSinkAbortCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (reason) => promiseCall(fn, original, [reason]);
-      }
-      function convertUnderlyingSinkCloseCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return () => promiseCall(fn, original, []);
-      }
-      function convertUnderlyingSinkStartCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (controller) => reflectCall(fn, original, [controller]);
-      }
-      function convertUnderlyingSinkWriteCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (chunk, controller) => promiseCall(fn, original, [chunk, controller]);
-      }
-      function assertWritableStream(x2, context) {
-        if (!IsWritableStream(x2)) {
-          throw new TypeError(`${context} is not a WritableStream.`);
-        }
-      }
-      function isAbortSignal2(value) {
-        if (typeof value !== "object" || value === null) {
-          return false;
-        }
-        try {
-          return typeof value.aborted === "boolean";
-        } catch (_a4) {
-          return false;
-        }
-      }
-      const supportsAbortController = typeof AbortController === "function";
-      function createAbortController() {
-        if (supportsAbortController) {
-          return new AbortController();
-        }
-        return void 0;
-      }
-      class WritableStream {
-        constructor(rawUnderlyingSink = {}, rawStrategy = {}) {
-          if (rawUnderlyingSink === void 0) {
-            rawUnderlyingSink = null;
-          } else {
-            assertObject(rawUnderlyingSink, "First parameter");
-          }
-          const strategy = convertQueuingStrategy(rawStrategy, "Second parameter");
-          const underlyingSink = convertUnderlyingSink(rawUnderlyingSink, "First parameter");
-          InitializeWritableStream(this);
-          const type = underlyingSink.type;
-          if (type !== void 0) {
-            throw new RangeError("Invalid type is specified");
-          }
-          const sizeAlgorithm = ExtractSizeAlgorithm(strategy);
-          const highWaterMark = ExtractHighWaterMark(strategy, 1);
-          SetUpWritableStreamDefaultControllerFromUnderlyingSink(this, underlyingSink, highWaterMark, sizeAlgorithm);
-        }
-        get locked() {
-          if (!IsWritableStream(this)) {
-            throw streamBrandCheckException$2("locked");
-          }
-          return IsWritableStreamLocked(this);
-        }
-        abort(reason = void 0) {
-          if (!IsWritableStream(this)) {
-            return promiseRejectedWith(streamBrandCheckException$2("abort"));
-          }
-          if (IsWritableStreamLocked(this)) {
-            return promiseRejectedWith(new TypeError("Cannot abort a stream that already has a writer"));
-          }
-          return WritableStreamAbort(this, reason);
-        }
-        close() {
-          if (!IsWritableStream(this)) {
-            return promiseRejectedWith(streamBrandCheckException$2("close"));
-          }
-          if (IsWritableStreamLocked(this)) {
-            return promiseRejectedWith(new TypeError("Cannot close a stream that already has a writer"));
-          }
-          if (WritableStreamCloseQueuedOrInFlight(this)) {
-            return promiseRejectedWith(new TypeError("Cannot close an already-closing stream"));
-          }
-          return WritableStreamClose(this);
-        }
-        getWriter() {
-          if (!IsWritableStream(this)) {
-            throw streamBrandCheckException$2("getWriter");
-          }
-          return AcquireWritableStreamDefaultWriter(this);
-        }
-      }
-      Object.defineProperties(WritableStream.prototype, {
-        abort: { enumerable: true },
-        close: { enumerable: true },
-        getWriter: { enumerable: true },
-        locked: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(WritableStream.prototype, SymbolPolyfill.toStringTag, {
-          value: "WritableStream",
-          configurable: true
-        });
-      }
-      function AcquireWritableStreamDefaultWriter(stream) {
-        return new WritableStreamDefaultWriter(stream);
-      }
-      function CreateWritableStream(startAlgorithm, writeAlgorithm, closeAlgorithm, abortAlgorithm, highWaterMark = 1, sizeAlgorithm = () => 1) {
-        const stream = Object.create(WritableStream.prototype);
-        InitializeWritableStream(stream);
-        const controller = Object.create(WritableStreamDefaultController.prototype);
-        SetUpWritableStreamDefaultController(stream, controller, startAlgorithm, writeAlgorithm, closeAlgorithm, abortAlgorithm, highWaterMark, sizeAlgorithm);
-        return stream;
-      }
-      function InitializeWritableStream(stream) {
-        stream._state = "writable";
-        stream._storedError = void 0;
-        stream._writer = void 0;
-        stream._writableStreamController = void 0;
-        stream._writeRequests = new SimpleQueue();
-        stream._inFlightWriteRequest = void 0;
-        stream._closeRequest = void 0;
-        stream._inFlightCloseRequest = void 0;
-        stream._pendingAbortRequest = void 0;
-        stream._backpressure = false;
-      }
-      function IsWritableStream(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_writableStreamController")) {
-          return false;
-        }
-        return x2 instanceof WritableStream;
-      }
-      function IsWritableStreamLocked(stream) {
-        if (stream._writer === void 0) {
-          return false;
-        }
-        return true;
-      }
-      function WritableStreamAbort(stream, reason) {
-        var _a4;
-        if (stream._state === "closed" || stream._state === "errored") {
-          return promiseResolvedWith(void 0);
-        }
-        stream._writableStreamController._abortReason = reason;
-        (_a4 = stream._writableStreamController._abortController) === null || _a4 === void 0 ? void 0 : _a4.abort();
-        const state = stream._state;
-        if (state === "closed" || state === "errored") {
-          return promiseResolvedWith(void 0);
-        }
-        if (stream._pendingAbortRequest !== void 0) {
-          return stream._pendingAbortRequest._promise;
-        }
-        let wasAlreadyErroring = false;
-        if (state === "erroring") {
-          wasAlreadyErroring = true;
-          reason = void 0;
-        }
-        const promise = newPromise((resolve, reject) => {
-          stream._pendingAbortRequest = {
-            _promise: void 0,
-            _resolve: resolve,
-            _reject: reject,
-            _reason: reason,
-            _wasAlreadyErroring: wasAlreadyErroring
-          };
-        });
-        stream._pendingAbortRequest._promise = promise;
-        if (!wasAlreadyErroring) {
-          WritableStreamStartErroring(stream, reason);
-        }
-        return promise;
-      }
-      function WritableStreamClose(stream) {
-        const state = stream._state;
-        if (state === "closed" || state === "errored") {
-          return promiseRejectedWith(new TypeError(`The stream (in ${state} state) is not in the writable state and cannot be closed`));
-        }
-        const promise = newPromise((resolve, reject) => {
-          const closeRequest = {
-            _resolve: resolve,
-            _reject: reject
-          };
-          stream._closeRequest = closeRequest;
-        });
-        const writer = stream._writer;
-        if (writer !== void 0 && stream._backpressure && state === "writable") {
-          defaultWriterReadyPromiseResolve(writer);
-        }
-        WritableStreamDefaultControllerClose(stream._writableStreamController);
-        return promise;
-      }
-      function WritableStreamAddWriteRequest(stream) {
-        const promise = newPromise((resolve, reject) => {
-          const writeRequest = {
-            _resolve: resolve,
-            _reject: reject
-          };
-          stream._writeRequests.push(writeRequest);
-        });
-        return promise;
-      }
-      function WritableStreamDealWithRejection(stream, error) {
-        const state = stream._state;
-        if (state === "writable") {
-          WritableStreamStartErroring(stream, error);
-          return;
-        }
-        WritableStreamFinishErroring(stream);
-      }
-      function WritableStreamStartErroring(stream, reason) {
-        const controller = stream._writableStreamController;
-        stream._state = "erroring";
-        stream._storedError = reason;
-        const writer = stream._writer;
-        if (writer !== void 0) {
-          WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, reason);
-        }
-        if (!WritableStreamHasOperationMarkedInFlight(stream) && controller._started) {
-          WritableStreamFinishErroring(stream);
-        }
-      }
-      function WritableStreamFinishErroring(stream) {
-        stream._state = "errored";
-        stream._writableStreamController[ErrorSteps]();
-        const storedError = stream._storedError;
-        stream._writeRequests.forEach((writeRequest) => {
-          writeRequest._reject(storedError);
-        });
-        stream._writeRequests = new SimpleQueue();
-        if (stream._pendingAbortRequest === void 0) {
-          WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream);
-          return;
-        }
-        const abortRequest = stream._pendingAbortRequest;
-        stream._pendingAbortRequest = void 0;
-        if (abortRequest._wasAlreadyErroring) {
-          abortRequest._reject(storedError);
-          WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream);
-          return;
-        }
-        const promise = stream._writableStreamController[AbortSteps](abortRequest._reason);
-        uponPromise(promise, () => {
-          abortRequest._resolve();
-          WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream);
-        }, (reason) => {
-          abortRequest._reject(reason);
-          WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream);
-        });
-      }
-      function WritableStreamFinishInFlightWrite(stream) {
-        stream._inFlightWriteRequest._resolve(void 0);
-        stream._inFlightWriteRequest = void 0;
-      }
-      function WritableStreamFinishInFlightWriteWithError(stream, error) {
-        stream._inFlightWriteRequest._reject(error);
-        stream._inFlightWriteRequest = void 0;
-        WritableStreamDealWithRejection(stream, error);
-      }
-      function WritableStreamFinishInFlightClose(stream) {
-        stream._inFlightCloseRequest._resolve(void 0);
-        stream._inFlightCloseRequest = void 0;
-        const state = stream._state;
-        if (state === "erroring") {
-          stream._storedError = void 0;
-          if (stream._pendingAbortRequest !== void 0) {
-            stream._pendingAbortRequest._resolve();
-            stream._pendingAbortRequest = void 0;
-          }
-        }
-        stream._state = "closed";
-        const writer = stream._writer;
-        if (writer !== void 0) {
-          defaultWriterClosedPromiseResolve(writer);
-        }
-      }
-      function WritableStreamFinishInFlightCloseWithError(stream, error) {
-        stream._inFlightCloseRequest._reject(error);
-        stream._inFlightCloseRequest = void 0;
-        if (stream._pendingAbortRequest !== void 0) {
-          stream._pendingAbortRequest._reject(error);
-          stream._pendingAbortRequest = void 0;
-        }
-        WritableStreamDealWithRejection(stream, error);
-      }
-      function WritableStreamCloseQueuedOrInFlight(stream) {
-        if (stream._closeRequest === void 0 && stream._inFlightCloseRequest === void 0) {
-          return false;
-        }
-        return true;
-      }
-      function WritableStreamHasOperationMarkedInFlight(stream) {
-        if (stream._inFlightWriteRequest === void 0 && stream._inFlightCloseRequest === void 0) {
-          return false;
-        }
-        return true;
-      }
-      function WritableStreamMarkCloseRequestInFlight(stream) {
-        stream._inFlightCloseRequest = stream._closeRequest;
-        stream._closeRequest = void 0;
-      }
-      function WritableStreamMarkFirstWriteRequestInFlight(stream) {
-        stream._inFlightWriteRequest = stream._writeRequests.shift();
-      }
-      function WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream) {
-        if (stream._closeRequest !== void 0) {
-          stream._closeRequest._reject(stream._storedError);
-          stream._closeRequest = void 0;
-        }
-        const writer = stream._writer;
-        if (writer !== void 0) {
-          defaultWriterClosedPromiseReject(writer, stream._storedError);
-        }
-      }
-      function WritableStreamUpdateBackpressure(stream, backpressure) {
-        const writer = stream._writer;
-        if (writer !== void 0 && backpressure !== stream._backpressure) {
-          if (backpressure) {
-            defaultWriterReadyPromiseReset(writer);
-          } else {
-            defaultWriterReadyPromiseResolve(writer);
-          }
-        }
-        stream._backpressure = backpressure;
-      }
-      class WritableStreamDefaultWriter {
-        constructor(stream) {
-          assertRequiredArgument(stream, 1, "WritableStreamDefaultWriter");
-          assertWritableStream(stream, "First parameter");
-          if (IsWritableStreamLocked(stream)) {
-            throw new TypeError("This stream has already been locked for exclusive writing by another writer");
-          }
-          this._ownerWritableStream = stream;
-          stream._writer = this;
-          const state = stream._state;
-          if (state === "writable") {
-            if (!WritableStreamCloseQueuedOrInFlight(stream) && stream._backpressure) {
-              defaultWriterReadyPromiseInitialize(this);
-            } else {
-              defaultWriterReadyPromiseInitializeAsResolved(this);
-            }
-            defaultWriterClosedPromiseInitialize(this);
-          } else if (state === "erroring") {
-            defaultWriterReadyPromiseInitializeAsRejected(this, stream._storedError);
-            defaultWriterClosedPromiseInitialize(this);
-          } else if (state === "closed") {
-            defaultWriterReadyPromiseInitializeAsResolved(this);
-            defaultWriterClosedPromiseInitializeAsResolved(this);
-          } else {
-            const storedError = stream._storedError;
-            defaultWriterReadyPromiseInitializeAsRejected(this, storedError);
-            defaultWriterClosedPromiseInitializeAsRejected(this, storedError);
-          }
-        }
-        get closed() {
-          if (!IsWritableStreamDefaultWriter(this)) {
-            return promiseRejectedWith(defaultWriterBrandCheckException("closed"));
-          }
-          return this._closedPromise;
-        }
-        get desiredSize() {
-          if (!IsWritableStreamDefaultWriter(this)) {
-            throw defaultWriterBrandCheckException("desiredSize");
-          }
-          if (this._ownerWritableStream === void 0) {
-            throw defaultWriterLockException("desiredSize");
-          }
-          return WritableStreamDefaultWriterGetDesiredSize(this);
-        }
-        get ready() {
-          if (!IsWritableStreamDefaultWriter(this)) {
-            return promiseRejectedWith(defaultWriterBrandCheckException("ready"));
-          }
-          return this._readyPromise;
-        }
-        abort(reason = void 0) {
-          if (!IsWritableStreamDefaultWriter(this)) {
-            return promiseRejectedWith(defaultWriterBrandCheckException("abort"));
-          }
-          if (this._ownerWritableStream === void 0) {
-            return promiseRejectedWith(defaultWriterLockException("abort"));
-          }
-          return WritableStreamDefaultWriterAbort(this, reason);
-        }
-        close() {
-          if (!IsWritableStreamDefaultWriter(this)) {
-            return promiseRejectedWith(defaultWriterBrandCheckException("close"));
-          }
-          const stream = this._ownerWritableStream;
-          if (stream === void 0) {
-            return promiseRejectedWith(defaultWriterLockException("close"));
-          }
-          if (WritableStreamCloseQueuedOrInFlight(stream)) {
-            return promiseRejectedWith(new TypeError("Cannot close an already-closing stream"));
-          }
-          return WritableStreamDefaultWriterClose(this);
-        }
-        releaseLock() {
-          if (!IsWritableStreamDefaultWriter(this)) {
-            throw defaultWriterBrandCheckException("releaseLock");
-          }
-          const stream = this._ownerWritableStream;
-          if (stream === void 0) {
-            return;
-          }
-          WritableStreamDefaultWriterRelease(this);
-        }
-        write(chunk = void 0) {
-          if (!IsWritableStreamDefaultWriter(this)) {
-            return promiseRejectedWith(defaultWriterBrandCheckException("write"));
-          }
-          if (this._ownerWritableStream === void 0) {
-            return promiseRejectedWith(defaultWriterLockException("write to"));
-          }
-          return WritableStreamDefaultWriterWrite(this, chunk);
-        }
-      }
-      Object.defineProperties(WritableStreamDefaultWriter.prototype, {
-        abort: { enumerable: true },
-        close: { enumerable: true },
-        releaseLock: { enumerable: true },
-        write: { enumerable: true },
-        closed: { enumerable: true },
-        desiredSize: { enumerable: true },
-        ready: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(WritableStreamDefaultWriter.prototype, SymbolPolyfill.toStringTag, {
-          value: "WritableStreamDefaultWriter",
-          configurable: true
-        });
-      }
-      function IsWritableStreamDefaultWriter(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_ownerWritableStream")) {
-          return false;
-        }
-        return x2 instanceof WritableStreamDefaultWriter;
-      }
-      function WritableStreamDefaultWriterAbort(writer, reason) {
-        const stream = writer._ownerWritableStream;
-        return WritableStreamAbort(stream, reason);
-      }
-      function WritableStreamDefaultWriterClose(writer) {
-        const stream = writer._ownerWritableStream;
-        return WritableStreamClose(stream);
-      }
-      function WritableStreamDefaultWriterCloseWithErrorPropagation(writer) {
-        const stream = writer._ownerWritableStream;
-        const state = stream._state;
-        if (WritableStreamCloseQueuedOrInFlight(stream) || state === "closed") {
-          return promiseResolvedWith(void 0);
-        }
-        if (state === "errored") {
-          return promiseRejectedWith(stream._storedError);
-        }
-        return WritableStreamDefaultWriterClose(writer);
-      }
-      function WritableStreamDefaultWriterEnsureClosedPromiseRejected(writer, error) {
-        if (writer._closedPromiseState === "pending") {
-          defaultWriterClosedPromiseReject(writer, error);
-        } else {
-          defaultWriterClosedPromiseResetToRejected(writer, error);
-        }
-      }
-      function WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, error) {
-        if (writer._readyPromiseState === "pending") {
-          defaultWriterReadyPromiseReject(writer, error);
-        } else {
-          defaultWriterReadyPromiseResetToRejected(writer, error);
-        }
-      }
-      function WritableStreamDefaultWriterGetDesiredSize(writer) {
-        const stream = writer._ownerWritableStream;
-        const state = stream._state;
-        if (state === "errored" || state === "erroring") {
-          return null;
-        }
-        if (state === "closed") {
-          return 0;
-        }
-        return WritableStreamDefaultControllerGetDesiredSize(stream._writableStreamController);
-      }
-      function WritableStreamDefaultWriterRelease(writer) {
-        const stream = writer._ownerWritableStream;
-        const releasedError = new TypeError(`Writer was released and can no longer be used to monitor the stream's closedness`);
-        WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, releasedError);
-        WritableStreamDefaultWriterEnsureClosedPromiseRejected(writer, releasedError);
-        stream._writer = void 0;
-        writer._ownerWritableStream = void 0;
-      }
-      function WritableStreamDefaultWriterWrite(writer, chunk) {
-        const stream = writer._ownerWritableStream;
-        const controller = stream._writableStreamController;
-        const chunkSize = WritableStreamDefaultControllerGetChunkSize(controller, chunk);
-        if (stream !== writer._ownerWritableStream) {
-          return promiseRejectedWith(defaultWriterLockException("write to"));
-        }
-        const state = stream._state;
-        if (state === "errored") {
-          return promiseRejectedWith(stream._storedError);
-        }
-        if (WritableStreamCloseQueuedOrInFlight(stream) || state === "closed") {
-          return promiseRejectedWith(new TypeError("The stream is closing or closed and cannot be written to"));
-        }
-        if (state === "erroring") {
-          return promiseRejectedWith(stream._storedError);
-        }
-        const promise = WritableStreamAddWriteRequest(stream);
-        WritableStreamDefaultControllerWrite(controller, chunk, chunkSize);
-        return promise;
-      }
-      const closeSentinel = {};
-      class WritableStreamDefaultController {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get abortReason() {
-          if (!IsWritableStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException$2("abortReason");
-          }
-          return this._abortReason;
-        }
-        get signal() {
-          if (!IsWritableStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException$2("signal");
-          }
-          if (this._abortController === void 0) {
-            throw new TypeError("WritableStreamDefaultController.prototype.signal is not supported");
-          }
-          return this._abortController.signal;
-        }
-        error(e2 = void 0) {
-          if (!IsWritableStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException$2("error");
-          }
-          const state = this._controlledWritableStream._state;
-          if (state !== "writable") {
-            return;
-          }
-          WritableStreamDefaultControllerError(this, e2);
-        }
-        [AbortSteps](reason) {
-          const result = this._abortAlgorithm(reason);
-          WritableStreamDefaultControllerClearAlgorithms(this);
-          return result;
-        }
-        [ErrorSteps]() {
-          ResetQueue(this);
-        }
-      }
-      Object.defineProperties(WritableStreamDefaultController.prototype, {
-        abortReason: { enumerable: true },
-        signal: { enumerable: true },
-        error: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(WritableStreamDefaultController.prototype, SymbolPolyfill.toStringTag, {
-          value: "WritableStreamDefaultController",
-          configurable: true
-        });
-      }
-      function IsWritableStreamDefaultController(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_controlledWritableStream")) {
-          return false;
-        }
-        return x2 instanceof WritableStreamDefaultController;
-      }
-      function SetUpWritableStreamDefaultController(stream, controller, startAlgorithm, writeAlgorithm, closeAlgorithm, abortAlgorithm, highWaterMark, sizeAlgorithm) {
-        controller._controlledWritableStream = stream;
-        stream._writableStreamController = controller;
-        controller._queue = void 0;
-        controller._queueTotalSize = void 0;
-        ResetQueue(controller);
-        controller._abortReason = void 0;
-        controller._abortController = createAbortController();
-        controller._started = false;
-        controller._strategySizeAlgorithm = sizeAlgorithm;
-        controller._strategyHWM = highWaterMark;
-        controller._writeAlgorithm = writeAlgorithm;
-        controller._closeAlgorithm = closeAlgorithm;
-        controller._abortAlgorithm = abortAlgorithm;
-        const backpressure = WritableStreamDefaultControllerGetBackpressure(controller);
-        WritableStreamUpdateBackpressure(stream, backpressure);
-        const startResult = startAlgorithm();
-        const startPromise = promiseResolvedWith(startResult);
-        uponPromise(startPromise, () => {
-          controller._started = true;
-          WritableStreamDefaultControllerAdvanceQueueIfNeeded(controller);
-        }, (r2) => {
-          controller._started = true;
-          WritableStreamDealWithRejection(stream, r2);
-        });
-      }
-      function SetUpWritableStreamDefaultControllerFromUnderlyingSink(stream, underlyingSink, highWaterMark, sizeAlgorithm) {
-        const controller = Object.create(WritableStreamDefaultController.prototype);
-        let startAlgorithm = () => void 0;
-        let writeAlgorithm = () => promiseResolvedWith(void 0);
-        let closeAlgorithm = () => promiseResolvedWith(void 0);
-        let abortAlgorithm = () => promiseResolvedWith(void 0);
-        if (underlyingSink.start !== void 0) {
-          startAlgorithm = () => underlyingSink.start(controller);
-        }
-        if (underlyingSink.write !== void 0) {
-          writeAlgorithm = (chunk) => underlyingSink.write(chunk, controller);
-        }
-        if (underlyingSink.close !== void 0) {
-          closeAlgorithm = () => underlyingSink.close();
-        }
-        if (underlyingSink.abort !== void 0) {
-          abortAlgorithm = (reason) => underlyingSink.abort(reason);
-        }
-        SetUpWritableStreamDefaultController(stream, controller, startAlgorithm, writeAlgorithm, closeAlgorithm, abortAlgorithm, highWaterMark, sizeAlgorithm);
-      }
-      function WritableStreamDefaultControllerClearAlgorithms(controller) {
-        controller._writeAlgorithm = void 0;
-        controller._closeAlgorithm = void 0;
-        controller._abortAlgorithm = void 0;
-        controller._strategySizeAlgorithm = void 0;
-      }
-      function WritableStreamDefaultControllerClose(controller) {
-        EnqueueValueWithSize(controller, closeSentinel, 0);
-        WritableStreamDefaultControllerAdvanceQueueIfNeeded(controller);
-      }
-      function WritableStreamDefaultControllerGetChunkSize(controller, chunk) {
-        try {
-          return controller._strategySizeAlgorithm(chunk);
-        } catch (chunkSizeE) {
-          WritableStreamDefaultControllerErrorIfNeeded(controller, chunkSizeE);
-          return 1;
-        }
-      }
-      function WritableStreamDefaultControllerGetDesiredSize(controller) {
-        return controller._strategyHWM - controller._queueTotalSize;
-      }
-      function WritableStreamDefaultControllerWrite(controller, chunk, chunkSize) {
-        try {
-          EnqueueValueWithSize(controller, chunk, chunkSize);
-        } catch (enqueueE) {
-          WritableStreamDefaultControllerErrorIfNeeded(controller, enqueueE);
-          return;
-        }
-        const stream = controller._controlledWritableStream;
-        if (!WritableStreamCloseQueuedOrInFlight(stream) && stream._state === "writable") {
-          const backpressure = WritableStreamDefaultControllerGetBackpressure(controller);
-          WritableStreamUpdateBackpressure(stream, backpressure);
-        }
-        WritableStreamDefaultControllerAdvanceQueueIfNeeded(controller);
-      }
-      function WritableStreamDefaultControllerAdvanceQueueIfNeeded(controller) {
-        const stream = controller._controlledWritableStream;
-        if (!controller._started) {
-          return;
-        }
-        if (stream._inFlightWriteRequest !== void 0) {
-          return;
-        }
-        const state = stream._state;
-        if (state === "erroring") {
-          WritableStreamFinishErroring(stream);
-          return;
-        }
-        if (controller._queue.length === 0) {
-          return;
-        }
-        const value = PeekQueueValue(controller);
-        if (value === closeSentinel) {
-          WritableStreamDefaultControllerProcessClose(controller);
-        } else {
-          WritableStreamDefaultControllerProcessWrite(controller, value);
-        }
-      }
-      function WritableStreamDefaultControllerErrorIfNeeded(controller, error) {
-        if (controller._controlledWritableStream._state === "writable") {
-          WritableStreamDefaultControllerError(controller, error);
-        }
-      }
-      function WritableStreamDefaultControllerProcessClose(controller) {
-        const stream = controller._controlledWritableStream;
-        WritableStreamMarkCloseRequestInFlight(stream);
-        DequeueValue(controller);
-        const sinkClosePromise = controller._closeAlgorithm();
-        WritableStreamDefaultControllerClearAlgorithms(controller);
-        uponPromise(sinkClosePromise, () => {
-          WritableStreamFinishInFlightClose(stream);
-        }, (reason) => {
-          WritableStreamFinishInFlightCloseWithError(stream, reason);
-        });
-      }
-      function WritableStreamDefaultControllerProcessWrite(controller, chunk) {
-        const stream = controller._controlledWritableStream;
-        WritableStreamMarkFirstWriteRequestInFlight(stream);
-        const sinkWritePromise = controller._writeAlgorithm(chunk);
-        uponPromise(sinkWritePromise, () => {
-          WritableStreamFinishInFlightWrite(stream);
-          const state = stream._state;
-          DequeueValue(controller);
-          if (!WritableStreamCloseQueuedOrInFlight(stream) && state === "writable") {
-            const backpressure = WritableStreamDefaultControllerGetBackpressure(controller);
-            WritableStreamUpdateBackpressure(stream, backpressure);
-          }
-          WritableStreamDefaultControllerAdvanceQueueIfNeeded(controller);
-        }, (reason) => {
-          if (stream._state === "writable") {
-            WritableStreamDefaultControllerClearAlgorithms(controller);
-          }
-          WritableStreamFinishInFlightWriteWithError(stream, reason);
-        });
-      }
-      function WritableStreamDefaultControllerGetBackpressure(controller) {
-        const desiredSize = WritableStreamDefaultControllerGetDesiredSize(controller);
-        return desiredSize <= 0;
-      }
-      function WritableStreamDefaultControllerError(controller, error) {
-        const stream = controller._controlledWritableStream;
-        WritableStreamDefaultControllerClearAlgorithms(controller);
-        WritableStreamStartErroring(stream, error);
-      }
-      function streamBrandCheckException$2(name) {
-        return new TypeError(`WritableStream.prototype.${name} can only be used on a WritableStream`);
-      }
-      function defaultControllerBrandCheckException$2(name) {
-        return new TypeError(`WritableStreamDefaultController.prototype.${name} can only be used on a WritableStreamDefaultController`);
-      }
-      function defaultWriterBrandCheckException(name) {
-        return new TypeError(`WritableStreamDefaultWriter.prototype.${name} can only be used on a WritableStreamDefaultWriter`);
-      }
-      function defaultWriterLockException(name) {
-        return new TypeError("Cannot " + name + " a stream using a released writer");
-      }
-      function defaultWriterClosedPromiseInitialize(writer) {
-        writer._closedPromise = newPromise((resolve, reject) => {
-          writer._closedPromise_resolve = resolve;
-          writer._closedPromise_reject = reject;
-          writer._closedPromiseState = "pending";
-        });
-      }
-      function defaultWriterClosedPromiseInitializeAsRejected(writer, reason) {
-        defaultWriterClosedPromiseInitialize(writer);
-        defaultWriterClosedPromiseReject(writer, reason);
-      }
-      function defaultWriterClosedPromiseInitializeAsResolved(writer) {
-        defaultWriterClosedPromiseInitialize(writer);
-        defaultWriterClosedPromiseResolve(writer);
-      }
-      function defaultWriterClosedPromiseReject(writer, reason) {
-        if (writer._closedPromise_reject === void 0) {
-          return;
-        }
-        setPromiseIsHandledToTrue(writer._closedPromise);
-        writer._closedPromise_reject(reason);
-        writer._closedPromise_resolve = void 0;
-        writer._closedPromise_reject = void 0;
-        writer._closedPromiseState = "rejected";
-      }
-      function defaultWriterClosedPromiseResetToRejected(writer, reason) {
-        defaultWriterClosedPromiseInitializeAsRejected(writer, reason);
-      }
-      function defaultWriterClosedPromiseResolve(writer) {
-        if (writer._closedPromise_resolve === void 0) {
-          return;
-        }
-        writer._closedPromise_resolve(void 0);
-        writer._closedPromise_resolve = void 0;
-        writer._closedPromise_reject = void 0;
-        writer._closedPromiseState = "resolved";
-      }
-      function defaultWriterReadyPromiseInitialize(writer) {
-        writer._readyPromise = newPromise((resolve, reject) => {
-          writer._readyPromise_resolve = resolve;
-          writer._readyPromise_reject = reject;
-        });
-        writer._readyPromiseState = "pending";
-      }
-      function defaultWriterReadyPromiseInitializeAsRejected(writer, reason) {
-        defaultWriterReadyPromiseInitialize(writer);
-        defaultWriterReadyPromiseReject(writer, reason);
-      }
-      function defaultWriterReadyPromiseInitializeAsResolved(writer) {
-        defaultWriterReadyPromiseInitialize(writer);
-        defaultWriterReadyPromiseResolve(writer);
-      }
-      function defaultWriterReadyPromiseReject(writer, reason) {
-        if (writer._readyPromise_reject === void 0) {
-          return;
-        }
-        setPromiseIsHandledToTrue(writer._readyPromise);
-        writer._readyPromise_reject(reason);
-        writer._readyPromise_resolve = void 0;
-        writer._readyPromise_reject = void 0;
-        writer._readyPromiseState = "rejected";
-      }
-      function defaultWriterReadyPromiseReset(writer) {
-        defaultWriterReadyPromiseInitialize(writer);
-      }
-      function defaultWriterReadyPromiseResetToRejected(writer, reason) {
-        defaultWriterReadyPromiseInitializeAsRejected(writer, reason);
-      }
-      function defaultWriterReadyPromiseResolve(writer) {
-        if (writer._readyPromise_resolve === void 0) {
-          return;
-        }
-        writer._readyPromise_resolve(void 0);
-        writer._readyPromise_resolve = void 0;
-        writer._readyPromise_reject = void 0;
-        writer._readyPromiseState = "fulfilled";
-      }
-      const NativeDOMException = typeof DOMException !== "undefined" ? DOMException : void 0;
-      function isDOMExceptionConstructor(ctor) {
-        if (!(typeof ctor === "function" || typeof ctor === "object")) {
-          return false;
-        }
-        try {
-          new ctor();
-          return true;
-        } catch (_a4) {
-          return false;
-        }
-      }
-      function createDOMExceptionPolyfill() {
-        const ctor = function DOMException3(message, name) {
-          this.message = message || "";
-          this.name = name || "Error";
-          if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, this.constructor);
-          }
-        };
-        ctor.prototype = Object.create(Error.prototype);
-        Object.defineProperty(ctor.prototype, "constructor", { value: ctor, writable: true, configurable: true });
-        return ctor;
-      }
-      const DOMException$1 = isDOMExceptionConstructor(NativeDOMException) ? NativeDOMException : createDOMExceptionPolyfill();
-      function ReadableStreamPipeTo(source, dest, preventClose, preventAbort, preventCancel, signal) {
-        const reader = AcquireReadableStreamDefaultReader(source);
-        const writer = AcquireWritableStreamDefaultWriter(dest);
-        source._disturbed = true;
-        let shuttingDown = false;
-        let currentWrite = promiseResolvedWith(void 0);
-        return newPromise((resolve, reject) => {
-          let abortAlgorithm;
-          if (signal !== void 0) {
-            abortAlgorithm = () => {
-              const error = new DOMException$1("Aborted", "AbortError");
-              const actions = [];
-              if (!preventAbort) {
-                actions.push(() => {
-                  if (dest._state === "writable") {
-                    return WritableStreamAbort(dest, error);
-                  }
-                  return promiseResolvedWith(void 0);
-                });
-              }
-              if (!preventCancel) {
-                actions.push(() => {
-                  if (source._state === "readable") {
-                    return ReadableStreamCancel(source, error);
-                  }
-                  return promiseResolvedWith(void 0);
-                });
-              }
-              shutdownWithAction(() => Promise.all(actions.map((action) => action())), true, error);
-            };
-            if (signal.aborted) {
-              abortAlgorithm();
-              return;
-            }
-            signal.addEventListener("abort", abortAlgorithm);
-          }
-          function pipeLoop() {
-            return newPromise((resolveLoop, rejectLoop) => {
-              function next(done) {
-                if (done) {
-                  resolveLoop();
-                } else {
-                  PerformPromiseThen(pipeStep(), next, rejectLoop);
-                }
-              }
-              next(false);
-            });
-          }
-          function pipeStep() {
-            if (shuttingDown) {
-              return promiseResolvedWith(true);
-            }
-            return PerformPromiseThen(writer._readyPromise, () => {
-              return newPromise((resolveRead, rejectRead) => {
-                ReadableStreamDefaultReaderRead(reader, {
-                  _chunkSteps: (chunk) => {
-                    currentWrite = PerformPromiseThen(WritableStreamDefaultWriterWrite(writer, chunk), void 0, noop2);
-                    resolveRead(false);
-                  },
-                  _closeSteps: () => resolveRead(true),
-                  _errorSteps: rejectRead
-                });
-              });
-            });
-          }
-          isOrBecomesErrored(source, reader._closedPromise, (storedError) => {
-            if (!preventAbort) {
-              shutdownWithAction(() => WritableStreamAbort(dest, storedError), true, storedError);
-            } else {
-              shutdown(true, storedError);
-            }
-          });
-          isOrBecomesErrored(dest, writer._closedPromise, (storedError) => {
-            if (!preventCancel) {
-              shutdownWithAction(() => ReadableStreamCancel(source, storedError), true, storedError);
-            } else {
-              shutdown(true, storedError);
-            }
-          });
-          isOrBecomesClosed(source, reader._closedPromise, () => {
-            if (!preventClose) {
-              shutdownWithAction(() => WritableStreamDefaultWriterCloseWithErrorPropagation(writer));
-            } else {
-              shutdown();
-            }
-          });
-          if (WritableStreamCloseQueuedOrInFlight(dest) || dest._state === "closed") {
-            const destClosed = new TypeError("the destination writable stream closed before all data could be piped to it");
-            if (!preventCancel) {
-              shutdownWithAction(() => ReadableStreamCancel(source, destClosed), true, destClosed);
-            } else {
-              shutdown(true, destClosed);
-            }
-          }
-          setPromiseIsHandledToTrue(pipeLoop());
-          function waitForWritesToFinish() {
-            const oldCurrentWrite = currentWrite;
-            return PerformPromiseThen(currentWrite, () => oldCurrentWrite !== currentWrite ? waitForWritesToFinish() : void 0);
-          }
-          function isOrBecomesErrored(stream, promise, action) {
-            if (stream._state === "errored") {
-              action(stream._storedError);
-            } else {
-              uponRejection(promise, action);
-            }
-          }
-          function isOrBecomesClosed(stream, promise, action) {
-            if (stream._state === "closed") {
-              action();
-            } else {
-              uponFulfillment(promise, action);
-            }
-          }
-          function shutdownWithAction(action, originalIsError, originalError) {
-            if (shuttingDown) {
-              return;
-            }
-            shuttingDown = true;
-            if (dest._state === "writable" && !WritableStreamCloseQueuedOrInFlight(dest)) {
-              uponFulfillment(waitForWritesToFinish(), doTheRest);
-            } else {
-              doTheRest();
-            }
-            function doTheRest() {
-              uponPromise(action(), () => finalize(originalIsError, originalError), (newError) => finalize(true, newError));
-            }
-          }
-          function shutdown(isError, error) {
-            if (shuttingDown) {
-              return;
-            }
-            shuttingDown = true;
-            if (dest._state === "writable" && !WritableStreamCloseQueuedOrInFlight(dest)) {
-              uponFulfillment(waitForWritesToFinish(), () => finalize(isError, error));
-            } else {
-              finalize(isError, error);
-            }
-          }
-          function finalize(isError, error) {
-            WritableStreamDefaultWriterRelease(writer);
-            ReadableStreamReaderGenericRelease(reader);
-            if (signal !== void 0) {
-              signal.removeEventListener("abort", abortAlgorithm);
-            }
-            if (isError) {
-              reject(error);
-            } else {
-              resolve(void 0);
-            }
-          }
-        });
-      }
-      class ReadableStreamDefaultController {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get desiredSize() {
-          if (!IsReadableStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException$1("desiredSize");
-          }
-          return ReadableStreamDefaultControllerGetDesiredSize(this);
-        }
-        close() {
-          if (!IsReadableStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException$1("close");
-          }
-          if (!ReadableStreamDefaultControllerCanCloseOrEnqueue(this)) {
-            throw new TypeError("The stream is not in a state that permits close");
-          }
-          ReadableStreamDefaultControllerClose(this);
-        }
-        enqueue(chunk = void 0) {
-          if (!IsReadableStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException$1("enqueue");
-          }
-          if (!ReadableStreamDefaultControllerCanCloseOrEnqueue(this)) {
-            throw new TypeError("The stream is not in a state that permits enqueue");
-          }
-          return ReadableStreamDefaultControllerEnqueue(this, chunk);
-        }
-        error(e2 = void 0) {
-          if (!IsReadableStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException$1("error");
-          }
-          ReadableStreamDefaultControllerError(this, e2);
-        }
-        [CancelSteps](reason) {
-          ResetQueue(this);
-          const result = this._cancelAlgorithm(reason);
-          ReadableStreamDefaultControllerClearAlgorithms(this);
-          return result;
-        }
-        [PullSteps](readRequest) {
-          const stream = this._controlledReadableStream;
-          if (this._queue.length > 0) {
-            const chunk = DequeueValue(this);
-            if (this._closeRequested && this._queue.length === 0) {
-              ReadableStreamDefaultControllerClearAlgorithms(this);
-              ReadableStreamClose(stream);
-            } else {
-              ReadableStreamDefaultControllerCallPullIfNeeded(this);
-            }
-            readRequest._chunkSteps(chunk);
-          } else {
-            ReadableStreamAddReadRequest(stream, readRequest);
-            ReadableStreamDefaultControllerCallPullIfNeeded(this);
-          }
-        }
-      }
-      Object.defineProperties(ReadableStreamDefaultController.prototype, {
-        close: { enumerable: true },
-        enqueue: { enumerable: true },
-        error: { enumerable: true },
-        desiredSize: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(ReadableStreamDefaultController.prototype, SymbolPolyfill.toStringTag, {
-          value: "ReadableStreamDefaultController",
-          configurable: true
-        });
-      }
-      function IsReadableStreamDefaultController(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_controlledReadableStream")) {
-          return false;
-        }
-        return x2 instanceof ReadableStreamDefaultController;
-      }
-      function ReadableStreamDefaultControllerCallPullIfNeeded(controller) {
-        const shouldPull = ReadableStreamDefaultControllerShouldCallPull(controller);
-        if (!shouldPull) {
-          return;
-        }
-        if (controller._pulling) {
-          controller._pullAgain = true;
-          return;
-        }
-        controller._pulling = true;
-        const pullPromise = controller._pullAlgorithm();
-        uponPromise(pullPromise, () => {
-          controller._pulling = false;
-          if (controller._pullAgain) {
-            controller._pullAgain = false;
-            ReadableStreamDefaultControllerCallPullIfNeeded(controller);
-          }
-        }, (e2) => {
-          ReadableStreamDefaultControllerError(controller, e2);
-        });
-      }
-      function ReadableStreamDefaultControllerShouldCallPull(controller) {
-        const stream = controller._controlledReadableStream;
-        if (!ReadableStreamDefaultControllerCanCloseOrEnqueue(controller)) {
-          return false;
-        }
-        if (!controller._started) {
-          return false;
-        }
-        if (IsReadableStreamLocked(stream) && ReadableStreamGetNumReadRequests(stream) > 0) {
-          return true;
-        }
-        const desiredSize = ReadableStreamDefaultControllerGetDesiredSize(controller);
-        if (desiredSize > 0) {
-          return true;
-        }
-        return false;
-      }
-      function ReadableStreamDefaultControllerClearAlgorithms(controller) {
-        controller._pullAlgorithm = void 0;
-        controller._cancelAlgorithm = void 0;
-        controller._strategySizeAlgorithm = void 0;
-      }
-      function ReadableStreamDefaultControllerClose(controller) {
-        if (!ReadableStreamDefaultControllerCanCloseOrEnqueue(controller)) {
-          return;
-        }
-        const stream = controller._controlledReadableStream;
-        controller._closeRequested = true;
-        if (controller._queue.length === 0) {
-          ReadableStreamDefaultControllerClearAlgorithms(controller);
-          ReadableStreamClose(stream);
-        }
-      }
-      function ReadableStreamDefaultControllerEnqueue(controller, chunk) {
-        if (!ReadableStreamDefaultControllerCanCloseOrEnqueue(controller)) {
-          return;
-        }
-        const stream = controller._controlledReadableStream;
-        if (IsReadableStreamLocked(stream) && ReadableStreamGetNumReadRequests(stream) > 0) {
-          ReadableStreamFulfillReadRequest(stream, chunk, false);
-        } else {
-          let chunkSize;
-          try {
-            chunkSize = controller._strategySizeAlgorithm(chunk);
-          } catch (chunkSizeE) {
-            ReadableStreamDefaultControllerError(controller, chunkSizeE);
-            throw chunkSizeE;
-          }
-          try {
-            EnqueueValueWithSize(controller, chunk, chunkSize);
-          } catch (enqueueE) {
-            ReadableStreamDefaultControllerError(controller, enqueueE);
-            throw enqueueE;
-          }
-        }
-        ReadableStreamDefaultControllerCallPullIfNeeded(controller);
-      }
-      function ReadableStreamDefaultControllerError(controller, e2) {
-        const stream = controller._controlledReadableStream;
-        if (stream._state !== "readable") {
-          return;
-        }
-        ResetQueue(controller);
-        ReadableStreamDefaultControllerClearAlgorithms(controller);
-        ReadableStreamError(stream, e2);
-      }
-      function ReadableStreamDefaultControllerGetDesiredSize(controller) {
-        const state = controller._controlledReadableStream._state;
-        if (state === "errored") {
-          return null;
-        }
-        if (state === "closed") {
-          return 0;
-        }
-        return controller._strategyHWM - controller._queueTotalSize;
-      }
-      function ReadableStreamDefaultControllerHasBackpressure(controller) {
-        if (ReadableStreamDefaultControllerShouldCallPull(controller)) {
-          return false;
-        }
-        return true;
-      }
-      function ReadableStreamDefaultControllerCanCloseOrEnqueue(controller) {
-        const state = controller._controlledReadableStream._state;
-        if (!controller._closeRequested && state === "readable") {
-          return true;
-        }
-        return false;
-      }
-      function SetUpReadableStreamDefaultController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, sizeAlgorithm) {
-        controller._controlledReadableStream = stream;
-        controller._queue = void 0;
-        controller._queueTotalSize = void 0;
-        ResetQueue(controller);
-        controller._started = false;
-        controller._closeRequested = false;
-        controller._pullAgain = false;
-        controller._pulling = false;
-        controller._strategySizeAlgorithm = sizeAlgorithm;
-        controller._strategyHWM = highWaterMark;
-        controller._pullAlgorithm = pullAlgorithm;
-        controller._cancelAlgorithm = cancelAlgorithm;
-        stream._readableStreamController = controller;
-        const startResult = startAlgorithm();
-        uponPromise(promiseResolvedWith(startResult), () => {
-          controller._started = true;
-          ReadableStreamDefaultControllerCallPullIfNeeded(controller);
-        }, (r2) => {
-          ReadableStreamDefaultControllerError(controller, r2);
-        });
-      }
-      function SetUpReadableStreamDefaultControllerFromUnderlyingSource(stream, underlyingSource, highWaterMark, sizeAlgorithm) {
-        const controller = Object.create(ReadableStreamDefaultController.prototype);
-        let startAlgorithm = () => void 0;
-        let pullAlgorithm = () => promiseResolvedWith(void 0);
-        let cancelAlgorithm = () => promiseResolvedWith(void 0);
-        if (underlyingSource.start !== void 0) {
-          startAlgorithm = () => underlyingSource.start(controller);
-        }
-        if (underlyingSource.pull !== void 0) {
-          pullAlgorithm = () => underlyingSource.pull(controller);
-        }
-        if (underlyingSource.cancel !== void 0) {
-          cancelAlgorithm = (reason) => underlyingSource.cancel(reason);
-        }
-        SetUpReadableStreamDefaultController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, sizeAlgorithm);
-      }
-      function defaultControllerBrandCheckException$1(name) {
-        return new TypeError(`ReadableStreamDefaultController.prototype.${name} can only be used on a ReadableStreamDefaultController`);
-      }
-      function ReadableStreamTee(stream, cloneForBranch2) {
-        if (IsReadableByteStreamController(stream._readableStreamController)) {
-          return ReadableByteStreamTee(stream);
-        }
-        return ReadableStreamDefaultTee(stream);
-      }
-      function ReadableStreamDefaultTee(stream, cloneForBranch2) {
-        const reader = AcquireReadableStreamDefaultReader(stream);
-        let reading = false;
-        let readAgain = false;
-        let canceled1 = false;
-        let canceled2 = false;
-        let reason1;
-        let reason2;
-        let branch1;
-        let branch2;
-        let resolveCancelPromise;
-        const cancelPromise = newPromise((resolve) => {
-          resolveCancelPromise = resolve;
-        });
-        function pullAlgorithm() {
-          if (reading) {
-            readAgain = true;
-            return promiseResolvedWith(void 0);
-          }
-          reading = true;
-          const readRequest = {
-            _chunkSteps: (chunk) => {
-              queueMicrotask(() => {
-                readAgain = false;
-                const chunk1 = chunk;
-                const chunk2 = chunk;
-                if (!canceled1) {
-                  ReadableStreamDefaultControllerEnqueue(branch1._readableStreamController, chunk1);
-                }
-                if (!canceled2) {
-                  ReadableStreamDefaultControllerEnqueue(branch2._readableStreamController, chunk2);
-                }
-                reading = false;
-                if (readAgain) {
-                  pullAlgorithm();
-                }
-              });
-            },
-            _closeSteps: () => {
-              reading = false;
-              if (!canceled1) {
-                ReadableStreamDefaultControllerClose(branch1._readableStreamController);
-              }
-              if (!canceled2) {
-                ReadableStreamDefaultControllerClose(branch2._readableStreamController);
-              }
-              if (!canceled1 || !canceled2) {
-                resolveCancelPromise(void 0);
-              }
-            },
-            _errorSteps: () => {
-              reading = false;
-            }
-          };
-          ReadableStreamDefaultReaderRead(reader, readRequest);
-          return promiseResolvedWith(void 0);
-        }
-        function cancel1Algorithm(reason) {
-          canceled1 = true;
-          reason1 = reason;
-          if (canceled2) {
-            const compositeReason = CreateArrayFromList([reason1, reason2]);
-            const cancelResult = ReadableStreamCancel(stream, compositeReason);
-            resolveCancelPromise(cancelResult);
-          }
-          return cancelPromise;
-        }
-        function cancel2Algorithm(reason) {
-          canceled2 = true;
-          reason2 = reason;
-          if (canceled1) {
-            const compositeReason = CreateArrayFromList([reason1, reason2]);
-            const cancelResult = ReadableStreamCancel(stream, compositeReason);
-            resolveCancelPromise(cancelResult);
-          }
-          return cancelPromise;
-        }
-        function startAlgorithm() {
-        }
-        branch1 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel1Algorithm);
-        branch2 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel2Algorithm);
-        uponRejection(reader._closedPromise, (r2) => {
-          ReadableStreamDefaultControllerError(branch1._readableStreamController, r2);
-          ReadableStreamDefaultControllerError(branch2._readableStreamController, r2);
-          if (!canceled1 || !canceled2) {
-            resolveCancelPromise(void 0);
-          }
-        });
-        return [branch1, branch2];
-      }
-      function ReadableByteStreamTee(stream) {
-        let reader = AcquireReadableStreamDefaultReader(stream);
-        let reading = false;
-        let readAgainForBranch1 = false;
-        let readAgainForBranch2 = false;
-        let canceled1 = false;
-        let canceled2 = false;
-        let reason1;
-        let reason2;
-        let branch1;
-        let branch2;
-        let resolveCancelPromise;
-        const cancelPromise = newPromise((resolve) => {
-          resolveCancelPromise = resolve;
-        });
-        function forwardReaderError(thisReader) {
-          uponRejection(thisReader._closedPromise, (r2) => {
-            if (thisReader !== reader) {
-              return;
-            }
-            ReadableByteStreamControllerError(branch1._readableStreamController, r2);
-            ReadableByteStreamControllerError(branch2._readableStreamController, r2);
-            if (!canceled1 || !canceled2) {
-              resolveCancelPromise(void 0);
-            }
-          });
-        }
-        function pullWithDefaultReader() {
-          if (IsReadableStreamBYOBReader(reader)) {
-            ReadableStreamReaderGenericRelease(reader);
-            reader = AcquireReadableStreamDefaultReader(stream);
-            forwardReaderError(reader);
-          }
-          const readRequest = {
-            _chunkSteps: (chunk) => {
-              queueMicrotask(() => {
-                readAgainForBranch1 = false;
-                readAgainForBranch2 = false;
-                const chunk1 = chunk;
-                let chunk2 = chunk;
-                if (!canceled1 && !canceled2) {
-                  try {
-                    chunk2 = CloneAsUint8Array(chunk);
-                  } catch (cloneE) {
-                    ReadableByteStreamControllerError(branch1._readableStreamController, cloneE);
-                    ReadableByteStreamControllerError(branch2._readableStreamController, cloneE);
-                    resolveCancelPromise(ReadableStreamCancel(stream, cloneE));
-                    return;
-                  }
-                }
-                if (!canceled1) {
-                  ReadableByteStreamControllerEnqueue(branch1._readableStreamController, chunk1);
-                }
-                if (!canceled2) {
-                  ReadableByteStreamControllerEnqueue(branch2._readableStreamController, chunk2);
-                }
-                reading = false;
-                if (readAgainForBranch1) {
-                  pull1Algorithm();
-                } else if (readAgainForBranch2) {
-                  pull2Algorithm();
-                }
-              });
-            },
-            _closeSteps: () => {
-              reading = false;
-              if (!canceled1) {
-                ReadableByteStreamControllerClose(branch1._readableStreamController);
-              }
-              if (!canceled2) {
-                ReadableByteStreamControllerClose(branch2._readableStreamController);
-              }
-              if (branch1._readableStreamController._pendingPullIntos.length > 0) {
-                ReadableByteStreamControllerRespond(branch1._readableStreamController, 0);
-              }
-              if (branch2._readableStreamController._pendingPullIntos.length > 0) {
-                ReadableByteStreamControllerRespond(branch2._readableStreamController, 0);
-              }
-              if (!canceled1 || !canceled2) {
-                resolveCancelPromise(void 0);
-              }
-            },
-            _errorSteps: () => {
-              reading = false;
-            }
-          };
-          ReadableStreamDefaultReaderRead(reader, readRequest);
-        }
-        function pullWithBYOBReader(view, forBranch2) {
-          if (IsReadableStreamDefaultReader(reader)) {
-            ReadableStreamReaderGenericRelease(reader);
-            reader = AcquireReadableStreamBYOBReader(stream);
-            forwardReaderError(reader);
-          }
-          const byobBranch = forBranch2 ? branch2 : branch1;
-          const otherBranch = forBranch2 ? branch1 : branch2;
-          const readIntoRequest = {
-            _chunkSteps: (chunk) => {
-              queueMicrotask(() => {
-                readAgainForBranch1 = false;
-                readAgainForBranch2 = false;
-                const byobCanceled = forBranch2 ? canceled2 : canceled1;
-                const otherCanceled = forBranch2 ? canceled1 : canceled2;
-                if (!otherCanceled) {
-                  let clonedChunk;
-                  try {
-                    clonedChunk = CloneAsUint8Array(chunk);
-                  } catch (cloneE) {
-                    ReadableByteStreamControllerError(byobBranch._readableStreamController, cloneE);
-                    ReadableByteStreamControllerError(otherBranch._readableStreamController, cloneE);
-                    resolveCancelPromise(ReadableStreamCancel(stream, cloneE));
-                    return;
-                  }
-                  if (!byobCanceled) {
-                    ReadableByteStreamControllerRespondWithNewView(byobBranch._readableStreamController, chunk);
-                  }
-                  ReadableByteStreamControllerEnqueue(otherBranch._readableStreamController, clonedChunk);
-                } else if (!byobCanceled) {
-                  ReadableByteStreamControllerRespondWithNewView(byobBranch._readableStreamController, chunk);
-                }
-                reading = false;
-                if (readAgainForBranch1) {
-                  pull1Algorithm();
-                } else if (readAgainForBranch2) {
-                  pull2Algorithm();
-                }
-              });
-            },
-            _closeSteps: (chunk) => {
-              reading = false;
-              const byobCanceled = forBranch2 ? canceled2 : canceled1;
-              const otherCanceled = forBranch2 ? canceled1 : canceled2;
-              if (!byobCanceled) {
-                ReadableByteStreamControllerClose(byobBranch._readableStreamController);
-              }
-              if (!otherCanceled) {
-                ReadableByteStreamControllerClose(otherBranch._readableStreamController);
-              }
-              if (chunk !== void 0) {
-                if (!byobCanceled) {
-                  ReadableByteStreamControllerRespondWithNewView(byobBranch._readableStreamController, chunk);
-                }
-                if (!otherCanceled && otherBranch._readableStreamController._pendingPullIntos.length > 0) {
-                  ReadableByteStreamControllerRespond(otherBranch._readableStreamController, 0);
-                }
-              }
-              if (!byobCanceled || !otherCanceled) {
-                resolveCancelPromise(void 0);
-              }
-            },
-            _errorSteps: () => {
-              reading = false;
-            }
-          };
-          ReadableStreamBYOBReaderRead(reader, view, readIntoRequest);
-        }
-        function pull1Algorithm() {
-          if (reading) {
-            readAgainForBranch1 = true;
-            return promiseResolvedWith(void 0);
-          }
-          reading = true;
-          const byobRequest = ReadableByteStreamControllerGetBYOBRequest(branch1._readableStreamController);
-          if (byobRequest === null) {
-            pullWithDefaultReader();
-          } else {
-            pullWithBYOBReader(byobRequest._view, false);
-          }
-          return promiseResolvedWith(void 0);
-        }
-        function pull2Algorithm() {
-          if (reading) {
-            readAgainForBranch2 = true;
-            return promiseResolvedWith(void 0);
-          }
-          reading = true;
-          const byobRequest = ReadableByteStreamControllerGetBYOBRequest(branch2._readableStreamController);
-          if (byobRequest === null) {
-            pullWithDefaultReader();
-          } else {
-            pullWithBYOBReader(byobRequest._view, true);
-          }
-          return promiseResolvedWith(void 0);
-        }
-        function cancel1Algorithm(reason) {
-          canceled1 = true;
-          reason1 = reason;
-          if (canceled2) {
-            const compositeReason = CreateArrayFromList([reason1, reason2]);
-            const cancelResult = ReadableStreamCancel(stream, compositeReason);
-            resolveCancelPromise(cancelResult);
-          }
-          return cancelPromise;
-        }
-        function cancel2Algorithm(reason) {
-          canceled2 = true;
-          reason2 = reason;
-          if (canceled1) {
-            const compositeReason = CreateArrayFromList([reason1, reason2]);
-            const cancelResult = ReadableStreamCancel(stream, compositeReason);
-            resolveCancelPromise(cancelResult);
-          }
-          return cancelPromise;
-        }
-        function startAlgorithm() {
-          return;
-        }
-        branch1 = CreateReadableByteStream(startAlgorithm, pull1Algorithm, cancel1Algorithm);
-        branch2 = CreateReadableByteStream(startAlgorithm, pull2Algorithm, cancel2Algorithm);
-        forwardReaderError(reader);
-        return [branch1, branch2];
-      }
-      function convertUnderlyingDefaultOrByteSource(source, context) {
-        assertDictionary(source, context);
-        const original = source;
-        const autoAllocateChunkSize = original === null || original === void 0 ? void 0 : original.autoAllocateChunkSize;
-        const cancel = original === null || original === void 0 ? void 0 : original.cancel;
-        const pull = original === null || original === void 0 ? void 0 : original.pull;
-        const start = original === null || original === void 0 ? void 0 : original.start;
-        const type = original === null || original === void 0 ? void 0 : original.type;
-        return {
-          autoAllocateChunkSize: autoAllocateChunkSize === void 0 ? void 0 : convertUnsignedLongLongWithEnforceRange(autoAllocateChunkSize, `${context} has member 'autoAllocateChunkSize' that`),
-          cancel: cancel === void 0 ? void 0 : convertUnderlyingSourceCancelCallback(cancel, original, `${context} has member 'cancel' that`),
-          pull: pull === void 0 ? void 0 : convertUnderlyingSourcePullCallback(pull, original, `${context} has member 'pull' that`),
-          start: start === void 0 ? void 0 : convertUnderlyingSourceStartCallback(start, original, `${context} has member 'start' that`),
-          type: type === void 0 ? void 0 : convertReadableStreamType(type, `${context} has member 'type' that`)
-        };
-      }
-      function convertUnderlyingSourceCancelCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (reason) => promiseCall(fn, original, [reason]);
-      }
-      function convertUnderlyingSourcePullCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (controller) => promiseCall(fn, original, [controller]);
-      }
-      function convertUnderlyingSourceStartCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (controller) => reflectCall(fn, original, [controller]);
-      }
-      function convertReadableStreamType(type, context) {
-        type = `${type}`;
-        if (type !== "bytes") {
-          throw new TypeError(`${context} '${type}' is not a valid enumeration value for ReadableStreamType`);
-        }
-        return type;
-      }
-      function convertReaderOptions(options, context) {
-        assertDictionary(options, context);
-        const mode = options === null || options === void 0 ? void 0 : options.mode;
-        return {
-          mode: mode === void 0 ? void 0 : convertReadableStreamReaderMode(mode, `${context} has member 'mode' that`)
-        };
-      }
-      function convertReadableStreamReaderMode(mode, context) {
-        mode = `${mode}`;
-        if (mode !== "byob") {
-          throw new TypeError(`${context} '${mode}' is not a valid enumeration value for ReadableStreamReaderMode`);
-        }
-        return mode;
-      }
-      function convertIteratorOptions(options, context) {
-        assertDictionary(options, context);
-        const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
-        return { preventCancel: Boolean(preventCancel) };
-      }
-      function convertPipeOptions(options, context) {
-        assertDictionary(options, context);
-        const preventAbort = options === null || options === void 0 ? void 0 : options.preventAbort;
-        const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
-        const preventClose = options === null || options === void 0 ? void 0 : options.preventClose;
-        const signal = options === null || options === void 0 ? void 0 : options.signal;
-        if (signal !== void 0) {
-          assertAbortSignal(signal, `${context} has member 'signal' that`);
-        }
-        return {
-          preventAbort: Boolean(preventAbort),
-          preventCancel: Boolean(preventCancel),
-          preventClose: Boolean(preventClose),
-          signal
-        };
-      }
-      function assertAbortSignal(signal, context) {
-        if (!isAbortSignal2(signal)) {
-          throw new TypeError(`${context} is not an AbortSignal.`);
-        }
-      }
-      function convertReadableWritablePair(pair, context) {
-        assertDictionary(pair, context);
-        const readable = pair === null || pair === void 0 ? void 0 : pair.readable;
-        assertRequiredField(readable, "readable", "ReadableWritablePair");
-        assertReadableStream(readable, `${context} has member 'readable' that`);
-        const writable = pair === null || pair === void 0 ? void 0 : pair.writable;
-        assertRequiredField(writable, "writable", "ReadableWritablePair");
-        assertWritableStream(writable, `${context} has member 'writable' that`);
-        return { readable, writable };
-      }
-      class ReadableStream2 {
-        constructor(rawUnderlyingSource = {}, rawStrategy = {}) {
-          if (rawUnderlyingSource === void 0) {
-            rawUnderlyingSource = null;
-          } else {
-            assertObject(rawUnderlyingSource, "First parameter");
-          }
-          const strategy = convertQueuingStrategy(rawStrategy, "Second parameter");
-          const underlyingSource = convertUnderlyingDefaultOrByteSource(rawUnderlyingSource, "First parameter");
-          InitializeReadableStream(this);
-          if (underlyingSource.type === "bytes") {
-            if (strategy.size !== void 0) {
-              throw new RangeError("The strategy for a byte stream cannot have a size function");
-            }
-            const highWaterMark = ExtractHighWaterMark(strategy, 0);
-            SetUpReadableByteStreamControllerFromUnderlyingSource(this, underlyingSource, highWaterMark);
-          } else {
-            const sizeAlgorithm = ExtractSizeAlgorithm(strategy);
-            const highWaterMark = ExtractHighWaterMark(strategy, 1);
-            SetUpReadableStreamDefaultControllerFromUnderlyingSource(this, underlyingSource, highWaterMark, sizeAlgorithm);
-          }
-        }
-        get locked() {
-          if (!IsReadableStream(this)) {
-            throw streamBrandCheckException$1("locked");
-          }
-          return IsReadableStreamLocked(this);
-        }
-        cancel(reason = void 0) {
-          if (!IsReadableStream(this)) {
-            return promiseRejectedWith(streamBrandCheckException$1("cancel"));
-          }
-          if (IsReadableStreamLocked(this)) {
-            return promiseRejectedWith(new TypeError("Cannot cancel a stream that already has a reader"));
-          }
-          return ReadableStreamCancel(this, reason);
-        }
-        getReader(rawOptions = void 0) {
-          if (!IsReadableStream(this)) {
-            throw streamBrandCheckException$1("getReader");
-          }
-          const options = convertReaderOptions(rawOptions, "First parameter");
-          if (options.mode === void 0) {
-            return AcquireReadableStreamDefaultReader(this);
-          }
-          return AcquireReadableStreamBYOBReader(this);
-        }
-        pipeThrough(rawTransform, rawOptions = {}) {
-          if (!IsReadableStream(this)) {
-            throw streamBrandCheckException$1("pipeThrough");
-          }
-          assertRequiredArgument(rawTransform, 1, "pipeThrough");
-          const transform = convertReadableWritablePair(rawTransform, "First parameter");
-          const options = convertPipeOptions(rawOptions, "Second parameter");
-          if (IsReadableStreamLocked(this)) {
-            throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked ReadableStream");
-          }
-          if (IsWritableStreamLocked(transform.writable)) {
-            throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked WritableStream");
-          }
-          const promise = ReadableStreamPipeTo(this, transform.writable, options.preventClose, options.preventAbort, options.preventCancel, options.signal);
-          setPromiseIsHandledToTrue(promise);
-          return transform.readable;
-        }
-        pipeTo(destination, rawOptions = {}) {
-          if (!IsReadableStream(this)) {
-            return promiseRejectedWith(streamBrandCheckException$1("pipeTo"));
-          }
-          if (destination === void 0) {
-            return promiseRejectedWith(`Parameter 1 is required in 'pipeTo'.`);
-          }
-          if (!IsWritableStream(destination)) {
-            return promiseRejectedWith(new TypeError(`ReadableStream.prototype.pipeTo's first argument must be a WritableStream`));
-          }
-          let options;
-          try {
-            options = convertPipeOptions(rawOptions, "Second parameter");
-          } catch (e2) {
-            return promiseRejectedWith(e2);
-          }
-          if (IsReadableStreamLocked(this)) {
-            return promiseRejectedWith(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked ReadableStream"));
-          }
-          if (IsWritableStreamLocked(destination)) {
-            return promiseRejectedWith(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked WritableStream"));
-          }
-          return ReadableStreamPipeTo(this, destination, options.preventClose, options.preventAbort, options.preventCancel, options.signal);
-        }
-        tee() {
-          if (!IsReadableStream(this)) {
-            throw streamBrandCheckException$1("tee");
-          }
-          const branches = ReadableStreamTee(this);
-          return CreateArrayFromList(branches);
-        }
-        values(rawOptions = void 0) {
-          if (!IsReadableStream(this)) {
-            throw streamBrandCheckException$1("values");
-          }
-          const options = convertIteratorOptions(rawOptions, "First parameter");
-          return AcquireReadableStreamAsyncIterator(this, options.preventCancel);
-        }
-      }
-      Object.defineProperties(ReadableStream2.prototype, {
-        cancel: { enumerable: true },
-        getReader: { enumerable: true },
-        pipeThrough: { enumerable: true },
-        pipeTo: { enumerable: true },
-        tee: { enumerable: true },
-        values: { enumerable: true },
-        locked: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(ReadableStream2.prototype, SymbolPolyfill.toStringTag, {
-          value: "ReadableStream",
-          configurable: true
-        });
-      }
-      if (typeof SymbolPolyfill.asyncIterator === "symbol") {
-        Object.defineProperty(ReadableStream2.prototype, SymbolPolyfill.asyncIterator, {
-          value: ReadableStream2.prototype.values,
-          writable: true,
-          configurable: true
-        });
-      }
-      function CreateReadableStream(startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark = 1, sizeAlgorithm = () => 1) {
-        const stream = Object.create(ReadableStream2.prototype);
-        InitializeReadableStream(stream);
-        const controller = Object.create(ReadableStreamDefaultController.prototype);
-        SetUpReadableStreamDefaultController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, sizeAlgorithm);
-        return stream;
-      }
-      function CreateReadableByteStream(startAlgorithm, pullAlgorithm, cancelAlgorithm) {
-        const stream = Object.create(ReadableStream2.prototype);
-        InitializeReadableStream(stream);
-        const controller = Object.create(ReadableByteStreamController.prototype);
-        SetUpReadableByteStreamController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, 0, void 0);
-        return stream;
-      }
-      function InitializeReadableStream(stream) {
-        stream._state = "readable";
-        stream._reader = void 0;
-        stream._storedError = void 0;
-        stream._disturbed = false;
-      }
-      function IsReadableStream(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_readableStreamController")) {
-          return false;
-        }
-        return x2 instanceof ReadableStream2;
-      }
-      function IsReadableStreamLocked(stream) {
-        if (stream._reader === void 0) {
-          return false;
-        }
-        return true;
-      }
-      function ReadableStreamCancel(stream, reason) {
-        stream._disturbed = true;
-        if (stream._state === "closed") {
-          return promiseResolvedWith(void 0);
-        }
-        if (stream._state === "errored") {
-          return promiseRejectedWith(stream._storedError);
-        }
-        ReadableStreamClose(stream);
-        const reader = stream._reader;
-        if (reader !== void 0 && IsReadableStreamBYOBReader(reader)) {
-          reader._readIntoRequests.forEach((readIntoRequest) => {
-            readIntoRequest._closeSteps(void 0);
-          });
-          reader._readIntoRequests = new SimpleQueue();
-        }
-        const sourceCancelPromise = stream._readableStreamController[CancelSteps](reason);
-        return transformPromiseWith(sourceCancelPromise, noop2);
-      }
-      function ReadableStreamClose(stream) {
-        stream._state = "closed";
-        const reader = stream._reader;
-        if (reader === void 0) {
-          return;
-        }
-        defaultReaderClosedPromiseResolve(reader);
-        if (IsReadableStreamDefaultReader(reader)) {
-          reader._readRequests.forEach((readRequest) => {
-            readRequest._closeSteps();
-          });
-          reader._readRequests = new SimpleQueue();
-        }
-      }
-      function ReadableStreamError(stream, e2) {
-        stream._state = "errored";
-        stream._storedError = e2;
-        const reader = stream._reader;
-        if (reader === void 0) {
-          return;
-        }
-        defaultReaderClosedPromiseReject(reader, e2);
-        if (IsReadableStreamDefaultReader(reader)) {
-          reader._readRequests.forEach((readRequest) => {
-            readRequest._errorSteps(e2);
-          });
-          reader._readRequests = new SimpleQueue();
-        } else {
-          reader._readIntoRequests.forEach((readIntoRequest) => {
-            readIntoRequest._errorSteps(e2);
-          });
-          reader._readIntoRequests = new SimpleQueue();
-        }
-      }
-      function streamBrandCheckException$1(name) {
-        return new TypeError(`ReadableStream.prototype.${name} can only be used on a ReadableStream`);
-      }
-      function convertQueuingStrategyInit(init, context) {
-        assertDictionary(init, context);
-        const highWaterMark = init === null || init === void 0 ? void 0 : init.highWaterMark;
-        assertRequiredField(highWaterMark, "highWaterMark", "QueuingStrategyInit");
-        return {
-          highWaterMark: convertUnrestrictedDouble(highWaterMark)
-        };
-      }
-      const byteLengthSizeFunction = (chunk) => {
-        return chunk.byteLength;
-      };
-      try {
-        Object.defineProperty(byteLengthSizeFunction, "name", {
-          value: "size",
-          configurable: true
-        });
-      } catch (_a4) {
-      }
-      class ByteLengthQueuingStrategy {
-        constructor(options) {
-          assertRequiredArgument(options, 1, "ByteLengthQueuingStrategy");
-          options = convertQueuingStrategyInit(options, "First parameter");
-          this._byteLengthQueuingStrategyHighWaterMark = options.highWaterMark;
-        }
-        get highWaterMark() {
-          if (!IsByteLengthQueuingStrategy(this)) {
-            throw byteLengthBrandCheckException("highWaterMark");
-          }
-          return this._byteLengthQueuingStrategyHighWaterMark;
-        }
-        get size() {
-          if (!IsByteLengthQueuingStrategy(this)) {
-            throw byteLengthBrandCheckException("size");
-          }
-          return byteLengthSizeFunction;
-        }
-      }
-      Object.defineProperties(ByteLengthQueuingStrategy.prototype, {
-        highWaterMark: { enumerable: true },
-        size: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(ByteLengthQueuingStrategy.prototype, SymbolPolyfill.toStringTag, {
-          value: "ByteLengthQueuingStrategy",
-          configurable: true
-        });
-      }
-      function byteLengthBrandCheckException(name) {
-        return new TypeError(`ByteLengthQueuingStrategy.prototype.${name} can only be used on a ByteLengthQueuingStrategy`);
-      }
-      function IsByteLengthQueuingStrategy(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_byteLengthQueuingStrategyHighWaterMark")) {
-          return false;
-        }
-        return x2 instanceof ByteLengthQueuingStrategy;
-      }
-      const countSizeFunction = () => {
-        return 1;
-      };
-      try {
-        Object.defineProperty(countSizeFunction, "name", {
-          value: "size",
-          configurable: true
-        });
-      } catch (_a4) {
-      }
-      class CountQueuingStrategy {
-        constructor(options) {
-          assertRequiredArgument(options, 1, "CountQueuingStrategy");
-          options = convertQueuingStrategyInit(options, "First parameter");
-          this._countQueuingStrategyHighWaterMark = options.highWaterMark;
-        }
-        get highWaterMark() {
-          if (!IsCountQueuingStrategy(this)) {
-            throw countBrandCheckException("highWaterMark");
-          }
-          return this._countQueuingStrategyHighWaterMark;
-        }
-        get size() {
-          if (!IsCountQueuingStrategy(this)) {
-            throw countBrandCheckException("size");
-          }
-          return countSizeFunction;
-        }
-      }
-      Object.defineProperties(CountQueuingStrategy.prototype, {
-        highWaterMark: { enumerable: true },
-        size: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(CountQueuingStrategy.prototype, SymbolPolyfill.toStringTag, {
-          value: "CountQueuingStrategy",
-          configurable: true
-        });
-      }
-      function countBrandCheckException(name) {
-        return new TypeError(`CountQueuingStrategy.prototype.${name} can only be used on a CountQueuingStrategy`);
-      }
-      function IsCountQueuingStrategy(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_countQueuingStrategyHighWaterMark")) {
-          return false;
-        }
-        return x2 instanceof CountQueuingStrategy;
-      }
-      function convertTransformer(original, context) {
-        assertDictionary(original, context);
-        const flush = original === null || original === void 0 ? void 0 : original.flush;
-        const readableType = original === null || original === void 0 ? void 0 : original.readableType;
-        const start = original === null || original === void 0 ? void 0 : original.start;
-        const transform = original === null || original === void 0 ? void 0 : original.transform;
-        const writableType = original === null || original === void 0 ? void 0 : original.writableType;
-        return {
-          flush: flush === void 0 ? void 0 : convertTransformerFlushCallback(flush, original, `${context} has member 'flush' that`),
-          readableType,
-          start: start === void 0 ? void 0 : convertTransformerStartCallback(start, original, `${context} has member 'start' that`),
-          transform: transform === void 0 ? void 0 : convertTransformerTransformCallback(transform, original, `${context} has member 'transform' that`),
-          writableType
-        };
-      }
-      function convertTransformerFlushCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (controller) => promiseCall(fn, original, [controller]);
-      }
-      function convertTransformerStartCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (controller) => reflectCall(fn, original, [controller]);
-      }
-      function convertTransformerTransformCallback(fn, original, context) {
-        assertFunction(fn, context);
-        return (chunk, controller) => promiseCall(fn, original, [chunk, controller]);
-      }
-      class TransformStream {
-        constructor(rawTransformer = {}, rawWritableStrategy = {}, rawReadableStrategy = {}) {
-          if (rawTransformer === void 0) {
-            rawTransformer = null;
-          }
-          const writableStrategy = convertQueuingStrategy(rawWritableStrategy, "Second parameter");
-          const readableStrategy = convertQueuingStrategy(rawReadableStrategy, "Third parameter");
-          const transformer = convertTransformer(rawTransformer, "First parameter");
-          if (transformer.readableType !== void 0) {
-            throw new RangeError("Invalid readableType specified");
-          }
-          if (transformer.writableType !== void 0) {
-            throw new RangeError("Invalid writableType specified");
-          }
-          const readableHighWaterMark = ExtractHighWaterMark(readableStrategy, 0);
-          const readableSizeAlgorithm = ExtractSizeAlgorithm(readableStrategy);
-          const writableHighWaterMark = ExtractHighWaterMark(writableStrategy, 1);
-          const writableSizeAlgorithm = ExtractSizeAlgorithm(writableStrategy);
-          let startPromise_resolve;
-          const startPromise = newPromise((resolve) => {
-            startPromise_resolve = resolve;
-          });
-          InitializeTransformStream(this, startPromise, writableHighWaterMark, writableSizeAlgorithm, readableHighWaterMark, readableSizeAlgorithm);
-          SetUpTransformStreamDefaultControllerFromTransformer(this, transformer);
-          if (transformer.start !== void 0) {
-            startPromise_resolve(transformer.start(this._transformStreamController));
-          } else {
-            startPromise_resolve(void 0);
-          }
-        }
-        get readable() {
-          if (!IsTransformStream(this)) {
-            throw streamBrandCheckException("readable");
-          }
-          return this._readable;
-        }
-        get writable() {
-          if (!IsTransformStream(this)) {
-            throw streamBrandCheckException("writable");
-          }
-          return this._writable;
-        }
-      }
-      Object.defineProperties(TransformStream.prototype, {
-        readable: { enumerable: true },
-        writable: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(TransformStream.prototype, SymbolPolyfill.toStringTag, {
-          value: "TransformStream",
-          configurable: true
-        });
-      }
-      function InitializeTransformStream(stream, startPromise, writableHighWaterMark, writableSizeAlgorithm, readableHighWaterMark, readableSizeAlgorithm) {
-        function startAlgorithm() {
-          return startPromise;
-        }
-        function writeAlgorithm(chunk) {
-          return TransformStreamDefaultSinkWriteAlgorithm(stream, chunk);
-        }
-        function abortAlgorithm(reason) {
-          return TransformStreamDefaultSinkAbortAlgorithm(stream, reason);
-        }
-        function closeAlgorithm() {
-          return TransformStreamDefaultSinkCloseAlgorithm(stream);
-        }
-        stream._writable = CreateWritableStream(startAlgorithm, writeAlgorithm, closeAlgorithm, abortAlgorithm, writableHighWaterMark, writableSizeAlgorithm);
-        function pullAlgorithm() {
-          return TransformStreamDefaultSourcePullAlgorithm(stream);
-        }
-        function cancelAlgorithm(reason) {
-          TransformStreamErrorWritableAndUnblockWrite(stream, reason);
-          return promiseResolvedWith(void 0);
-        }
-        stream._readable = CreateReadableStream(startAlgorithm, pullAlgorithm, cancelAlgorithm, readableHighWaterMark, readableSizeAlgorithm);
-        stream._backpressure = void 0;
-        stream._backpressureChangePromise = void 0;
-        stream._backpressureChangePromise_resolve = void 0;
-        TransformStreamSetBackpressure(stream, true);
-        stream._transformStreamController = void 0;
-      }
-      function IsTransformStream(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_transformStreamController")) {
-          return false;
-        }
-        return x2 instanceof TransformStream;
-      }
-      function TransformStreamError(stream, e2) {
-        ReadableStreamDefaultControllerError(stream._readable._readableStreamController, e2);
-        TransformStreamErrorWritableAndUnblockWrite(stream, e2);
-      }
-      function TransformStreamErrorWritableAndUnblockWrite(stream, e2) {
-        TransformStreamDefaultControllerClearAlgorithms(stream._transformStreamController);
-        WritableStreamDefaultControllerErrorIfNeeded(stream._writable._writableStreamController, e2);
-        if (stream._backpressure) {
-          TransformStreamSetBackpressure(stream, false);
-        }
-      }
-      function TransformStreamSetBackpressure(stream, backpressure) {
-        if (stream._backpressureChangePromise !== void 0) {
-          stream._backpressureChangePromise_resolve();
-        }
-        stream._backpressureChangePromise = newPromise((resolve) => {
-          stream._backpressureChangePromise_resolve = resolve;
-        });
-        stream._backpressure = backpressure;
-      }
-      class TransformStreamDefaultController {
-        constructor() {
-          throw new TypeError("Illegal constructor");
-        }
-        get desiredSize() {
-          if (!IsTransformStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException("desiredSize");
-          }
-          const readableController = this._controlledTransformStream._readable._readableStreamController;
-          return ReadableStreamDefaultControllerGetDesiredSize(readableController);
-        }
-        enqueue(chunk = void 0) {
-          if (!IsTransformStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException("enqueue");
-          }
-          TransformStreamDefaultControllerEnqueue(this, chunk);
-        }
-        error(reason = void 0) {
-          if (!IsTransformStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException("error");
-          }
-          TransformStreamDefaultControllerError(this, reason);
-        }
-        terminate() {
-          if (!IsTransformStreamDefaultController(this)) {
-            throw defaultControllerBrandCheckException("terminate");
-          }
-          TransformStreamDefaultControllerTerminate(this);
-        }
-      }
-      Object.defineProperties(TransformStreamDefaultController.prototype, {
-        enqueue: { enumerable: true },
-        error: { enumerable: true },
-        terminate: { enumerable: true },
-        desiredSize: { enumerable: true }
-      });
-      if (typeof SymbolPolyfill.toStringTag === "symbol") {
-        Object.defineProperty(TransformStreamDefaultController.prototype, SymbolPolyfill.toStringTag, {
-          value: "TransformStreamDefaultController",
-          configurable: true
-        });
-      }
-      function IsTransformStreamDefaultController(x2) {
-        if (!typeIsObject(x2)) {
-          return false;
-        }
-        if (!Object.prototype.hasOwnProperty.call(x2, "_controlledTransformStream")) {
-          return false;
-        }
-        return x2 instanceof TransformStreamDefaultController;
-      }
-      function SetUpTransformStreamDefaultController(stream, controller, transformAlgorithm, flushAlgorithm) {
-        controller._controlledTransformStream = stream;
-        stream._transformStreamController = controller;
-        controller._transformAlgorithm = transformAlgorithm;
-        controller._flushAlgorithm = flushAlgorithm;
-      }
-      function SetUpTransformStreamDefaultControllerFromTransformer(stream, transformer) {
-        const controller = Object.create(TransformStreamDefaultController.prototype);
-        let transformAlgorithm = (chunk) => {
-          try {
-            TransformStreamDefaultControllerEnqueue(controller, chunk);
-            return promiseResolvedWith(void 0);
-          } catch (transformResultE) {
-            return promiseRejectedWith(transformResultE);
-          }
-        };
-        let flushAlgorithm = () => promiseResolvedWith(void 0);
-        if (transformer.transform !== void 0) {
-          transformAlgorithm = (chunk) => transformer.transform(chunk, controller);
-        }
-        if (transformer.flush !== void 0) {
-          flushAlgorithm = () => transformer.flush(controller);
-        }
-        SetUpTransformStreamDefaultController(stream, controller, transformAlgorithm, flushAlgorithm);
-      }
-      function TransformStreamDefaultControllerClearAlgorithms(controller) {
-        controller._transformAlgorithm = void 0;
-        controller._flushAlgorithm = void 0;
-      }
-      function TransformStreamDefaultControllerEnqueue(controller, chunk) {
-        const stream = controller._controlledTransformStream;
-        const readableController = stream._readable._readableStreamController;
-        if (!ReadableStreamDefaultControllerCanCloseOrEnqueue(readableController)) {
-          throw new TypeError("Readable side is not in a state that permits enqueue");
-        }
-        try {
-          ReadableStreamDefaultControllerEnqueue(readableController, chunk);
-        } catch (e2) {
-          TransformStreamErrorWritableAndUnblockWrite(stream, e2);
-          throw stream._readable._storedError;
-        }
-        const backpressure = ReadableStreamDefaultControllerHasBackpressure(readableController);
-        if (backpressure !== stream._backpressure) {
-          TransformStreamSetBackpressure(stream, true);
-        }
-      }
-      function TransformStreamDefaultControllerError(controller, e2) {
-        TransformStreamError(controller._controlledTransformStream, e2);
-      }
-      function TransformStreamDefaultControllerPerformTransform(controller, chunk) {
-        const transformPromise = controller._transformAlgorithm(chunk);
-        return transformPromiseWith(transformPromise, void 0, (r2) => {
-          TransformStreamError(controller._controlledTransformStream, r2);
-          throw r2;
-        });
-      }
-      function TransformStreamDefaultControllerTerminate(controller) {
-        const stream = controller._controlledTransformStream;
-        const readableController = stream._readable._readableStreamController;
-        ReadableStreamDefaultControllerClose(readableController);
-        const error = new TypeError("TransformStream terminated");
-        TransformStreamErrorWritableAndUnblockWrite(stream, error);
-      }
-      function TransformStreamDefaultSinkWriteAlgorithm(stream, chunk) {
-        const controller = stream._transformStreamController;
-        if (stream._backpressure) {
-          const backpressureChangePromise = stream._backpressureChangePromise;
-          return transformPromiseWith(backpressureChangePromise, () => {
-            const writable = stream._writable;
-            const state = writable._state;
-            if (state === "erroring") {
-              throw writable._storedError;
-            }
-            return TransformStreamDefaultControllerPerformTransform(controller, chunk);
-          });
-        }
-        return TransformStreamDefaultControllerPerformTransform(controller, chunk);
-      }
-      function TransformStreamDefaultSinkAbortAlgorithm(stream, reason) {
-        TransformStreamError(stream, reason);
-        return promiseResolvedWith(void 0);
-      }
-      function TransformStreamDefaultSinkCloseAlgorithm(stream) {
-        const readable = stream._readable;
-        const controller = stream._transformStreamController;
-        const flushPromise = controller._flushAlgorithm();
-        TransformStreamDefaultControllerClearAlgorithms(controller);
-        return transformPromiseWith(flushPromise, () => {
-          if (readable._state === "errored") {
-            throw readable._storedError;
-          }
-          ReadableStreamDefaultControllerClose(readable._readableStreamController);
-        }, (r2) => {
-          TransformStreamError(stream, r2);
-          throw readable._storedError;
-        });
-      }
-      function TransformStreamDefaultSourcePullAlgorithm(stream) {
-        TransformStreamSetBackpressure(stream, false);
-        return stream._backpressureChangePromise;
-      }
-      function defaultControllerBrandCheckException(name) {
-        return new TypeError(`TransformStreamDefaultController.prototype.${name} can only be used on a TransformStreamDefaultController`);
-      }
-      function streamBrandCheckException(name) {
-        return new TypeError(`TransformStream.prototype.${name} can only be used on a TransformStream`);
-      }
-      exports2.ByteLengthQueuingStrategy = ByteLengthQueuingStrategy;
-      exports2.CountQueuingStrategy = CountQueuingStrategy;
-      exports2.ReadableByteStreamController = ReadableByteStreamController;
-      exports2.ReadableStream = ReadableStream2;
-      exports2.ReadableStreamBYOBReader = ReadableStreamBYOBReader;
-      exports2.ReadableStreamBYOBRequest = ReadableStreamBYOBRequest;
-      exports2.ReadableStreamDefaultController = ReadableStreamDefaultController;
-      exports2.ReadableStreamDefaultReader = ReadableStreamDefaultReader;
-      exports2.TransformStream = TransformStream;
-      exports2.TransformStreamDefaultController = TransformStreamDefaultController;
-      exports2.WritableStream = WritableStream;
-      exports2.WritableStreamDefaultController = WritableStreamDefaultController;
-      exports2.WritableStreamDefaultWriter = WritableStreamDefaultWriter;
-      Object.defineProperty(exports2, "__esModule", { value: true });
-    });
-  }
-});
-
-// node_modules/fetch-blob/streams.cjs
-var require_streams = __commonJS({
-  "node_modules/fetch-blob/streams.cjs"() {
-    var POOL_SIZE2 = 65536;
-    if (!globalThis.ReadableStream) {
-      try {
-        const process2 = require("node:process");
-        const { emitWarning } = process2;
-        try {
-          process2.emitWarning = () => {
-          };
-          Object.assign(globalThis, require("node:stream/web"));
-          process2.emitWarning = emitWarning;
-        } catch (error) {
-          process2.emitWarning = emitWarning;
-          throw error;
-        }
-      } catch (error) {
-        Object.assign(globalThis, require_ponyfill_es2018());
-      }
     }
-    try {
-      const { Blob: Blob3 } = require("buffer");
-      if (Blob3 && !Blob3.prototype.stream) {
-        Blob3.prototype.stream = function name(params) {
-          let position = 0;
-          const blob = this;
-          return new ReadableStream({
-            type: "bytes",
-            async pull(ctrl) {
-              const chunk = blob.slice(position, Math.min(blob.size, position + POOL_SIZE2));
-              const buffer = await chunk.arrayBuffer();
-              position += buffer.byteLength;
-              ctrl.enqueue(new Uint8Array(buffer));
-              if (position === blob.size) {
-                ctrl.close();
-              }
-            }
-          });
-        };
-      }
-    } catch (error) {
+    if (!seal) {
+      seal = function seal2(x) {
+        return x;
+      };
     }
-  }
-});
-
-// node_modules/fetch-blob/index.js
-async function* toIterator(parts, clone2 = true) {
-  for (const part of parts) {
-    if ("stream" in part) {
-      yield* part.stream();
-    } else if (ArrayBuffer.isView(part)) {
-      if (clone2) {
-        let position = part.byteOffset;
-        const end = part.byteOffset + part.byteLength;
-        while (position !== end) {
-          const size = Math.min(end - position, POOL_SIZE);
-          const chunk = part.buffer.slice(position, position + size);
-          position += chunk.byteLength;
-          yield new Uint8Array(chunk);
-        }
-      } else {
-        yield part;
-      }
-    } else {
-      let position = 0, b = part;
-      while (position !== b.size) {
-        const chunk = b.slice(position, Math.min(b.size, position + POOL_SIZE));
-        const buffer = await chunk.arrayBuffer();
-        position += buffer.byteLength;
-        yield new Uint8Array(buffer);
-      }
+    if (!apply) {
+      apply = function apply2(fun, thisValue, args) {
+        return fun.apply(thisValue, args);
+      };
     }
-  }
-}
-var import_streams, POOL_SIZE, _parts, _type, _size, _endings, _a, _Blob, Blob2, fetch_blob_default;
-var init_fetch_blob = __esm({
-  "node_modules/fetch-blob/index.js"() {
-    import_streams = __toESM(require_streams(), 1);
-    POOL_SIZE = 65536;
-    _Blob = (_a = class {
-      constructor(blobParts = [], options = {}) {
-        __privateAdd(this, _parts, []);
-        __privateAdd(this, _type, "");
-        __privateAdd(this, _size, 0);
-        __privateAdd(this, _endings, "transparent");
-        if (typeof blobParts !== "object" || blobParts === null) {
-          throw new TypeError("Failed to construct 'Blob': The provided value cannot be converted to a sequence.");
+    if (!construct) {
+      construct = function construct2(Func, args) {
+        return new Func(...args);
+      };
+    }
+    var arrayForEach = unapply(Array.prototype.forEach);
+    var arrayLastIndexOf = unapply(Array.prototype.lastIndexOf);
+    var arrayPop = unapply(Array.prototype.pop);
+    var arrayPush = unapply(Array.prototype.push);
+    var arraySplice = unapply(Array.prototype.splice);
+    var stringToLowerCase = unapply(String.prototype.toLowerCase);
+    var stringToString = unapply(String.prototype.toString);
+    var stringMatch = unapply(String.prototype.match);
+    var stringReplace = unapply(String.prototype.replace);
+    var stringIndexOf = unapply(String.prototype.indexOf);
+    var stringTrim = unapply(String.prototype.trim);
+    var objectHasOwnProperty = unapply(Object.prototype.hasOwnProperty);
+    var regExpTest = unapply(RegExp.prototype.test);
+    var typeErrorCreate = unconstruct(TypeError);
+    function unapply(func) {
+      return function(thisArg) {
+        if (thisArg instanceof RegExp) {
+          thisArg.lastIndex = 0;
         }
-        if (typeof blobParts[Symbol.iterator] !== "function") {
-          throw new TypeError("Failed to construct 'Blob': The object must have a callable @@iterator property.");
+        for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
         }
-        if (typeof options !== "object" && typeof options !== "function") {
-          throw new TypeError("Failed to construct 'Blob': parameter 2 cannot convert to dictionary.");
+        return apply(func, thisArg, args);
+      };
+    }
+    function unconstruct(func) {
+      return function() {
+        for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
         }
-        if (options === null)
-          options = {};
-        const encoder = new TextEncoder();
-        for (const element of blobParts) {
-          let part;
-          if (ArrayBuffer.isView(element)) {
-            part = new Uint8Array(element.buffer.slice(element.byteOffset, element.byteOffset + element.byteLength));
-          } else if (element instanceof ArrayBuffer) {
-            part = new Uint8Array(element.slice(0));
-          } else if (element instanceof _a) {
-            part = element;
-          } else {
-            part = encoder.encode(`${element}`);
-          }
-          __privateSet(this, _size, __privateGet(this, _size) + (ArrayBuffer.isView(part) ? part.byteLength : part.size));
-          __privateGet(this, _parts).push(part);
-        }
-        __privateSet(this, _endings, `${options.endings === void 0 ? "transparent" : options.endings}`);
-        const type = options.type === void 0 ? "" : String(options.type);
-        __privateSet(this, _type, /^[\x20-\x7E]*$/.test(type) ? type : "");
+        return construct(func, args);
+      };
+    }
+    function addToSet(set, array) {
+      let transformCaseFunc = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : stringToLowerCase;
+      if (setPrototypeOf) {
+        setPrototypeOf(set, null);
       }
-      get size() {
-        return __privateGet(this, _size);
-      }
-      get type() {
-        return __privateGet(this, _type);
-      }
-      async text() {
-        const decoder = new TextDecoder();
-        let str = "";
-        for await (const part of toIterator(__privateGet(this, _parts), false)) {
-          str += decoder.decode(part, { stream: true });
-        }
-        str += decoder.decode();
-        return str;
-      }
-      async arrayBuffer() {
-        const data = new Uint8Array(this.size);
-        let offset = 0;
-        for await (const chunk of toIterator(__privateGet(this, _parts), false)) {
-          data.set(chunk, offset);
-          offset += chunk.length;
-        }
-        return data.buffer;
-      }
-      stream() {
-        const it = toIterator(__privateGet(this, _parts), true);
-        return new globalThis.ReadableStream({
-          type: "bytes",
-          async pull(ctrl) {
-            const chunk = await it.next();
-            chunk.done ? ctrl.close() : ctrl.enqueue(chunk.value);
-          },
-          async cancel() {
-            await it.return();
-          }
-        });
-      }
-      slice(start = 0, end = this.size, type = "") {
-        const { size } = this;
-        let relativeStart = start < 0 ? Math.max(size + start, 0) : Math.min(start, size);
-        let relativeEnd = end < 0 ? Math.max(size + end, 0) : Math.min(end, size);
-        const span = Math.max(relativeEnd - relativeStart, 0);
-        const parts = __privateGet(this, _parts);
-        const blobParts = [];
-        let added = 0;
-        for (const part of parts) {
-          if (added >= span) {
-            break;
-          }
-          const size2 = ArrayBuffer.isView(part) ? part.byteLength : part.size;
-          if (relativeStart && size2 <= relativeStart) {
-            relativeStart -= size2;
-            relativeEnd -= size2;
-          } else {
-            let chunk;
-            if (ArrayBuffer.isView(part)) {
-              chunk = part.subarray(relativeStart, Math.min(size2, relativeEnd));
-              added += chunk.byteLength;
-            } else {
-              chunk = part.slice(relativeStart, Math.min(size2, relativeEnd));
-              added += chunk.size;
+      let l = array.length;
+      while (l--) {
+        let element = array[l];
+        if (typeof element === "string") {
+          const lcElement = transformCaseFunc(element);
+          if (lcElement !== element) {
+            if (!isFrozen(array)) {
+              array[l] = lcElement;
             }
-            relativeEnd -= size2;
-            blobParts.push(chunk);
-            relativeStart = 0;
+            element = lcElement;
           }
         }
-        const blob = new _a([], { type: String(type).toLowerCase() });
-        __privateSet(blob, _size, span);
-        __privateSet(blob, _parts, blobParts);
-        return blob;
+        set[element] = true;
       }
-      get [Symbol.toStringTag]() {
-        return "Blob";
-      }
-      static [Symbol.hasInstance](object) {
-        return object && typeof object === "object" && typeof object.constructor === "function" && (typeof object.stream === "function" || typeof object.arrayBuffer === "function") && /^(Blob|File)$/.test(object[Symbol.toStringTag]);
-      }
-    }, _parts = new WeakMap(), _type = new WeakMap(), _size = new WeakMap(), _endings = new WeakMap(), _a);
-    Object.defineProperties(_Blob.prototype, {
-      size: { enumerable: true },
-      type: { enumerable: true },
-      slice: { enumerable: true }
-    });
-    Blob2 = _Blob;
-    fetch_blob_default = Blob2;
-  }
-});
-
-// node_modules/fetch-blob/file.js
-var _lastModified, _name, _a2, _File, File, file_default;
-var init_file = __esm({
-  "node_modules/fetch-blob/file.js"() {
-    init_fetch_blob();
-    _File = (_a2 = class extends fetch_blob_default {
-      constructor(fileBits, fileName, options = {}) {
-        if (arguments.length < 2) {
-          throw new TypeError(`Failed to construct 'File': 2 arguments required, but only ${arguments.length} present.`);
+      return set;
+    }
+    function cleanArray(array) {
+      for (let index = 0; index < array.length; index++) {
+        const isPropertyExist = objectHasOwnProperty(array, index);
+        if (!isPropertyExist) {
+          array[index] = null;
         }
-        super(fileBits, options);
-        __privateAdd(this, _lastModified, 0);
-        __privateAdd(this, _name, "");
-        if (options === null)
-          options = {};
-        const lastModified = options.lastModified === void 0 ? Date.now() : Number(options.lastModified);
-        if (!Number.isNaN(lastModified)) {
-          __privateSet(this, _lastModified, lastModified);
+      }
+      return array;
+    }
+    function clone(object) {
+      const newObject = create(null);
+      for (const [property, value] of entries(object)) {
+        const isPropertyExist = objectHasOwnProperty(object, property);
+        if (isPropertyExist) {
+          if (Array.isArray(value)) {
+            newObject[property] = cleanArray(value);
+          } else if (value && typeof value === "object" && value.constructor === Object) {
+            newObject[property] = clone(value);
+          } else {
+            newObject[property] = value;
+          }
         }
-        __privateSet(this, _name, String(fileName));
       }
-      get name() {
-        return __privateGet(this, _name);
+      return newObject;
+    }
+    function lookupGetter(object, prop) {
+      while (object !== null) {
+        const desc = getOwnPropertyDescriptor(object, prop);
+        if (desc) {
+          if (desc.get) {
+            return unapply(desc.get);
+          }
+          if (typeof desc.value === "function") {
+            return unapply(desc.value);
+          }
+        }
+        object = getPrototypeOf(object);
       }
-      get lastModified() {
-        return __privateGet(this, _lastModified);
-      }
-      get [Symbol.toStringTag]() {
-        return "File";
-      }
-      static [Symbol.hasInstance](object) {
-        return !!object && object instanceof fetch_blob_default && /^(File)$/.test(object[Symbol.toStringTag]);
-      }
-    }, _lastModified = new WeakMap(), _name = new WeakMap(), _a2);
-    File = _File;
-    file_default = File;
-  }
-});
-
-// node_modules/formdata-polyfill/esm.min.js
-function formDataToBlob(F2, B = fetch_blob_default) {
-  var b = `${r()}${r()}`.replace(/\./g, "").slice(-28).padStart(32, "-"), c = [], p = `--${b}\r
-Content-Disposition: form-data; name="`;
-  F2.forEach((v, n) => typeof v == "string" ? c.push(p + e(n) + `"\r
-\r
-${v.replace(/\r(?!\n)|(?<!\r)\n/g, "\r\n")}\r
-`) : c.push(p + e(n) + `"; filename="${e(v.name, 1)}"\r
-Content-Type: ${v.type || "application/octet-stream"}\r
-\r
-`, v, "\r\n"));
-  c.push(`--${b}--`);
-  return new B(c, { type: "multipart/form-data; boundary=" + b });
-}
-var t, i, h, r, m, f, e, x, _d, _a3, FormData2;
-var init_esm_min = __esm({
-  "node_modules/formdata-polyfill/esm.min.js"() {
-    init_fetch_blob();
-    init_file();
-    ({ toStringTag: t, iterator: i, hasInstance: h } = Symbol);
-    r = Math.random;
-    m = "append,set,get,getAll,delete,keys,values,entries,forEach,constructor".split(",");
-    f = (a, b, c) => (a += "", /^(Blob|File)$/.test(b && b[t]) ? [(c = c !== void 0 ? c + "" : b[t] == "File" ? b.name : "blob", a), b.name !== c || b[t] == "blob" ? new file_default([b], c, b) : b] : [a, b + ""]);
-    e = (c, f3) => (f3 ? c : c.replace(/\r?\n|\r/g, "\r\n")).replace(/\n/g, "%0A").replace(/\r/g, "%0D").replace(/"/g, "%22");
-    x = (n, a, e2) => {
-      if (a.length < e2) {
-        throw new TypeError(`Failed to execute '${n}' on 'FormData': ${e2} arguments required, but only ${a.length} present.`);
-      }
-    };
-    FormData2 = (_a3 = class {
-      constructor(...a) {
-        __privateAdd(this, _d, []);
-        if (a.length)
-          throw new TypeError(`Failed to construct 'FormData': parameter 1 is not of type 'HTMLFormElement'.`);
-      }
-      get [t]() {
-        return "FormData";
-      }
-      [i]() {
-        return this.entries();
-      }
-      static [h](o) {
-        return o && typeof o === "object" && o[t] === "FormData" && !m.some((m2) => typeof o[m2] != "function");
-      }
-      append(...a) {
-        x("append", arguments, 2);
-        __privateGet(this, _d).push(f(...a));
-      }
-      delete(a) {
-        x("delete", arguments, 1);
-        a += "";
-        __privateSet(this, _d, __privateGet(this, _d).filter(([b]) => b !== a));
-      }
-      get(a) {
-        x("get", arguments, 1);
-        a += "";
-        for (var b = __privateGet(this, _d), l = b.length, c = 0; c < l; c++)
-          if (b[c][0] === a)
-            return b[c][1];
+      function fallbackValue() {
         return null;
       }
-      getAll(a, b) {
-        x("getAll", arguments, 1);
-        b = [];
-        a += "";
-        __privateGet(this, _d).forEach((c) => c[0] === a && b.push(c[1]));
-        return b;
+      return fallbackValue;
+    }
+    var html$1 = freeze(["a", "abbr", "acronym", "address", "area", "article", "aside", "audio", "b", "bdi", "bdo", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "content", "data", "datalist", "dd", "decorator", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "img", "input", "ins", "kbd", "label", "legend", "li", "main", "map", "mark", "marquee", "menu", "menuitem", "meter", "nav", "nobr", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "section", "select", "shadow", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "tr", "track", "tt", "u", "ul", "var", "video", "wbr"]);
+    var svg$1 = freeze(["svg", "a", "altglyph", "altglyphdef", "altglyphitem", "animatecolor", "animatemotion", "animatetransform", "circle", "clippath", "defs", "desc", "ellipse", "filter", "font", "g", "glyph", "glyphref", "hkern", "image", "line", "lineargradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "switch", "symbol", "text", "textpath", "title", "tref", "tspan", "view", "vkern"]);
+    var svgFilters = freeze(["feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence"]);
+    var svgDisallowed = freeze(["animate", "color-profile", "cursor", "discard", "font-face", "font-face-format", "font-face-name", "font-face-src", "font-face-uri", "foreignobject", "hatch", "hatchpath", "mesh", "meshgradient", "meshpatch", "meshrow", "missing-glyph", "script", "set", "solidcolor", "unknown", "use"]);
+    var mathMl$1 = freeze(["math", "menclose", "merror", "mfenced", "mfrac", "mglyph", "mi", "mlabeledtr", "mmultiscripts", "mn", "mo", "mover", "mpadded", "mphantom", "mroot", "mrow", "ms", "mspace", "msqrt", "mstyle", "msub", "msup", "msubsup", "mtable", "mtd", "mtext", "mtr", "munder", "munderover", "mprescripts"]);
+    var mathMlDisallowed = freeze(["maction", "maligngroup", "malignmark", "mlongdiv", "mscarries", "mscarry", "msgroup", "mstack", "msline", "msrow", "semantics", "annotation", "annotation-xml", "mprescripts", "none"]);
+    var text = freeze(["#text"]);
+    var html = freeze(["accept", "action", "align", "alt", "autocapitalize", "autocomplete", "autopictureinpicture", "autoplay", "background", "bgcolor", "border", "capture", "cellpadding", "cellspacing", "checked", "cite", "class", "clear", "color", "cols", "colspan", "controls", "controlslist", "coords", "crossorigin", "datetime", "decoding", "default", "dir", "disabled", "disablepictureinpicture", "disableremoteplayback", "download", "draggable", "enctype", "enterkeyhint", "face", "for", "headers", "height", "hidden", "high", "href", "hreflang", "id", "inputmode", "integrity", "ismap", "kind", "label", "lang", "list", "loading", "loop", "low", "max", "maxlength", "media", "method", "min", "minlength", "multiple", "muted", "name", "nonce", "noshade", "novalidate", "nowrap", "open", "optimum", "pattern", "placeholder", "playsinline", "popover", "popovertarget", "popovertargetaction", "poster", "preload", "pubdate", "radiogroup", "readonly", "rel", "required", "rev", "reversed", "role", "rows", "rowspan", "spellcheck", "scope", "selected", "shape", "size", "sizes", "span", "srclang", "start", "src", "srcset", "step", "style", "summary", "tabindex", "title", "translate", "type", "usemap", "valign", "value", "width", "wrap", "xmlns", "slot"]);
+    var svg = freeze(["accent-height", "accumulate", "additive", "alignment-baseline", "amplitude", "ascent", "attributename", "attributetype", "azimuth", "basefrequency", "baseline-shift", "begin", "bias", "by", "class", "clip", "clippathunits", "clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile", "color-rendering", "cx", "cy", "d", "dx", "dy", "diffuseconstant", "direction", "display", "divisor", "dur", "edgemode", "elevation", "end", "exponent", "fill", "fill-opacity", "fill-rule", "filter", "filterunits", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "g1", "g2", "glyph-name", "glyphref", "gradientunits", "gradienttransform", "height", "href", "id", "image-rendering", "in", "in2", "intercept", "k", "k1", "k2", "k3", "k4", "kerning", "keypoints", "keysplines", "keytimes", "lang", "lengthadjust", "letter-spacing", "kernelmatrix", "kernelunitlength", "lighting-color", "local", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "maskcontentunits", "maskunits", "max", "mask", "media", "method", "mode", "min", "name", "numoctaves", "offset", "operator", "opacity", "order", "orient", "orientation", "origin", "overflow", "paint-order", "path", "pathlength", "patterncontentunits", "patterntransform", "patternunits", "points", "preservealpha", "preserveaspectratio", "primitiveunits", "r", "rx", "ry", "radius", "refx", "refy", "repeatcount", "repeatdur", "restart", "result", "rotate", "scale", "seed", "shape-rendering", "slope", "specularconstant", "specularexponent", "spreadmethod", "startoffset", "stddeviation", "stitchtiles", "stop-color", "stop-opacity", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke", "stroke-width", "style", "surfacescale", "systemlanguage", "tabindex", "tablevalues", "targetx", "targety", "transform", "transform-origin", "text-anchor", "text-decoration", "text-rendering", "textlength", "type", "u1", "u2", "unicode", "values", "viewbox", "visibility", "version", "vert-adv-y", "vert-origin-x", "vert-origin-y", "width", "word-spacing", "wrap", "writing-mode", "xchannelselector", "ychannelselector", "x", "x1", "x2", "xmlns", "y", "y1", "y2", "z", "zoomandpan"]);
+    var mathMl = freeze(["accent", "accentunder", "align", "bevelled", "close", "columnsalign", "columnlines", "columnspan", "denomalign", "depth", "dir", "display", "displaystyle", "encoding", "fence", "frame", "height", "href", "id", "largeop", "length", "linethickness", "lspace", "lquote", "mathbackground", "mathcolor", "mathsize", "mathvariant", "maxsize", "minsize", "movablelimits", "notation", "numalign", "open", "rowalign", "rowlines", "rowspacing", "rowspan", "rspace", "rquote", "scriptlevel", "scriptminsize", "scriptsizemultiplier", "selection", "separator", "separators", "stretchy", "subscriptshift", "supscriptshift", "symmetric", "voffset", "width", "xmlns"]);
+    var xml = freeze(["xlink:href", "xml:id", "xlink:title", "xml:space", "xmlns:xlink"]);
+    var MUSTACHE_EXPR = seal(/\{\{[\w\W]*|[\w\W]*\}\}/gm);
+    var ERB_EXPR = seal(/<%[\w\W]*|[\w\W]*%>/gm);
+    var TMPLIT_EXPR = seal(/\$\{[\w\W]*/gm);
+    var DATA_ATTR = seal(/^data-[\-\w.\u00B7-\uFFFF]+$/);
+    var ARIA_ATTR = seal(/^aria-[\-\w]+$/);
+    var IS_ALLOWED_URI = seal(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i);
+    var IS_SCRIPT_OR_DATA = seal(/^(?:\w+script|data):/i);
+    var ATTR_WHITESPACE = seal(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g);
+    var DOCTYPE_NAME = seal(/^html$/i);
+    var CUSTOM_ELEMENT = seal(/^[a-z][.\w]*(-[.\w]+)+$/i);
+    var EXPRESSIONS = /* @__PURE__ */ Object.freeze({
+      __proto__: null,
+      ARIA_ATTR,
+      ATTR_WHITESPACE,
+      CUSTOM_ELEMENT,
+      DATA_ATTR,
+      DOCTYPE_NAME,
+      ERB_EXPR,
+      IS_ALLOWED_URI,
+      IS_SCRIPT_OR_DATA,
+      MUSTACHE_EXPR,
+      TMPLIT_EXPR
+    });
+    var NODE_TYPE = {
+      element: 1,
+      attribute: 2,
+      text: 3,
+      cdataSection: 4,
+      entityReference: 5,
+      entityNode: 6,
+      progressingInstruction: 7,
+      comment: 8,
+      document: 9,
+      documentType: 10,
+      documentFragment: 11,
+      notation: 12
+    };
+    var getGlobal = function getGlobal2() {
+      return typeof window === "undefined" ? null : window;
+    };
+    var _createTrustedTypesPolicy = function _createTrustedTypesPolicy2(trustedTypes, purifyHostElement) {
+      if (typeof trustedTypes !== "object" || typeof trustedTypes.createPolicy !== "function") {
+        return null;
       }
-      has(a) {
-        x("has", arguments, 1);
-        a += "";
-        return __privateGet(this, _d).some((b) => b[0] === a);
+      let suffix = null;
+      const ATTR_NAME = "data-tt-policy-suffix";
+      if (purifyHostElement && purifyHostElement.hasAttribute(ATTR_NAME)) {
+        suffix = purifyHostElement.getAttribute(ATTR_NAME);
       }
-      forEach(a, b) {
-        x("forEach", arguments, 1);
-        for (var [c, d] of this)
-          a.call(b, d, c, this);
-      }
-      set(...a) {
-        x("set", arguments, 2);
-        var b = [], c = true;
-        a = f(...a);
-        __privateGet(this, _d).forEach((d) => {
-          d[0] === a[0] ? c && (c = !b.push(a)) : b.push(d);
-        });
-        c && b.push(a);
-        __privateSet(this, _d, b);
-      }
-      *entries() {
-        yield* __privateGet(this, _d);
-      }
-      *keys() {
-        for (var [a] of this)
-          yield a;
-      }
-      *values() {
-        for (var [, a] of this)
-          yield a;
-      }
-    }, _d = new WeakMap(), _a3);
-  }
-});
-
-// node_modules/node-domexception/index.js
-var require_node_domexception = __commonJS({
-  "node_modules/node-domexception/index.js"(exports, module2) {
-    if (!globalThis.DOMException) {
+      const policyName = "dompurify" + (suffix ? "#" + suffix : "");
       try {
-        const { MessageChannel } = require("worker_threads"), port = new MessageChannel().port1, ab = new ArrayBuffer();
-        port.postMessage(ab, [ab, ab]);
-      } catch (err) {
-        err.constructor.name === "DOMException" && (globalThis.DOMException = err.constructor);
-      }
-    }
-    module2.exports = globalThis.DOMException;
-  }
-});
-
-// node_modules/fetch-blob/from.js
-var import_node_fs, import_node_path, import_node_domexception, stat, _path, _start, _BlobDataItem, BlobDataItem;
-var init_from = __esm({
-  "node_modules/fetch-blob/from.js"() {
-    import_node_fs = require("node:fs");
-    import_node_path = require("node:path");
-    import_node_domexception = __toESM(require_node_domexception(), 1);
-    init_file();
-    init_fetch_blob();
-    ({ stat } = import_node_fs.promises);
-    _BlobDataItem = class {
-      constructor(options) {
-        __privateAdd(this, _path, void 0);
-        __privateAdd(this, _start, void 0);
-        __privateSet(this, _path, options.path);
-        __privateSet(this, _start, options.start);
-        this.size = options.size;
-        this.lastModified = options.lastModified;
-      }
-      slice(start, end) {
-        return new _BlobDataItem({
-          path: __privateGet(this, _path),
-          lastModified: this.lastModified,
-          size: end - start,
-          start: __privateGet(this, _start) + start
-        });
-      }
-      async *stream() {
-        const { mtimeMs } = await stat(__privateGet(this, _path));
-        if (mtimeMs > this.lastModified) {
-          throw new import_node_domexception.default("The requested file could not be read, typically due to permission problems that have occurred after a reference to a file was acquired.", "NotReadableError");
-        }
-        yield* (0, import_node_fs.createReadStream)(__privateGet(this, _path), {
-          start: __privateGet(this, _start),
-          end: __privateGet(this, _start) + this.size - 1
-        });
-      }
-      get [Symbol.toStringTag]() {
-        return "Blob";
-      }
-    };
-    BlobDataItem = _BlobDataItem;
-    _path = new WeakMap();
-    _start = new WeakMap();
-  }
-});
-
-// node_modules/node-fetch/src/utils/multipart-parser.js
-var multipart_parser_exports = {};
-__export(multipart_parser_exports, {
-  toFormData: () => toFormData
-});
-function _fileName(headerValue) {
-  const m2 = headerValue.match(/\bfilename=("(.*?)"|([^()<>@,;:\\"/[\]?={}\s\t]+))($|;\s)/i);
-  if (!m2) {
-    return;
-  }
-  const match = m2[2] || m2[3] || "";
-  let filename = match.slice(match.lastIndexOf("\\") + 1);
-  filename = filename.replace(/%22/g, '"');
-  filename = filename.replace(/&#(\d{4});/g, (m3, code) => {
-    return String.fromCharCode(code);
-  });
-  return filename;
-}
-async function toFormData(Body2, ct) {
-  if (!/multipart/i.test(ct)) {
-    throw new TypeError("Failed to fetch");
-  }
-  const m2 = ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
-  if (!m2) {
-    throw new TypeError("no or bad content-type header, no multipart boundary");
-  }
-  const parser = new MultipartParser(m2[1] || m2[2]);
-  let headerField;
-  let headerValue;
-  let entryValue;
-  let entryName;
-  let contentType;
-  let filename;
-  const entryChunks = [];
-  const formData = new FormData2();
-  const onPartData = (ui8a) => {
-    entryValue += decoder.decode(ui8a, { stream: true });
-  };
-  const appendToFile = (ui8a) => {
-    entryChunks.push(ui8a);
-  };
-  const appendFileToFormData = () => {
-    const file = new file_default(entryChunks, filename, { type: contentType });
-    formData.append(entryName, file);
-  };
-  const appendEntryToFormData = () => {
-    formData.append(entryName, entryValue);
-  };
-  const decoder = new TextDecoder("utf-8");
-  decoder.decode();
-  parser.onPartBegin = function() {
-    parser.onPartData = onPartData;
-    parser.onPartEnd = appendEntryToFormData;
-    headerField = "";
-    headerValue = "";
-    entryValue = "";
-    entryName = "";
-    contentType = "";
-    filename = null;
-    entryChunks.length = 0;
-  };
-  parser.onHeaderField = function(ui8a) {
-    headerField += decoder.decode(ui8a, { stream: true });
-  };
-  parser.onHeaderValue = function(ui8a) {
-    headerValue += decoder.decode(ui8a, { stream: true });
-  };
-  parser.onHeaderEnd = function() {
-    headerValue += decoder.decode();
-    headerField = headerField.toLowerCase();
-    if (headerField === "content-disposition") {
-      const m3 = headerValue.match(/\bname=("([^"]*)"|([^()<>@,;:\\"/[\]?={}\s\t]+))/i);
-      if (m3) {
-        entryName = m3[2] || m3[3] || "";
-      }
-      filename = _fileName(headerValue);
-      if (filename) {
-        parser.onPartData = appendToFile;
-        parser.onPartEnd = appendFileToFormData;
-      }
-    } else if (headerField === "content-type") {
-      contentType = headerValue;
-    }
-    headerValue = "";
-    headerField = "";
-  };
-  for await (const chunk of Body2) {
-    parser.write(chunk);
-  }
-  parser.end();
-  return formData;
-}
-var s, S, f2, F, LF, CR, SPACE, HYPHEN, COLON, A, Z, lower, noop, MultipartParser;
-var init_multipart_parser = __esm({
-  "node_modules/node-fetch/src/utils/multipart-parser.js"() {
-    init_from();
-    init_esm_min();
-    s = 0;
-    S = {
-      START_BOUNDARY: s++,
-      HEADER_FIELD_START: s++,
-      HEADER_FIELD: s++,
-      HEADER_VALUE_START: s++,
-      HEADER_VALUE: s++,
-      HEADER_VALUE_ALMOST_DONE: s++,
-      HEADERS_ALMOST_DONE: s++,
-      PART_DATA_START: s++,
-      PART_DATA: s++,
-      END: s++
-    };
-    f2 = 1;
-    F = {
-      PART_BOUNDARY: f2,
-      LAST_BOUNDARY: f2 *= 2
-    };
-    LF = 10;
-    CR = 13;
-    SPACE = 32;
-    HYPHEN = 45;
-    COLON = 58;
-    A = 97;
-    Z = 122;
-    lower = (c) => c | 32;
-    noop = () => {
-    };
-    MultipartParser = class {
-      constructor(boundary) {
-        this.index = 0;
-        this.flags = 0;
-        this.onHeaderEnd = noop;
-        this.onHeaderField = noop;
-        this.onHeadersEnd = noop;
-        this.onHeaderValue = noop;
-        this.onPartBegin = noop;
-        this.onPartData = noop;
-        this.onPartEnd = noop;
-        this.boundaryChars = {};
-        boundary = "\r\n--" + boundary;
-        const ui8a = new Uint8Array(boundary.length);
-        for (let i2 = 0; i2 < boundary.length; i2++) {
-          ui8a[i2] = boundary.charCodeAt(i2);
-          this.boundaryChars[ui8a[i2]] = true;
-        }
-        this.boundary = ui8a;
-        this.lookbehind = new Uint8Array(this.boundary.length + 8);
-        this.state = S.START_BOUNDARY;
-      }
-      write(data) {
-        let i2 = 0;
-        const length_ = data.length;
-        let previousIndex = this.index;
-        let { lookbehind, boundary, boundaryChars, index, state, flags } = this;
-        const boundaryLength = this.boundary.length;
-        const boundaryEnd = boundaryLength - 1;
-        const bufferLength = data.length;
-        let c;
-        let cl;
-        const mark = (name) => {
-          this[name + "Mark"] = i2;
-        };
-        const clear = (name) => {
-          delete this[name + "Mark"];
-        };
-        const callback = (callbackSymbol, start, end, ui8a) => {
-          if (start === void 0 || start !== end) {
-            this[callbackSymbol](ui8a && ui8a.subarray(start, end));
+        return trustedTypes.createPolicy(policyName, {
+          createHTML(html2) {
+            return html2;
+          },
+          createScriptURL(scriptUrl) {
+            return scriptUrl;
           }
-        };
-        const dataCallback = (name, clear2) => {
-          const markSymbol = name + "Mark";
-          if (!(markSymbol in this)) {
-            return;
+        });
+      } catch (_) {
+        console.warn("TrustedTypes policy " + policyName + " could not be created.");
+        return null;
+      }
+    };
+    var _createHooksMap = function _createHooksMap2() {
+      return {
+        afterSanitizeAttributes: [],
+        afterSanitizeElements: [],
+        afterSanitizeShadowDOM: [],
+        beforeSanitizeAttributes: [],
+        beforeSanitizeElements: [],
+        beforeSanitizeShadowDOM: [],
+        uponSanitizeAttribute: [],
+        uponSanitizeElement: [],
+        uponSanitizeShadowNode: []
+      };
+    };
+    function createDOMPurify() {
+      let window2 = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : getGlobal();
+      const DOMPurify2 = (root) => createDOMPurify(root);
+      DOMPurify2.version = "3.2.6";
+      DOMPurify2.removed = [];
+      if (!window2 || !window2.document || window2.document.nodeType !== NODE_TYPE.document || !window2.Element) {
+        DOMPurify2.isSupported = false;
+        return DOMPurify2;
+      }
+      let {
+        document: document2
+      } = window2;
+      const originalDocument = document2;
+      const currentScript = originalDocument.currentScript;
+      const {
+        DocumentFragment,
+        HTMLTemplateElement,
+        Node,
+        Element,
+        NodeFilter,
+        NamedNodeMap = window2.NamedNodeMap || window2.MozNamedAttrMap,
+        HTMLFormElement,
+        DOMParser,
+        trustedTypes
+      } = window2;
+      const ElementPrototype = Element.prototype;
+      const cloneNode = lookupGetter(ElementPrototype, "cloneNode");
+      const remove = lookupGetter(ElementPrototype, "remove");
+      const getNextSibling = lookupGetter(ElementPrototype, "nextSibling");
+      const getChildNodes = lookupGetter(ElementPrototype, "childNodes");
+      const getParentNode = lookupGetter(ElementPrototype, "parentNode");
+      if (typeof HTMLTemplateElement === "function") {
+        const template = document2.createElement("template");
+        if (template.content && template.content.ownerDocument) {
+          document2 = template.content.ownerDocument;
+        }
+      }
+      let trustedTypesPolicy;
+      let emptyHTML = "";
+      const {
+        implementation,
+        createNodeIterator,
+        createDocumentFragment,
+        getElementsByTagName
+      } = document2;
+      const {
+        importNode
+      } = originalDocument;
+      let hooks = _createHooksMap();
+      DOMPurify2.isSupported = typeof entries === "function" && typeof getParentNode === "function" && implementation && implementation.createHTMLDocument !== void 0;
+      const {
+        MUSTACHE_EXPR: MUSTACHE_EXPR2,
+        ERB_EXPR: ERB_EXPR2,
+        TMPLIT_EXPR: TMPLIT_EXPR2,
+        DATA_ATTR: DATA_ATTR2,
+        ARIA_ATTR: ARIA_ATTR2,
+        IS_SCRIPT_OR_DATA: IS_SCRIPT_OR_DATA2,
+        ATTR_WHITESPACE: ATTR_WHITESPACE2,
+        CUSTOM_ELEMENT: CUSTOM_ELEMENT2
+      } = EXPRESSIONS;
+      let {
+        IS_ALLOWED_URI: IS_ALLOWED_URI$1
+      } = EXPRESSIONS;
+      let ALLOWED_TAGS = null;
+      const DEFAULT_ALLOWED_TAGS = addToSet({}, [...html$1, ...svg$1, ...svgFilters, ...mathMl$1, ...text]);
+      let ALLOWED_ATTR = null;
+      const DEFAULT_ALLOWED_ATTR = addToSet({}, [...html, ...svg, ...mathMl, ...xml]);
+      let CUSTOM_ELEMENT_HANDLING = Object.seal(create(null, {
+        tagNameCheck: {
+          writable: true,
+          configurable: false,
+          enumerable: true,
+          value: null
+        },
+        attributeNameCheck: {
+          writable: true,
+          configurable: false,
+          enumerable: true,
+          value: null
+        },
+        allowCustomizedBuiltInElements: {
+          writable: true,
+          configurable: false,
+          enumerable: true,
+          value: false
+        }
+      }));
+      let FORBID_TAGS = null;
+      let FORBID_ATTR = null;
+      let ALLOW_ARIA_ATTR = true;
+      let ALLOW_DATA_ATTR = true;
+      let ALLOW_UNKNOWN_PROTOCOLS = false;
+      let ALLOW_SELF_CLOSE_IN_ATTR = true;
+      let SAFE_FOR_TEMPLATES = false;
+      let SAFE_FOR_XML = true;
+      let WHOLE_DOCUMENT = false;
+      let SET_CONFIG = false;
+      let FORCE_BODY = false;
+      let RETURN_DOM = false;
+      let RETURN_DOM_FRAGMENT = false;
+      let RETURN_TRUSTED_TYPE = false;
+      let SANITIZE_DOM = true;
+      let SANITIZE_NAMED_PROPS = false;
+      const SANITIZE_NAMED_PROPS_PREFIX = "user-content-";
+      let KEEP_CONTENT = true;
+      let IN_PLACE = false;
+      let USE_PROFILES = {};
+      let FORBID_CONTENTS = null;
+      const DEFAULT_FORBID_CONTENTS = addToSet({}, ["annotation-xml", "audio", "colgroup", "desc", "foreignobject", "head", "iframe", "math", "mi", "mn", "mo", "ms", "mtext", "noembed", "noframes", "noscript", "plaintext", "script", "style", "svg", "template", "thead", "title", "video", "xmp"]);
+      let DATA_URI_TAGS = null;
+      const DEFAULT_DATA_URI_TAGS = addToSet({}, ["audio", "video", "img", "source", "image", "track"]);
+      let URI_SAFE_ATTRIBUTES = null;
+      const DEFAULT_URI_SAFE_ATTRIBUTES = addToSet({}, ["alt", "class", "for", "id", "label", "name", "pattern", "placeholder", "role", "summary", "title", "value", "style", "xmlns"]);
+      const MATHML_NAMESPACE = "http://www.w3.org/1998/Math/MathML";
+      const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+      const HTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
+      let NAMESPACE = HTML_NAMESPACE;
+      let IS_EMPTY_INPUT = false;
+      let ALLOWED_NAMESPACES = null;
+      const DEFAULT_ALLOWED_NAMESPACES = addToSet({}, [MATHML_NAMESPACE, SVG_NAMESPACE, HTML_NAMESPACE], stringToString);
+      let MATHML_TEXT_INTEGRATION_POINTS = addToSet({}, ["mi", "mo", "mn", "ms", "mtext"]);
+      let HTML_INTEGRATION_POINTS = addToSet({}, ["annotation-xml"]);
+      const COMMON_SVG_AND_HTML_ELEMENTS = addToSet({}, ["title", "style", "font", "a", "script"]);
+      let PARSER_MEDIA_TYPE = null;
+      const SUPPORTED_PARSER_MEDIA_TYPES = ["application/xhtml+xml", "text/html"];
+      const DEFAULT_PARSER_MEDIA_TYPE = "text/html";
+      let transformCaseFunc = null;
+      let CONFIG = null;
+      const formElement = document2.createElement("form");
+      const isRegexOrFunction = function isRegexOrFunction2(testValue) {
+        return testValue instanceof RegExp || testValue instanceof Function;
+      };
+      const _parseConfig = function _parseConfig2() {
+        let cfg = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+        if (CONFIG && CONFIG === cfg) {
+          return;
+        }
+        if (!cfg || typeof cfg !== "object") {
+          cfg = {};
+        }
+        cfg = clone(cfg);
+        PARSER_MEDIA_TYPE = SUPPORTED_PARSER_MEDIA_TYPES.indexOf(cfg.PARSER_MEDIA_TYPE) === -1 ? DEFAULT_PARSER_MEDIA_TYPE : cfg.PARSER_MEDIA_TYPE;
+        transformCaseFunc = PARSER_MEDIA_TYPE === "application/xhtml+xml" ? stringToString : stringToLowerCase;
+        ALLOWED_TAGS = objectHasOwnProperty(cfg, "ALLOWED_TAGS") ? addToSet({}, cfg.ALLOWED_TAGS, transformCaseFunc) : DEFAULT_ALLOWED_TAGS;
+        ALLOWED_ATTR = objectHasOwnProperty(cfg, "ALLOWED_ATTR") ? addToSet({}, cfg.ALLOWED_ATTR, transformCaseFunc) : DEFAULT_ALLOWED_ATTR;
+        ALLOWED_NAMESPACES = objectHasOwnProperty(cfg, "ALLOWED_NAMESPACES") ? addToSet({}, cfg.ALLOWED_NAMESPACES, stringToString) : DEFAULT_ALLOWED_NAMESPACES;
+        URI_SAFE_ATTRIBUTES = objectHasOwnProperty(cfg, "ADD_URI_SAFE_ATTR") ? addToSet(clone(DEFAULT_URI_SAFE_ATTRIBUTES), cfg.ADD_URI_SAFE_ATTR, transformCaseFunc) : DEFAULT_URI_SAFE_ATTRIBUTES;
+        DATA_URI_TAGS = objectHasOwnProperty(cfg, "ADD_DATA_URI_TAGS") ? addToSet(clone(DEFAULT_DATA_URI_TAGS), cfg.ADD_DATA_URI_TAGS, transformCaseFunc) : DEFAULT_DATA_URI_TAGS;
+        FORBID_CONTENTS = objectHasOwnProperty(cfg, "FORBID_CONTENTS") ? addToSet({}, cfg.FORBID_CONTENTS, transformCaseFunc) : DEFAULT_FORBID_CONTENTS;
+        FORBID_TAGS = objectHasOwnProperty(cfg, "FORBID_TAGS") ? addToSet({}, cfg.FORBID_TAGS, transformCaseFunc) : clone({});
+        FORBID_ATTR = objectHasOwnProperty(cfg, "FORBID_ATTR") ? addToSet({}, cfg.FORBID_ATTR, transformCaseFunc) : clone({});
+        USE_PROFILES = objectHasOwnProperty(cfg, "USE_PROFILES") ? cfg.USE_PROFILES : false;
+        ALLOW_ARIA_ATTR = cfg.ALLOW_ARIA_ATTR !== false;
+        ALLOW_DATA_ATTR = cfg.ALLOW_DATA_ATTR !== false;
+        ALLOW_UNKNOWN_PROTOCOLS = cfg.ALLOW_UNKNOWN_PROTOCOLS || false;
+        ALLOW_SELF_CLOSE_IN_ATTR = cfg.ALLOW_SELF_CLOSE_IN_ATTR !== false;
+        SAFE_FOR_TEMPLATES = cfg.SAFE_FOR_TEMPLATES || false;
+        SAFE_FOR_XML = cfg.SAFE_FOR_XML !== false;
+        WHOLE_DOCUMENT = cfg.WHOLE_DOCUMENT || false;
+        RETURN_DOM = cfg.RETURN_DOM || false;
+        RETURN_DOM_FRAGMENT = cfg.RETURN_DOM_FRAGMENT || false;
+        RETURN_TRUSTED_TYPE = cfg.RETURN_TRUSTED_TYPE || false;
+        FORCE_BODY = cfg.FORCE_BODY || false;
+        SANITIZE_DOM = cfg.SANITIZE_DOM !== false;
+        SANITIZE_NAMED_PROPS = cfg.SANITIZE_NAMED_PROPS || false;
+        KEEP_CONTENT = cfg.KEEP_CONTENT !== false;
+        IN_PLACE = cfg.IN_PLACE || false;
+        IS_ALLOWED_URI$1 = cfg.ALLOWED_URI_REGEXP || IS_ALLOWED_URI;
+        NAMESPACE = cfg.NAMESPACE || HTML_NAMESPACE;
+        MATHML_TEXT_INTEGRATION_POINTS = cfg.MATHML_TEXT_INTEGRATION_POINTS || MATHML_TEXT_INTEGRATION_POINTS;
+        HTML_INTEGRATION_POINTS = cfg.HTML_INTEGRATION_POINTS || HTML_INTEGRATION_POINTS;
+        CUSTOM_ELEMENT_HANDLING = cfg.CUSTOM_ELEMENT_HANDLING || {};
+        if (cfg.CUSTOM_ELEMENT_HANDLING && isRegexOrFunction(cfg.CUSTOM_ELEMENT_HANDLING.tagNameCheck)) {
+          CUSTOM_ELEMENT_HANDLING.tagNameCheck = cfg.CUSTOM_ELEMENT_HANDLING.tagNameCheck;
+        }
+        if (cfg.CUSTOM_ELEMENT_HANDLING && isRegexOrFunction(cfg.CUSTOM_ELEMENT_HANDLING.attributeNameCheck)) {
+          CUSTOM_ELEMENT_HANDLING.attributeNameCheck = cfg.CUSTOM_ELEMENT_HANDLING.attributeNameCheck;
+        }
+        if (cfg.CUSTOM_ELEMENT_HANDLING && typeof cfg.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements === "boolean") {
+          CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements = cfg.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements;
+        }
+        if (SAFE_FOR_TEMPLATES) {
+          ALLOW_DATA_ATTR = false;
+        }
+        if (RETURN_DOM_FRAGMENT) {
+          RETURN_DOM = true;
+        }
+        if (USE_PROFILES) {
+          ALLOWED_TAGS = addToSet({}, text);
+          ALLOWED_ATTR = [];
+          if (USE_PROFILES.html === true) {
+            addToSet(ALLOWED_TAGS, html$1);
+            addToSet(ALLOWED_ATTR, html);
           }
-          if (clear2) {
-            callback(name, this[markSymbol], i2, data);
-            delete this[markSymbol];
+          if (USE_PROFILES.svg === true) {
+            addToSet(ALLOWED_TAGS, svg$1);
+            addToSet(ALLOWED_ATTR, svg);
+            addToSet(ALLOWED_ATTR, xml);
+          }
+          if (USE_PROFILES.svgFilters === true) {
+            addToSet(ALLOWED_TAGS, svgFilters);
+            addToSet(ALLOWED_ATTR, svg);
+            addToSet(ALLOWED_ATTR, xml);
+          }
+          if (USE_PROFILES.mathMl === true) {
+            addToSet(ALLOWED_TAGS, mathMl$1);
+            addToSet(ALLOWED_ATTR, mathMl);
+            addToSet(ALLOWED_ATTR, xml);
+          }
+        }
+        if (cfg.ADD_TAGS) {
+          if (ALLOWED_TAGS === DEFAULT_ALLOWED_TAGS) {
+            ALLOWED_TAGS = clone(ALLOWED_TAGS);
+          }
+          addToSet(ALLOWED_TAGS, cfg.ADD_TAGS, transformCaseFunc);
+        }
+        if (cfg.ADD_ATTR) {
+          if (ALLOWED_ATTR === DEFAULT_ALLOWED_ATTR) {
+            ALLOWED_ATTR = clone(ALLOWED_ATTR);
+          }
+          addToSet(ALLOWED_ATTR, cfg.ADD_ATTR, transformCaseFunc);
+        }
+        if (cfg.ADD_URI_SAFE_ATTR) {
+          addToSet(URI_SAFE_ATTRIBUTES, cfg.ADD_URI_SAFE_ATTR, transformCaseFunc);
+        }
+        if (cfg.FORBID_CONTENTS) {
+          if (FORBID_CONTENTS === DEFAULT_FORBID_CONTENTS) {
+            FORBID_CONTENTS = clone(FORBID_CONTENTS);
+          }
+          addToSet(FORBID_CONTENTS, cfg.FORBID_CONTENTS, transformCaseFunc);
+        }
+        if (KEEP_CONTENT) {
+          ALLOWED_TAGS["#text"] = true;
+        }
+        if (WHOLE_DOCUMENT) {
+          addToSet(ALLOWED_TAGS, ["html", "head", "body"]);
+        }
+        if (ALLOWED_TAGS.table) {
+          addToSet(ALLOWED_TAGS, ["tbody"]);
+          delete FORBID_TAGS.tbody;
+        }
+        if (cfg.TRUSTED_TYPES_POLICY) {
+          if (typeof cfg.TRUSTED_TYPES_POLICY.createHTML !== "function") {
+            throw typeErrorCreate('TRUSTED_TYPES_POLICY configuration option must provide a "createHTML" hook.');
+          }
+          if (typeof cfg.TRUSTED_TYPES_POLICY.createScriptURL !== "function") {
+            throw typeErrorCreate('TRUSTED_TYPES_POLICY configuration option must provide a "createScriptURL" hook.');
+          }
+          trustedTypesPolicy = cfg.TRUSTED_TYPES_POLICY;
+          emptyHTML = trustedTypesPolicy.createHTML("");
+        } else {
+          if (trustedTypesPolicy === void 0) {
+            trustedTypesPolicy = _createTrustedTypesPolicy(trustedTypes, currentScript);
+          }
+          if (trustedTypesPolicy !== null && typeof emptyHTML === "string") {
+            emptyHTML = trustedTypesPolicy.createHTML("");
+          }
+        }
+        if (freeze) {
+          freeze(cfg);
+        }
+        CONFIG = cfg;
+      };
+      const ALL_SVG_TAGS = addToSet({}, [...svg$1, ...svgFilters, ...svgDisallowed]);
+      const ALL_MATHML_TAGS = addToSet({}, [...mathMl$1, ...mathMlDisallowed]);
+      const _checkValidNamespace = function _checkValidNamespace2(element) {
+        let parent = getParentNode(element);
+        if (!parent || !parent.tagName) {
+          parent = {
+            namespaceURI: NAMESPACE,
+            tagName: "template"
+          };
+        }
+        const tagName = stringToLowerCase(element.tagName);
+        const parentTagName = stringToLowerCase(parent.tagName);
+        if (!ALLOWED_NAMESPACES[element.namespaceURI]) {
+          return false;
+        }
+        if (element.namespaceURI === SVG_NAMESPACE) {
+          if (parent.namespaceURI === HTML_NAMESPACE) {
+            return tagName === "svg";
+          }
+          if (parent.namespaceURI === MATHML_NAMESPACE) {
+            return tagName === "svg" && (parentTagName === "annotation-xml" || MATHML_TEXT_INTEGRATION_POINTS[parentTagName]);
+          }
+          return Boolean(ALL_SVG_TAGS[tagName]);
+        }
+        if (element.namespaceURI === MATHML_NAMESPACE) {
+          if (parent.namespaceURI === HTML_NAMESPACE) {
+            return tagName === "math";
+          }
+          if (parent.namespaceURI === SVG_NAMESPACE) {
+            return tagName === "math" && HTML_INTEGRATION_POINTS[parentTagName];
+          }
+          return Boolean(ALL_MATHML_TAGS[tagName]);
+        }
+        if (element.namespaceURI === HTML_NAMESPACE) {
+          if (parent.namespaceURI === SVG_NAMESPACE && !HTML_INTEGRATION_POINTS[parentTagName]) {
+            return false;
+          }
+          if (parent.namespaceURI === MATHML_NAMESPACE && !MATHML_TEXT_INTEGRATION_POINTS[parentTagName]) {
+            return false;
+          }
+          return !ALL_MATHML_TAGS[tagName] && (COMMON_SVG_AND_HTML_ELEMENTS[tagName] || !ALL_SVG_TAGS[tagName]);
+        }
+        if (PARSER_MEDIA_TYPE === "application/xhtml+xml" && ALLOWED_NAMESPACES[element.namespaceURI]) {
+          return true;
+        }
+        return false;
+      };
+      const _forceRemove = function _forceRemove2(node) {
+        arrayPush(DOMPurify2.removed, {
+          element: node
+        });
+        try {
+          getParentNode(node).removeChild(node);
+        } catch (_) {
+          remove(node);
+        }
+      };
+      const _removeAttribute = function _removeAttribute2(name, element) {
+        try {
+          arrayPush(DOMPurify2.removed, {
+            attribute: element.getAttributeNode(name),
+            from: element
+          });
+        } catch (_) {
+          arrayPush(DOMPurify2.removed, {
+            attribute: null,
+            from: element
+          });
+        }
+        element.removeAttribute(name);
+        if (name === "is") {
+          if (RETURN_DOM || RETURN_DOM_FRAGMENT) {
+            try {
+              _forceRemove(element);
+            } catch (_) {
+            }
           } else {
-            callback(name, this[markSymbol], data.length, data);
-            this[markSymbol] = 0;
+            try {
+              element.setAttribute(name, "");
+            } catch (_) {
+            }
           }
+        }
+      };
+      const _initDocument = function _initDocument2(dirty) {
+        let doc = null;
+        let leadingWhitespace = null;
+        if (FORCE_BODY) {
+          dirty = "<remove></remove>" + dirty;
+        } else {
+          const matches = stringMatch(dirty, /^[\r\n\t ]+/);
+          leadingWhitespace = matches && matches[0];
+        }
+        if (PARSER_MEDIA_TYPE === "application/xhtml+xml" && NAMESPACE === HTML_NAMESPACE) {
+          dirty = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + dirty + "</body></html>";
+        }
+        const dirtyPayload = trustedTypesPolicy ? trustedTypesPolicy.createHTML(dirty) : dirty;
+        if (NAMESPACE === HTML_NAMESPACE) {
+          try {
+            doc = new DOMParser().parseFromString(dirtyPayload, PARSER_MEDIA_TYPE);
+          } catch (_) {
+          }
+        }
+        if (!doc || !doc.documentElement) {
+          doc = implementation.createDocument(NAMESPACE, "template", null);
+          try {
+            doc.documentElement.innerHTML = IS_EMPTY_INPUT ? emptyHTML : dirtyPayload;
+          } catch (_) {
+          }
+        }
+        const body = doc.body || doc.documentElement;
+        if (dirty && leadingWhitespace) {
+          body.insertBefore(document2.createTextNode(leadingWhitespace), body.childNodes[0] || null);
+        }
+        if (NAMESPACE === HTML_NAMESPACE) {
+          return getElementsByTagName.call(doc, WHOLE_DOCUMENT ? "html" : "body")[0];
+        }
+        return WHOLE_DOCUMENT ? doc.documentElement : body;
+      };
+      const _createNodeIterator = function _createNodeIterator2(root) {
+        return createNodeIterator.call(root.ownerDocument || root, root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT | NodeFilter.SHOW_PROCESSING_INSTRUCTION | NodeFilter.SHOW_CDATA_SECTION, null);
+      };
+      const _isClobbered = function _isClobbered2(element) {
+        return element instanceof HTMLFormElement && (typeof element.nodeName !== "string" || typeof element.textContent !== "string" || typeof element.removeChild !== "function" || !(element.attributes instanceof NamedNodeMap) || typeof element.removeAttribute !== "function" || typeof element.setAttribute !== "function" || typeof element.namespaceURI !== "string" || typeof element.insertBefore !== "function" || typeof element.hasChildNodes !== "function");
+      };
+      const _isNode = function _isNode2(value) {
+        return typeof Node === "function" && value instanceof Node;
+      };
+      function _executeHooks(hooks2, currentNode, data) {
+        arrayForEach(hooks2, (hook) => {
+          hook.call(DOMPurify2, currentNode, data, CONFIG);
+        });
+      }
+      const _sanitizeElements = function _sanitizeElements2(currentNode) {
+        let content = null;
+        _executeHooks(hooks.beforeSanitizeElements, currentNode, null);
+        if (_isClobbered(currentNode)) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        const tagName = transformCaseFunc(currentNode.nodeName);
+        _executeHooks(hooks.uponSanitizeElement, currentNode, {
+          tagName,
+          allowedTags: ALLOWED_TAGS
+        });
+        if (SAFE_FOR_XML && currentNode.hasChildNodes() && !_isNode(currentNode.firstElementChild) && regExpTest(/<[/\w!]/g, currentNode.innerHTML) && regExpTest(/<[/\w!]/g, currentNode.textContent)) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        if (currentNode.nodeType === NODE_TYPE.progressingInstruction) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        if (SAFE_FOR_XML && currentNode.nodeType === NODE_TYPE.comment && regExpTest(/<[/\w]/g, currentNode.data)) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
+          if (!FORBID_TAGS[tagName] && _isBasicCustomElement(tagName)) {
+            if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, tagName)) {
+              return false;
+            }
+            if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(tagName)) {
+              return false;
+            }
+          }
+          if (KEEP_CONTENT && !FORBID_CONTENTS[tagName]) {
+            const parentNode = getParentNode(currentNode) || currentNode.parentNode;
+            const childNodes = getChildNodes(currentNode) || currentNode.childNodes;
+            if (childNodes && parentNode) {
+              const childCount = childNodes.length;
+              for (let i = childCount - 1; i >= 0; --i) {
+                const childClone = cloneNode(childNodes[i], true);
+                childClone.__removalCount = (currentNode.__removalCount || 0) + 1;
+                parentNode.insertBefore(childClone, getNextSibling(currentNode));
+              }
+            }
+          }
+          _forceRemove(currentNode);
+          return true;
+        }
+        if (currentNode instanceof Element && !_checkValidNamespace(currentNode)) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        if ((tagName === "noscript" || tagName === "noembed" || tagName === "noframes") && regExpTest(/<\/no(script|embed|frames)/i, currentNode.innerHTML)) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        if (SAFE_FOR_TEMPLATES && currentNode.nodeType === NODE_TYPE.text) {
+          content = currentNode.textContent;
+          arrayForEach([MUSTACHE_EXPR2, ERB_EXPR2, TMPLIT_EXPR2], (expr) => {
+            content = stringReplace(content, expr, " ");
+          });
+          if (currentNode.textContent !== content) {
+            arrayPush(DOMPurify2.removed, {
+              element: currentNode.cloneNode()
+            });
+            currentNode.textContent = content;
+          }
+        }
+        _executeHooks(hooks.afterSanitizeElements, currentNode, null);
+        return false;
+      };
+      const _isValidAttribute = function _isValidAttribute2(lcTag, lcName, value) {
+        if (SANITIZE_DOM && (lcName === "id" || lcName === "name") && (value in document2 || value in formElement)) {
+          return false;
+        }
+        if (ALLOW_DATA_ATTR && !FORBID_ATTR[lcName] && regExpTest(DATA_ATTR2, lcName))
+          ;
+        else if (ALLOW_ARIA_ATTR && regExpTest(ARIA_ATTR2, lcName))
+          ;
+        else if (!ALLOWED_ATTR[lcName] || FORBID_ATTR[lcName]) {
+          if (_isBasicCustomElement(lcTag) && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, lcTag) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(lcTag)) && (CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.attributeNameCheck, lcName) || CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.attributeNameCheck(lcName)) || lcName === "is" && CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, value) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(value)))
+            ;
+          else {
+            return false;
+          }
+        } else if (URI_SAFE_ATTRIBUTES[lcName])
+          ;
+        else if (regExpTest(IS_ALLOWED_URI$1, stringReplace(value, ATTR_WHITESPACE2, "")))
+          ;
+        else if ((lcName === "src" || lcName === "xlink:href" || lcName === "href") && lcTag !== "script" && stringIndexOf(value, "data:") === 0 && DATA_URI_TAGS[lcTag])
+          ;
+        else if (ALLOW_UNKNOWN_PROTOCOLS && !regExpTest(IS_SCRIPT_OR_DATA2, stringReplace(value, ATTR_WHITESPACE2, "")))
+          ;
+        else if (value) {
+          return false;
+        } else
+          ;
+        return true;
+      };
+      const _isBasicCustomElement = function _isBasicCustomElement2(tagName) {
+        return tagName !== "annotation-xml" && stringMatch(tagName, CUSTOM_ELEMENT2);
+      };
+      const _sanitizeAttributes = function _sanitizeAttributes2(currentNode) {
+        _executeHooks(hooks.beforeSanitizeAttributes, currentNode, null);
+        const {
+          attributes
+        } = currentNode;
+        if (!attributes || _isClobbered(currentNode)) {
+          return;
+        }
+        const hookEvent = {
+          attrName: "",
+          attrValue: "",
+          keepAttr: true,
+          allowedAttributes: ALLOWED_ATTR,
+          forceKeepAttr: void 0
         };
-        for (i2 = 0; i2 < length_; i2++) {
-          c = data[i2];
-          switch (state) {
-            case S.START_BOUNDARY:
-              if (index === boundary.length - 2) {
-                if (c === HYPHEN) {
-                  flags |= F.LAST_BOUNDARY;
-                } else if (c !== CR) {
-                  return;
+        let l = attributes.length;
+        while (l--) {
+          const attr = attributes[l];
+          const {
+            name,
+            namespaceURI,
+            value: attrValue
+          } = attr;
+          const lcName = transformCaseFunc(name);
+          const initValue = attrValue;
+          let value = name === "value" ? initValue : stringTrim(initValue);
+          hookEvent.attrName = lcName;
+          hookEvent.attrValue = value;
+          hookEvent.keepAttr = true;
+          hookEvent.forceKeepAttr = void 0;
+          _executeHooks(hooks.uponSanitizeAttribute, currentNode, hookEvent);
+          value = hookEvent.attrValue;
+          if (SANITIZE_NAMED_PROPS && (lcName === "id" || lcName === "name")) {
+            _removeAttribute(name, currentNode);
+            value = SANITIZE_NAMED_PROPS_PREFIX + value;
+          }
+          if (SAFE_FOR_XML && regExpTest(/((--!?|])>)|<\/(style|title)/i, value)) {
+            _removeAttribute(name, currentNode);
+            continue;
+          }
+          if (hookEvent.forceKeepAttr) {
+            continue;
+          }
+          if (!hookEvent.keepAttr) {
+            _removeAttribute(name, currentNode);
+            continue;
+          }
+          if (!ALLOW_SELF_CLOSE_IN_ATTR && regExpTest(/\/>/i, value)) {
+            _removeAttribute(name, currentNode);
+            continue;
+          }
+          if (SAFE_FOR_TEMPLATES) {
+            arrayForEach([MUSTACHE_EXPR2, ERB_EXPR2, TMPLIT_EXPR2], (expr) => {
+              value = stringReplace(value, expr, " ");
+            });
+          }
+          const lcTag = transformCaseFunc(currentNode.nodeName);
+          if (!_isValidAttribute(lcTag, lcName, value)) {
+            _removeAttribute(name, currentNode);
+            continue;
+          }
+          if (trustedTypesPolicy && typeof trustedTypes === "object" && typeof trustedTypes.getAttributeType === "function") {
+            if (namespaceURI)
+              ;
+            else {
+              switch (trustedTypes.getAttributeType(lcTag, lcName)) {
+                case "TrustedHTML": {
+                  value = trustedTypesPolicy.createHTML(value);
+                  break;
                 }
-                index++;
-                break;
-              } else if (index - 1 === boundary.length - 2) {
-                if (flags & F.LAST_BOUNDARY && c === HYPHEN) {
-                  state = S.END;
-                  flags = 0;
-                } else if (!(flags & F.LAST_BOUNDARY) && c === LF) {
-                  index = 0;
-                  callback("onPartBegin");
-                  state = S.HEADER_FIELD_START;
-                } else {
-                  return;
-                }
-                break;
-              }
-              if (c !== boundary[index + 2]) {
-                index = -2;
-              }
-              if (c === boundary[index + 2]) {
-                index++;
-              }
-              break;
-            case S.HEADER_FIELD_START:
-              state = S.HEADER_FIELD;
-              mark("onHeaderField");
-              index = 0;
-            case S.HEADER_FIELD:
-              if (c === CR) {
-                clear("onHeaderField");
-                state = S.HEADERS_ALMOST_DONE;
-                break;
-              }
-              index++;
-              if (c === HYPHEN) {
-                break;
-              }
-              if (c === COLON) {
-                if (index === 1) {
-                  return;
-                }
-                dataCallback("onHeaderField", true);
-                state = S.HEADER_VALUE_START;
-                break;
-              }
-              cl = lower(c);
-              if (cl < A || cl > Z) {
-                return;
-              }
-              break;
-            case S.HEADER_VALUE_START:
-              if (c === SPACE) {
-                break;
-              }
-              mark("onHeaderValue");
-              state = S.HEADER_VALUE;
-            case S.HEADER_VALUE:
-              if (c === CR) {
-                dataCallback("onHeaderValue", true);
-                callback("onHeaderEnd");
-                state = S.HEADER_VALUE_ALMOST_DONE;
-              }
-              break;
-            case S.HEADER_VALUE_ALMOST_DONE:
-              if (c !== LF) {
-                return;
-              }
-              state = S.HEADER_FIELD_START;
-              break;
-            case S.HEADERS_ALMOST_DONE:
-              if (c !== LF) {
-                return;
-              }
-              callback("onHeadersEnd");
-              state = S.PART_DATA_START;
-              break;
-            case S.PART_DATA_START:
-              state = S.PART_DATA;
-              mark("onPartData");
-            case S.PART_DATA:
-              previousIndex = index;
-              if (index === 0) {
-                i2 += boundaryEnd;
-                while (i2 < bufferLength && !(data[i2] in boundaryChars)) {
-                  i2 += boundaryLength;
-                }
-                i2 -= boundaryEnd;
-                c = data[i2];
-              }
-              if (index < boundary.length) {
-                if (boundary[index] === c) {
-                  if (index === 0) {
-                    dataCallback("onPartData", true);
-                  }
-                  index++;
-                } else {
-                  index = 0;
-                }
-              } else if (index === boundary.length) {
-                index++;
-                if (c === CR) {
-                  flags |= F.PART_BOUNDARY;
-                } else if (c === HYPHEN) {
-                  flags |= F.LAST_BOUNDARY;
-                } else {
-                  index = 0;
-                }
-              } else if (index - 1 === boundary.length) {
-                if (flags & F.PART_BOUNDARY) {
-                  index = 0;
-                  if (c === LF) {
-                    flags &= ~F.PART_BOUNDARY;
-                    callback("onPartEnd");
-                    callback("onPartBegin");
-                    state = S.HEADER_FIELD_START;
-                    break;
-                  }
-                } else if (flags & F.LAST_BOUNDARY) {
-                  if (c === HYPHEN) {
-                    callback("onPartEnd");
-                    state = S.END;
-                    flags = 0;
-                  } else {
-                    index = 0;
-                  }
-                } else {
-                  index = 0;
+                case "TrustedScriptURL": {
+                  value = trustedTypesPolicy.createScriptURL(value);
+                  break;
                 }
               }
-              if (index > 0) {
-                lookbehind[index - 1] = c;
-              } else if (previousIndex > 0) {
-                const _lookbehind = new Uint8Array(lookbehind.buffer, lookbehind.byteOffset, lookbehind.byteLength);
-                callback("onPartData", 0, previousIndex, _lookbehind);
-                previousIndex = 0;
-                mark("onPartData");
-                i2--;
+            }
+          }
+          if (value !== initValue) {
+            try {
+              if (namespaceURI) {
+                currentNode.setAttributeNS(namespaceURI, name, value);
+              } else {
+                currentNode.setAttribute(name, value);
               }
-              break;
-            case S.END:
-              break;
-            default:
-              throw new Error(`Unexpected state entered: ${state}`);
+              if (_isClobbered(currentNode)) {
+                _forceRemove(currentNode);
+              } else {
+                arrayPop(DOMPurify2.removed);
+              }
+            } catch (_) {
+              _removeAttribute(name, currentNode);
+            }
           }
         }
-        dataCallback("onHeaderField");
-        dataCallback("onHeaderValue");
-        dataCallback("onPartData");
-        this.index = index;
-        this.state = state;
-        this.flags = flags;
-      }
-      end() {
-        if (this.state === S.HEADER_FIELD_START && this.index === 0 || this.state === S.PART_DATA && this.index === this.boundary.length) {
-          this.onPartEnd();
-        } else if (this.state !== S.END) {
-          throw new Error("MultipartParser.end(): stream ended unexpectedly");
+        _executeHooks(hooks.afterSanitizeAttributes, currentNode, null);
+      };
+      const _sanitizeShadowDOM = function _sanitizeShadowDOM2(fragment) {
+        let shadowNode = null;
+        const shadowIterator = _createNodeIterator(fragment);
+        _executeHooks(hooks.beforeSanitizeShadowDOM, fragment, null);
+        while (shadowNode = shadowIterator.nextNode()) {
+          _executeHooks(hooks.uponSanitizeShadowNode, shadowNode, null);
+          _sanitizeElements(shadowNode);
+          _sanitizeAttributes(shadowNode);
+          if (shadowNode.content instanceof DocumentFragment) {
+            _sanitizeShadowDOM2(shadowNode.content);
+          }
         }
-      }
-    };
+        _executeHooks(hooks.afterSanitizeShadowDOM, fragment, null);
+      };
+      DOMPurify2.sanitize = function(dirty) {
+        let cfg = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+        let body = null;
+        let importedNode = null;
+        let currentNode = null;
+        let returnNode = null;
+        IS_EMPTY_INPUT = !dirty;
+        if (IS_EMPTY_INPUT) {
+          dirty = "<!-->";
+        }
+        if (typeof dirty !== "string" && !_isNode(dirty)) {
+          if (typeof dirty.toString === "function") {
+            dirty = dirty.toString();
+            if (typeof dirty !== "string") {
+              throw typeErrorCreate("dirty is not a string, aborting");
+            }
+          } else {
+            throw typeErrorCreate("toString is not a function");
+          }
+        }
+        if (!DOMPurify2.isSupported) {
+          return dirty;
+        }
+        if (!SET_CONFIG) {
+          _parseConfig(cfg);
+        }
+        DOMPurify2.removed = [];
+        if (typeof dirty === "string") {
+          IN_PLACE = false;
+        }
+        if (IN_PLACE) {
+          if (dirty.nodeName) {
+            const tagName = transformCaseFunc(dirty.nodeName);
+            if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
+              throw typeErrorCreate("root node is forbidden and cannot be sanitized in-place");
+            }
+          }
+        } else if (dirty instanceof Node) {
+          body = _initDocument("<!---->");
+          importedNode = body.ownerDocument.importNode(dirty, true);
+          if (importedNode.nodeType === NODE_TYPE.element && importedNode.nodeName === "BODY") {
+            body = importedNode;
+          } else if (importedNode.nodeName === "HTML") {
+            body = importedNode;
+          } else {
+            body.appendChild(importedNode);
+          }
+        } else {
+          if (!RETURN_DOM && !SAFE_FOR_TEMPLATES && !WHOLE_DOCUMENT && dirty.indexOf("<") === -1) {
+            return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? trustedTypesPolicy.createHTML(dirty) : dirty;
+          }
+          body = _initDocument(dirty);
+          if (!body) {
+            return RETURN_DOM ? null : RETURN_TRUSTED_TYPE ? emptyHTML : "";
+          }
+        }
+        if (body && FORCE_BODY) {
+          _forceRemove(body.firstChild);
+        }
+        const nodeIterator = _createNodeIterator(IN_PLACE ? dirty : body);
+        while (currentNode = nodeIterator.nextNode()) {
+          _sanitizeElements(currentNode);
+          _sanitizeAttributes(currentNode);
+          if (currentNode.content instanceof DocumentFragment) {
+            _sanitizeShadowDOM(currentNode.content);
+          }
+        }
+        if (IN_PLACE) {
+          return dirty;
+        }
+        if (RETURN_DOM) {
+          if (RETURN_DOM_FRAGMENT) {
+            returnNode = createDocumentFragment.call(body.ownerDocument);
+            while (body.firstChild) {
+              returnNode.appendChild(body.firstChild);
+            }
+          } else {
+            returnNode = body;
+          }
+          if (ALLOWED_ATTR.shadowroot || ALLOWED_ATTR.shadowrootmode) {
+            returnNode = importNode.call(originalDocument, returnNode, true);
+          }
+          return returnNode;
+        }
+        let serializedHTML = WHOLE_DOCUMENT ? body.outerHTML : body.innerHTML;
+        if (WHOLE_DOCUMENT && ALLOWED_TAGS["!doctype"] && body.ownerDocument && body.ownerDocument.doctype && body.ownerDocument.doctype.name && regExpTest(DOCTYPE_NAME, body.ownerDocument.doctype.name)) {
+          serializedHTML = "<!DOCTYPE " + body.ownerDocument.doctype.name + ">\n" + serializedHTML;
+        }
+        if (SAFE_FOR_TEMPLATES) {
+          arrayForEach([MUSTACHE_EXPR2, ERB_EXPR2, TMPLIT_EXPR2], (expr) => {
+            serializedHTML = stringReplace(serializedHTML, expr, " ");
+          });
+        }
+        return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? trustedTypesPolicy.createHTML(serializedHTML) : serializedHTML;
+      };
+      DOMPurify2.setConfig = function() {
+        let cfg = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+        _parseConfig(cfg);
+        SET_CONFIG = true;
+      };
+      DOMPurify2.clearConfig = function() {
+        CONFIG = null;
+        SET_CONFIG = false;
+      };
+      DOMPurify2.isValidAttribute = function(tag, attr, value) {
+        if (!CONFIG) {
+          _parseConfig({});
+        }
+        const lcTag = transformCaseFunc(tag);
+        const lcName = transformCaseFunc(attr);
+        return _isValidAttribute(lcTag, lcName, value);
+      };
+      DOMPurify2.addHook = function(entryPoint, hookFunction) {
+        if (typeof hookFunction !== "function") {
+          return;
+        }
+        arrayPush(hooks[entryPoint], hookFunction);
+      };
+      DOMPurify2.removeHook = function(entryPoint, hookFunction) {
+        if (hookFunction !== void 0) {
+          const index = arrayLastIndexOf(hooks[entryPoint], hookFunction);
+          return index === -1 ? void 0 : arraySplice(hooks[entryPoint], index, 1)[0];
+        }
+        return arrayPop(hooks[entryPoint]);
+      };
+      DOMPurify2.removeHooks = function(entryPoint) {
+        hooks[entryPoint] = [];
+      };
+      DOMPurify2.removeAllHooks = function() {
+        hooks = _createHooksMap();
+      };
+      return DOMPurify2;
+    }
+    var purify = createDOMPurify();
+    module2.exports = purify;
+  }
+});
+
+// node_modules/isomorphic-dompurify/browser.js
+var require_browser = __commonJS({
+  "node_modules/isomorphic-dompurify/browser.js"(exports, module2) {
+    module2.exports = window.DOMPurify || (window.DOMPurify = require_purify_cjs().default || require_purify_cjs());
   }
 });
 
@@ -4407,265 +1011,37 @@ __export(main_exports, {
   default: () => Khoj
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian5 = require("obsidian");
+var import_obsidian8 = require("obsidian");
 
 // src/settings.ts
-var import_obsidian2 = require("obsidian");
+var import_obsidian3 = require("obsidian");
 
 // src/utils.ts
-var import_obsidian = require("obsidian");
-function fileExtensionToMimeType(extension) {
-  switch (extension) {
-    case "pdf":
-      return "application/pdf";
-    case "png":
-      return "image/png";
-    case "jpg":
-    case "jpeg":
-      return "image/jpeg";
-    case "md":
-    case "markdown":
-      return "text/markdown";
-    case "org":
-      return "text/org";
-    default:
-      return "text/plain";
-  }
-}
-async function updateContentIndex(vault, setting, lastSyncedFiles, regenerate = false) {
-  console.log(`Khoj: Updating Khoj content index...`);
-  const files = vault.getFiles().filter((file) => file.extension === "md" || file.extension === "pdf");
-  const binaryFileTypes = ["pdf", "png", "jpg", "jpeg"];
-  let countOfFilesToIndex = 0;
-  let countOfFilesToDelete = 0;
-  const formData = new FormData();
-  for (const file of files) {
-    countOfFilesToIndex++;
-    const encoding = binaryFileTypes.includes(file.extension) ? "binary" : "utf8";
-    const mimeType = fileExtensionToMimeType(file.extension) + (encoding === "utf8" ? "; charset=UTF-8" : "");
-    const fileContent = encoding == "binary" ? await vault.readBinary(file) : await vault.read(file);
-    formData.append("files", new Blob([fileContent], { type: mimeType }), file.path);
-  }
-  for (const lastSyncedFile of lastSyncedFiles) {
-    if (!files.includes(lastSyncedFile)) {
-      countOfFilesToDelete++;
-      formData.append("files", new Blob([]), lastSyncedFile.path);
-    }
-  }
-  const response = await fetch(`${setting.khojUrl}/api/v1/index/update?force=${regenerate}&client=obsidian`, {
-    method: "POST",
-    headers: {
-      "x-api-key": "secret"
-    },
-    body: formData
-  });
-  if (!response.ok) {
-    new import_obsidian.Notice(`\u2757\uFE0FFailed to update Khoj content index. Ensure Khoj server connected or raise issue on Khoj Discord/Github
-Error: ${response.statusText}`);
-  } else {
-    console.log(`\u2705 Refreshed Khoj content index. Updated: ${countOfFilesToIndex} files, Deleted: ${countOfFilesToDelete} files.`);
-  }
-  return files;
-}
-async function configureKhojBackend(vault, setting, notify = true) {
-  let khojConfigUrl = `${setting.khojUrl}/api/config/data`;
-  let khoj_already_configured = await (0, import_obsidian.request)(khojConfigUrl).then((response) => {
-    setting.connectedToBackend = true;
-    return response !== "null";
-  }).catch((error) => {
-    setting.connectedToBackend = false;
-    if (notify)
-      new import_obsidian.Notice(`\u2757\uFE0FEnsure Khoj backend is running and Khoj URL is pointing to it in the plugin settings.
-
-${error}`);
-  });
-  if (!setting.connectedToBackend)
-    return;
-  let defaultConfig = await (0, import_obsidian.request)(`${khojConfigUrl}/default`).then((response) => JSON.parse(response));
-  let khojDefaultChatDirectory = getIndexDirectoryFromBackendConfig(defaultConfig["processor"]["conversation"]["conversation-logfile"]);
-  let khojDefaultOpenAIChatModelName = defaultConfig["processor"]["conversation"]["openai"]["chat-model"];
-  let khojDefaultOfflineChatModelName = defaultConfig["processor"]["conversation"]["offline-chat"]["chat-model"];
-  await (0, import_obsidian.request)(khoj_already_configured ? khojConfigUrl : `${khojConfigUrl}/default`).then((response) => JSON.parse(response)).then((data) => {
-    var _a4, _b, _c, _d2, _e, _f, _g;
-    let conversationLogFile = (_c = (_b = (_a4 = data == null ? void 0 : data["processor"]) == null ? void 0 : _a4["conversation"]) == null ? void 0 : _b["conversation-logfile"]) != null ? _c : `${khojDefaultChatDirectory}/conversation.json`;
-    let processorData = {
-      "conversation": {
-        "conversation-logfile": conversationLogFile,
-        "openai": null,
-        "offline-chat": {
-          "chat-model": khojDefaultOfflineChatModelName,
-          "enable-offline-chat": setting.enableOfflineChat
-        },
-        "tokenizer": null,
-        "max-prompt-size": null
-      }
-    };
-    if (!!setting.openaiApiKey) {
-      let openAIChatModel = (_g = (_f = (_e = (_d2 = data == null ? void 0 : data["processor"]) == null ? void 0 : _d2["conversation"]) == null ? void 0 : _e["openai"]) == null ? void 0 : _f["chat-model"]) != null ? _g : khojDefaultOpenAIChatModelName;
-      processorData = {
-        "conversation": {
-          "conversation-logfile": conversationLogFile,
-          "openai": {
-            "chat-model": openAIChatModel,
-            "api-key": setting.openaiApiKey
-          },
-          "offline-chat": {
-            "chat-model": khojDefaultOfflineChatModelName,
-            "enable-offline-chat": setting.enableOfflineChat
-          },
-          "tokenizer": null,
-          "max-prompt-size": null
-        }
-      };
-    }
-    data["processor"] = processorData;
-    updateKhojBackend(setting.khojUrl, data);
-    if (!khoj_already_configured)
-      console.log(`Khoj: Created khoj backend config:
-${JSON.stringify(data)}`);
-    else
-      console.log(`Khoj: Updated khoj backend config:
-${JSON.stringify(data)}`);
-  }).catch((error) => {
-    if (notify)
-      new import_obsidian.Notice(`\u2757\uFE0FFailed to configure Khoj backend. Contact developer on Github.
-
-Error: ${error}`);
-  });
-}
-async function updateKhojBackend(khojUrl, khojConfig) {
-  let requestContent = {
-    url: `${khojUrl}/api/config/data`,
-    body: JSON.stringify(khojConfig),
-    method: "POST",
-    contentType: "application/json"
-  };
-  (0, import_obsidian.request)(requestContent);
-}
-function getIndexDirectoryFromBackendConfig(filepath) {
-  return filepath.split("/").slice(0, -1).join("/");
-}
-async function createNote(name, newLeaf = false) {
-  var _a4, _b;
-  try {
-    let pathPrefix;
-    switch (app.vault.getConfig("newFileLocation")) {
-      case "current":
-        pathPrefix = ((_b = (_a4 = app.workspace.getActiveFile()) == null ? void 0 : _a4.parent.path) != null ? _b : "") + "/";
-        break;
-      case "folder":
-        pathPrefix = this.app.vault.getConfig("newFileFolderPath") + "/";
-        break;
-      default:
-        pathPrefix = "";
-        break;
-    }
-    await app.workspace.openLinkText(`${pathPrefix}${name}.md`, "", newLeaf);
-  } catch (e2) {
-    console.error("Khoj: Could not create note.\n" + e2.message);
-    throw e2;
-  }
-}
-async function createNoteAndCloseModal(query, modal, opt) {
-  try {
-    await createNote(query, opt == null ? void 0 : opt.newLeaf);
-  } catch (e2) {
-    new import_obsidian.Notice(e2.message);
-    return;
-  }
-  modal.close();
-}
-
-// src/settings.ts
-var DEFAULT_SETTINGS = {
-  enableOfflineChat: false,
-  resultsCount: 6,
-  khojUrl: "http://127.0.0.1:42110",
-  connectedToBackend: false,
-  autoConfigure: true,
-  openaiApiKey: "",
-  lastSyncedFiles: []
-};
-var KhojSettingTab = class extends import_obsidian2.PluginSettingTab {
-  constructor(app2, plugin) {
-    super(app2, plugin);
-    this.plugin = plugin;
-  }
-  display() {
-    const { containerEl } = this;
-    containerEl.empty();
-    containerEl.createEl("small", { text: this.getBackendStatusMessage() });
-    new import_obsidian2.Setting(containerEl).setName("Khoj URL").setDesc("The URL of the Khoj backend.").addText((text) => text.setValue(`${this.plugin.settings.khojUrl}`).onChange(async (value) => {
-      var _a4;
-      this.plugin.settings.khojUrl = value.trim();
-      await this.plugin.saveSettings();
-      (_a4 = containerEl.firstElementChild) == null ? void 0 : _a4.setText(this.getBackendStatusMessage());
-    }));
-    new import_obsidian2.Setting(containerEl).setName("OpenAI API Key").setDesc("Use OpenAI for Khoj Chat with your API key.").addText((text) => text.setValue(`${this.plugin.settings.openaiApiKey}`).onChange(async (value) => {
-      this.plugin.settings.openaiApiKey = value.trim();
-      await this.plugin.saveSettings();
-    }));
-    new import_obsidian2.Setting(containerEl).setName("Enable Offline Chat").setDesc("Chat privately without an internet connection. Enabling this will use offline chat even if OpenAI is configured.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableOfflineChat).onChange(async (value) => {
-      this.plugin.settings.enableOfflineChat = value;
-      await this.plugin.saveSettings();
-    }));
-    new import_obsidian2.Setting(containerEl).setName("Results Count").setDesc("The number of results to show in search and use for chat.").addSlider((slider) => slider.setLimits(1, 10, 1).setValue(this.plugin.settings.resultsCount).setDynamicTooltip().onChange(async (value) => {
-      this.plugin.settings.resultsCount = value;
-      await this.plugin.saveSettings();
-    }));
-    new import_obsidian2.Setting(containerEl).setName("Auto Configure").setDesc("Automatically configure the Khoj backend.").addToggle((toggle) => toggle.setValue(this.plugin.settings.autoConfigure).onChange(async (value) => {
-      this.plugin.settings.autoConfigure = value;
-      await this.plugin.saveSettings();
-    }));
-    let indexVaultSetting = new import_obsidian2.Setting(containerEl);
-    indexVaultSetting.setName("Index Vault").setDesc("Manually force Khoj to re-index your Obsidian Vault.").addButton((button) => button.setButtonText("Update").setCta().onClick(async () => {
-      button.setButtonText("Updating \u{1F311}");
-      button.removeCta();
-      indexVaultSetting = indexVaultSetting.setDisabled(true);
-      const progress_indicator = window.setInterval(() => {
-        if (button.buttonEl.innerText === "Updating \u{1F311}") {
-          button.setButtonText("Updating \u{1F318}");
-        } else if (button.buttonEl.innerText === "Updating \u{1F318}") {
-          button.setButtonText("Updating \u{1F317}");
-        } else if (button.buttonEl.innerText === "Updating \u{1F317}") {
-          button.setButtonText("Updating \u{1F316}");
-        } else if (button.buttonEl.innerText === "Updating \u{1F316}") {
-          button.setButtonText("Updating \u{1F315}");
-        } else if (button.buttonEl.innerText === "Updating \u{1F315}") {
-          button.setButtonText("Updating \u{1F314}");
-        } else if (button.buttonEl.innerText === "Updating \u{1F314}") {
-          button.setButtonText("Updating \u{1F313}");
-        } else if (button.buttonEl.innerText === "Updating \u{1F313}") {
-          button.setButtonText("Updating \u{1F312}");
-        } else if (button.buttonEl.innerText === "Updating \u{1F312}") {
-          button.setButtonText("Updating \u{1F311}");
-        }
-      }, 300);
-      this.plugin.registerInterval(progress_indicator);
-      this.plugin.settings.lastSyncedFiles = await updateContentIndex(this.app.vault, this.plugin.settings, this.plugin.settings.lastSyncedFiles, true);
-      new import_obsidian2.Notice("\u2705 Updated Khoj index.");
-      window.clearInterval(progress_indicator);
-      button.setButtonText("Update");
-      button.setCta();
-      indexVaultSetting = indexVaultSetting.setDisabled(false);
-    }));
-  }
-  getBackendStatusMessage() {
-    return !this.plugin.settings.connectedToBackend ? "\u2757Disconnected from Khoj backend. Ensure Khoj backend is running and Khoj URL is correctly set below." : "\u2705 Connected to Khoj backend.";
-  }
-};
+var import_obsidian2 = require("obsidian");
 
 // src/search_modal.ts
-var import_obsidian3 = require("obsidian");
-var KhojSearchModal = class extends import_obsidian3.SuggestModal {
-  constructor(app2, setting, find_similar_notes = false) {
-    super(app2);
+var import_obsidian = require("obsidian");
+var KhojSearchModal = class extends import_obsidian.SuggestModal {
+  constructor(app, setting, find_similar_notes = false) {
+    super(app);
     this.rerank = false;
     this.query = "";
-    this.app = app2;
+    this.currentController = null;
+    this.isLoading = false;
+    this.app = app;
     this.setting = setting;
     this.find_similar_notes = find_similar_notes;
     this.inputEl.hidden = this.find_similar_notes;
+    this.loadingEl = createDiv({ cls: "search-loading" });
+    const spinnerEl = this.loadingEl.createDiv({ cls: "search-loading-spinner" });
+    this.loadingEl.style.position = "absolute";
+    this.loadingEl.style.top = "50%";
+    this.loadingEl.style.left = "50%";
+    this.loadingEl.style.transform = "translate(-50%, -50%)";
+    this.loadingEl.style.zIndex = "1000";
+    this.loadingEl.style.display = "none";
+    this.modalEl.appendChild(this.loadingEl);
+    this.emptyStateText = "";
     this.scope.register(["Mod"], "Enter", async () => {
       this.rerank = true;
       this.inputEl.dispatchEvent(new Event("input"));
@@ -4689,7 +1065,7 @@ var KhojSearchModal = class extends import_obsidian3.SuggestModal {
         purpose: "to open"
       },
       {
-        command: import_obsidian3.Platform.isMacOS ? "cmd \u21B5" : "ctrl \u21B5",
+        command: import_obsidian.Platform.isMacOS ? "cmd \u21B5" : "ctrl \u21B5",
         purpose: "to rerank"
       },
       {
@@ -4699,6 +1075,67 @@ var KhojSearchModal = class extends import_obsidian3.SuggestModal {
     ];
     this.setInstructions(modalInstructions);
     this.setPlaceholder("Search with Khoj...");
+  }
+  isFileInVault(filePath) {
+    const normalizedPath = filePath.replace(/\\/g, "/");
+    return this.app.vault.getFiles().some((file) => file.path === normalizedPath);
+  }
+  async getSuggestions(query) {
+    if (!query.trim()) {
+      this.isLoading = false;
+      this.updateLoadingState();
+      return [];
+    }
+    this.isLoading = true;
+    this.updateLoadingState();
+    if (this.currentController) {
+      this.currentController.abort();
+    }
+    try {
+      this.currentController = new AbortController();
+      let encodedQuery = encodeURIComponent(query);
+      let searchUrl = `${this.setting.khojUrl}/api/search?q=${encodedQuery}&n=${this.setting.resultsCount}&r=${this.rerank}&client=obsidian`;
+      let headers = {
+        "Authorization": `Bearer ${this.setting.khojApiKey}`
+      };
+      const response = await fetch(searchUrl, {
+        headers,
+        signal: this.currentController.signal
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      let results = data.filter((result) => {
+        var _a;
+        return !this.find_similar_notes || !result.additional.file.endsWith((_a = this.app.workspace.getActiveFile()) == null ? void 0 : _a.path);
+      }).map((result) => {
+        return {
+          entry: result.entry,
+          file: result.additional.file,
+          inVault: this.isFileInVault(result.additional.file)
+        };
+      }).sort((a, b) => {
+        if (a.inVault === b.inVault)
+          return 0;
+        return a.inVault ? -1 : 1;
+      });
+      this.query = query;
+      this.isLoading = false;
+      this.updateLoadingState();
+      return results;
+    } catch (error) {
+      if (error.name === "AbortError") {
+        return void 0;
+      }
+      console.error("Search error:", error);
+      this.isLoading = false;
+      this.updateLoadingState();
+      return [];
+    }
+  }
+  updateLoadingState() {
+    this.loadingEl.style.display = this.isLoading ? "block" : "none";
   }
   async onOpen() {
     if (this.find_similar_notes) {
@@ -4713,1436 +1150,4359 @@ var KhojSearchModal = class extends import_obsidian3.SuggestModal {
       }
     }
   }
-  async getSuggestions(query) {
-    let encodedQuery = encodeURIComponent(query);
-    let searchUrl = `${this.setting.khojUrl}/api/search?q=${encodedQuery}&n=${this.setting.resultsCount}&r=${this.rerank}&client=obsidian`;
-    let mdResponse = await (0, import_obsidian3.request)(`${searchUrl}&t=markdown`);
-    let pdfResponse = await (0, import_obsidian3.request)(`${searchUrl}&t=pdf`);
-    let mdData = JSON.parse(mdResponse).filter((result) => {
-      var _a4;
-      return !this.find_similar_notes || !result.additional.file.endsWith((_a4 = this.app.workspace.getActiveFile()) == null ? void 0 : _a4.path);
-    }).map((result) => {
-      return { entry: result.entry, score: result.score, file: result.additional.file };
-    });
-    let pdfData = JSON.parse(pdfResponse).filter((result) => {
-      var _a4;
-      return !this.find_similar_notes || !result.additional.file.endsWith((_a4 = this.app.workspace.getActiveFile()) == null ? void 0 : _a4.path);
-    }).map((result) => {
-      return { entry: `## ${result.additional.compiled}`, score: result.score, file: result.additional.file };
-    });
-    let results = mdData.concat(pdfData).sort((a, b) => b.score - a.score).map((result) => {
-      return { entry: result.entry, file: result.file };
-    });
-    this.query = query;
-    return results;
-  }
   async renderSuggestion(result, el) {
+    var _a;
     let lines_to_render = 8;
     let os_path_separator = result.file.includes("\\") ? "\\" : "/";
     let filename = result.file.split(os_path_separator).pop();
-    result.entry = result.entry.replace(/---[\n\r][\s\S]*---[\n\r]/, "");
-    let entry_snipped_indicator = result.entry.split("\n").length > lines_to_render ? " **...**" : "";
-    let snipped_entry = result.entry.split("\n").slice(0, lines_to_render).join("\n");
-    el.createEl("div", { cls: "khoj-result-file" }).setText(filename != null ? filename : "");
+    const fileEl = el.createEl("div", {
+      cls: `khoj-result-file ${result.inVault ? "in-vault" : "not-in-vault"}`
+    });
+    fileEl.setText(filename != null ? filename : "");
+    if (!result.inVault) {
+      fileEl.createSpan({
+        text: " (not in vault)",
+        cls: "khoj-result-file-status"
+      });
+    }
     let result_el = el.createEl("div", { cls: "khoj-result-entry" });
-    import_obsidian3.MarkdownRenderer.renderMarkdown(snipped_entry + entry_snipped_indicator, result_el, null, null);
+    let resultToRender = "";
+    let fileExtension = (_a = filename == null ? void 0 : filename.split(".").pop()) != null ? _a : "";
+    if (supportedImageFilesTypes.includes(fileExtension) && filename && result.inVault) {
+      let linkToEntry = filename;
+      let imageFiles = this.app.vault.getFiles().filter((file) => supportedImageFilesTypes.includes(fileExtension));
+      let fileInVault = getFileFromPath(imageFiles, result.file);
+      if (fileInVault)
+        linkToEntry = this.app.vault.getResourcePath(fileInVault);
+      resultToRender = `![](${linkToEntry})`;
+    } else {
+      result.entry = result.entry.replace(/---[\n\r][\s\S]*---[\n\r]/, "");
+      let entry_snipped_indicator = result.entry.split("\n").length > lines_to_render ? " **...**" : "";
+      let snipped_entry = result.entry.split("\n").slice(0, lines_to_render).join("\n");
+      resultToRender = `${snipped_entry}${entry_snipped_indicator}`;
+    }
+    import_obsidian.MarkdownRenderer.renderMarkdown(resultToRender, result_el, result.file, null);
   }
   async onChooseSuggestion(result, _) {
+    if (!result.inVault) {
+      new import_obsidian.Notice("This file is not in your vault");
+      return;
+    }
     const mdFiles = this.app.vault.getMarkdownFiles();
-    const pdfFiles = this.app.vault.getFiles().filter((file) => file.extension === "pdf");
-    let file_match = mdFiles.concat(pdfFiles).sort((a, b) => b.path.length - a.path.length).find((file) => result.file.replace(/\\/g, "/").endsWith(file.path));
-    if (file_match) {
-      let resultHeading = file_match.extension !== "pdf" ? result.entry.split("\n", 1)[0] : "";
-      let linkToEntry = resultHeading.startsWith("#") ? `${file_match.path}${resultHeading}` : file_match.path;
+    const binaryFiles = this.app.vault.getFiles().filter((file) => supportedBinaryFileTypes.includes(file.extension));
+    let linkToEntry = getLinkToEntry(mdFiles.concat(binaryFiles), result.file, result.entry);
+    if (linkToEntry)
       this.app.workspace.openLinkText(linkToEntry, "");
-      console.log(`Link: ${linkToEntry}, File: ${file_match.path}, Heading: ${resultHeading}`);
-    }
   }
 };
 
-// src/chat_modal.ts
-var import_obsidian4 = require("obsidian");
-
-// node_modules/node-fetch/src/index.js
-var import_node_http2 = __toESM(require("node:http"), 1);
-var import_node_https = __toESM(require("node:https"), 1);
-var import_node_zlib = __toESM(require("node:zlib"), 1);
-var import_node_stream2 = __toESM(require("node:stream"), 1);
-var import_node_buffer2 = require("node:buffer");
-
-// node_modules/data-uri-to-buffer/dist/index.js
-function dataUriToBuffer(uri) {
-  if (!/^data:/i.test(uri)) {
-    throw new TypeError('`uri` does not appear to be a Data URI (must begin with "data:")');
-  }
-  uri = uri.replace(/\r?\n/g, "");
-  const firstComma = uri.indexOf(",");
-  if (firstComma === -1 || firstComma <= 4) {
-    throw new TypeError("malformed data: URI");
-  }
-  const meta = uri.substring(5, firstComma).split(";");
-  let charset = "";
-  let base64 = false;
-  const type = meta[0] || "text/plain";
-  let typeFull = type;
-  for (let i2 = 1; i2 < meta.length; i2++) {
-    if (meta[i2] === "base64") {
-      base64 = true;
-    } else if (meta[i2]) {
-      typeFull += `;${meta[i2]}`;
-      if (meta[i2].indexOf("charset=") === 0) {
-        charset = meta[i2].substring(8);
-      }
-    }
-  }
-  if (!meta[0] && !charset.length) {
-    typeFull += ";charset=US-ASCII";
-    charset = "US-ASCII";
-  }
-  const encoding = base64 ? "base64" : "ascii";
-  const data = unescape(uri.substring(firstComma + 1));
-  const buffer = Buffer.from(data, encoding);
-  buffer.type = type;
-  buffer.typeFull = typeFull;
-  buffer.charset = charset;
-  return buffer;
-}
-var dist_default = dataUriToBuffer;
-
-// node_modules/node-fetch/src/body.js
-var import_node_stream = __toESM(require("node:stream"), 1);
-var import_node_util = require("node:util");
-var import_node_buffer = require("node:buffer");
-init_fetch_blob();
-init_esm_min();
-
-// node_modules/node-fetch/src/errors/base.js
-var FetchBaseError = class extends Error {
-  constructor(message, type) {
-    super(message);
-    Error.captureStackTrace(this, this.constructor);
-    this.type = type;
-  }
-  get name() {
-    return this.constructor.name;
-  }
-  get [Symbol.toStringTag]() {
-    return this.constructor.name;
-  }
-};
-
-// node_modules/node-fetch/src/errors/fetch-error.js
-var FetchError = class extends FetchBaseError {
-  constructor(message, type, systemError) {
-    super(message, type);
-    if (systemError) {
-      this.code = this.errno = systemError.code;
-      this.erroredSysCall = systemError.syscall;
-    }
-  }
-};
-
-// node_modules/node-fetch/src/utils/is.js
-var NAME = Symbol.toStringTag;
-var isURLSearchParameters = (object) => {
-  return typeof object === "object" && typeof object.append === "function" && typeof object.delete === "function" && typeof object.get === "function" && typeof object.getAll === "function" && typeof object.has === "function" && typeof object.set === "function" && typeof object.sort === "function" && object[NAME] === "URLSearchParams";
-};
-var isBlob = (object) => {
-  return object && typeof object === "object" && typeof object.arrayBuffer === "function" && typeof object.type === "string" && typeof object.stream === "function" && typeof object.constructor === "function" && /^(Blob|File)$/.test(object[NAME]);
-};
-var isAbortSignal = (object) => {
-  return typeof object === "object" && (object[NAME] === "AbortSignal" || object[NAME] === "EventTarget");
-};
-var isDomainOrSubdomain = (destination, original) => {
-  const orig = new URL(original).hostname;
-  const dest = new URL(destination).hostname;
-  return orig === dest || orig.endsWith(`.${dest}`);
-};
-var isSameProtocol = (destination, original) => {
-  const orig = new URL(original).protocol;
-  const dest = new URL(destination).protocol;
-  return orig === dest;
-};
-
-// node_modules/node-fetch/src/body.js
-var pipeline = (0, import_node_util.promisify)(import_node_stream.default.pipeline);
-var INTERNALS = Symbol("Body internals");
-var Body = class {
-  constructor(body, {
-    size = 0
-  } = {}) {
-    let boundary = null;
-    if (body === null) {
-      body = null;
-    } else if (isURLSearchParameters(body)) {
-      body = import_node_buffer.Buffer.from(body.toString());
-    } else if (isBlob(body)) {
-    } else if (import_node_buffer.Buffer.isBuffer(body)) {
-    } else if (import_node_util.types.isAnyArrayBuffer(body)) {
-      body = import_node_buffer.Buffer.from(body);
-    } else if (ArrayBuffer.isView(body)) {
-      body = import_node_buffer.Buffer.from(body.buffer, body.byteOffset, body.byteLength);
-    } else if (body instanceof import_node_stream.default) {
-    } else if (body instanceof FormData2) {
-      body = formDataToBlob(body);
-      boundary = body.type.split("=")[1];
-    } else {
-      body = import_node_buffer.Buffer.from(String(body));
-    }
-    let stream = body;
-    if (import_node_buffer.Buffer.isBuffer(body)) {
-      stream = import_node_stream.default.Readable.from(body);
-    } else if (isBlob(body)) {
-      stream = import_node_stream.default.Readable.from(body.stream());
-    }
-    this[INTERNALS] = {
-      body,
-      stream,
-      boundary,
-      disturbed: false,
-      error: null
-    };
-    this.size = size;
-    if (body instanceof import_node_stream.default) {
-      body.on("error", (error_) => {
-        const error = error_ instanceof FetchBaseError ? error_ : new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, "system", error_);
-        this[INTERNALS].error = error;
-      });
-    }
-  }
-  get body() {
-    return this[INTERNALS].stream;
-  }
-  get bodyUsed() {
-    return this[INTERNALS].disturbed;
-  }
-  async arrayBuffer() {
-    const { buffer, byteOffset, byteLength } = await consumeBody(this);
-    return buffer.slice(byteOffset, byteOffset + byteLength);
-  }
-  async formData() {
-    const ct = this.headers.get("content-type");
-    if (ct.startsWith("application/x-www-form-urlencoded")) {
-      const formData = new FormData2();
-      const parameters = new URLSearchParams(await this.text());
-      for (const [name, value] of parameters) {
-        formData.append(name, value);
-      }
-      return formData;
-    }
-    const { toFormData: toFormData2 } = await Promise.resolve().then(() => (init_multipart_parser(), multipart_parser_exports));
-    return toFormData2(this.body, ct);
-  }
-  async blob() {
-    const ct = this.headers && this.headers.get("content-type") || this[INTERNALS].body && this[INTERNALS].body.type || "";
-    const buf = await this.arrayBuffer();
-    return new fetch_blob_default([buf], {
-      type: ct
-    });
-  }
-  async json() {
-    const text = await this.text();
-    return JSON.parse(text);
-  }
-  async text() {
-    const buffer = await consumeBody(this);
-    return new TextDecoder().decode(buffer);
-  }
-  buffer() {
-    return consumeBody(this);
-  }
-};
-Body.prototype.buffer = (0, import_node_util.deprecate)(Body.prototype.buffer, "Please use 'response.arrayBuffer()' instead of 'response.buffer()'", "node-fetch#buffer");
-Object.defineProperties(Body.prototype, {
-  body: { enumerable: true },
-  bodyUsed: { enumerable: true },
-  arrayBuffer: { enumerable: true },
-  blob: { enumerable: true },
-  json: { enumerable: true },
-  text: { enumerable: true },
-  data: { get: (0, import_node_util.deprecate)(() => {
-  }, "data doesn't exist, use json(), text(), arrayBuffer(), or body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (response)") }
-});
-async function consumeBody(data) {
-  if (data[INTERNALS].disturbed) {
-    throw new TypeError(`body used already for: ${data.url}`);
-  }
-  data[INTERNALS].disturbed = true;
-  if (data[INTERNALS].error) {
-    throw data[INTERNALS].error;
-  }
-  const { body } = data;
-  if (body === null) {
-    return import_node_buffer.Buffer.alloc(0);
-  }
-  if (!(body instanceof import_node_stream.default)) {
-    return import_node_buffer.Buffer.alloc(0);
-  }
-  const accum = [];
-  let accumBytes = 0;
-  try {
-    for await (const chunk of body) {
-      if (data.size > 0 && accumBytes + chunk.length > data.size) {
-        const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, "max-size");
-        body.destroy(error);
-        throw error;
-      }
-      accumBytes += chunk.length;
-      accum.push(chunk);
-    }
-  } catch (error) {
-    const error_ = error instanceof FetchBaseError ? error : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, "system", error);
-    throw error_;
-  }
-  if (body.readableEnded === true || body._readableState.ended === true) {
-    try {
-      if (accum.every((c) => typeof c === "string")) {
-        return import_node_buffer.Buffer.from(accum.join(""));
-      }
-      return import_node_buffer.Buffer.concat(accum, accumBytes);
-    } catch (error) {
-      throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, "system", error);
-    }
-  } else {
-    throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
-  }
-}
-var clone = (instance, highWaterMark) => {
-  let p1;
-  let p2;
-  let { body } = instance[INTERNALS];
-  if (instance.bodyUsed) {
-    throw new Error("cannot clone body after it is used");
-  }
-  if (body instanceof import_node_stream.default && typeof body.getBoundary !== "function") {
-    p1 = new import_node_stream.PassThrough({ highWaterMark });
-    p2 = new import_node_stream.PassThrough({ highWaterMark });
-    body.pipe(p1);
-    body.pipe(p2);
-    instance[INTERNALS].stream = p1;
-    body = p2;
-  }
-  return body;
-};
-var getNonSpecFormDataBoundary = (0, import_node_util.deprecate)((body) => body.getBoundary(), "form-data doesn't follow the spec and requires special treatment. Use alternative package", "https://github.com/node-fetch/node-fetch/issues/1167");
-var extractContentType = (body, request4) => {
-  if (body === null) {
-    return null;
-  }
-  if (typeof body === "string") {
-    return "text/plain;charset=UTF-8";
-  }
-  if (isURLSearchParameters(body)) {
-    return "application/x-www-form-urlencoded;charset=UTF-8";
-  }
-  if (isBlob(body)) {
-    return body.type || null;
-  }
-  if (import_node_buffer.Buffer.isBuffer(body) || import_node_util.types.isAnyArrayBuffer(body) || ArrayBuffer.isView(body)) {
-    return null;
-  }
-  if (body instanceof FormData2) {
-    return `multipart/form-data; boundary=${request4[INTERNALS].boundary}`;
-  }
-  if (body && typeof body.getBoundary === "function") {
-    return `multipart/form-data;boundary=${getNonSpecFormDataBoundary(body)}`;
-  }
-  if (body instanceof import_node_stream.default) {
-    return null;
-  }
-  return "text/plain;charset=UTF-8";
-};
-var getTotalBytes = (request4) => {
-  const { body } = request4[INTERNALS];
-  if (body === null) {
-    return 0;
-  }
-  if (isBlob(body)) {
-    return body.size;
-  }
-  if (import_node_buffer.Buffer.isBuffer(body)) {
-    return body.length;
-  }
-  if (body && typeof body.getLengthSync === "function") {
-    return body.hasKnownLength && body.hasKnownLength() ? body.getLengthSync() : null;
-  }
-  return null;
-};
-var writeToStream = async (dest, { body }) => {
-  if (body === null) {
-    dest.end();
-  } else {
-    await pipeline(body, dest);
-  }
-};
-
-// node_modules/node-fetch/src/headers.js
-var import_node_util2 = require("node:util");
-var import_node_http = __toESM(require("node:http"), 1);
-var validateHeaderName = typeof import_node_http.default.validateHeaderName === "function" ? import_node_http.default.validateHeaderName : (name) => {
-  if (!/^[\^`\-\w!#$%&'*+.|~]+$/.test(name)) {
-    const error = new TypeError(`Header name must be a valid HTTP token [${name}]`);
-    Object.defineProperty(error, "code", { value: "ERR_INVALID_HTTP_TOKEN" });
-    throw error;
-  }
-};
-var validateHeaderValue = typeof import_node_http.default.validateHeaderValue === "function" ? import_node_http.default.validateHeaderValue : (name, value) => {
-  if (/[^\t\u0020-\u007E\u0080-\u00FF]/.test(value)) {
-    const error = new TypeError(`Invalid character in header content ["${name}"]`);
-    Object.defineProperty(error, "code", { value: "ERR_INVALID_CHAR" });
-    throw error;
-  }
-};
-var Headers = class extends URLSearchParams {
-  constructor(init) {
-    let result = [];
-    if (init instanceof Headers) {
-      const raw = init.raw();
-      for (const [name, values] of Object.entries(raw)) {
-        result.push(...values.map((value) => [name, value]));
-      }
-    } else if (init == null) {
-    } else if (typeof init === "object" && !import_node_util2.types.isBoxedPrimitive(init)) {
-      const method = init[Symbol.iterator];
-      if (method == null) {
-        result.push(...Object.entries(init));
-      } else {
-        if (typeof method !== "function") {
-          throw new TypeError("Header pairs must be iterable");
-        }
-        result = [...init].map((pair) => {
-          if (typeof pair !== "object" || import_node_util2.types.isBoxedPrimitive(pair)) {
-            throw new TypeError("Each header pair must be an iterable object");
-          }
-          return [...pair];
-        }).map((pair) => {
-          if (pair.length !== 2) {
-            throw new TypeError("Each header pair must be a name/value tuple");
-          }
-          return [...pair];
-        });
-      }
-    } else {
-      throw new TypeError("Failed to construct 'Headers': The provided value is not of type '(sequence<sequence<ByteString>> or record<ByteString, ByteString>)");
-    }
-    result = result.length > 0 ? result.map(([name, value]) => {
-      validateHeaderName(name);
-      validateHeaderValue(name, String(value));
-      return [String(name).toLowerCase(), String(value)];
-    }) : void 0;
-    super(result);
-    return new Proxy(this, {
-      get(target, p, receiver) {
-        switch (p) {
-          case "append":
-          case "set":
-            return (name, value) => {
-              validateHeaderName(name);
-              validateHeaderValue(name, String(value));
-              return URLSearchParams.prototype[p].call(target, String(name).toLowerCase(), String(value));
-            };
-          case "delete":
-          case "has":
-          case "getAll":
-            return (name) => {
-              validateHeaderName(name);
-              return URLSearchParams.prototype[p].call(target, String(name).toLowerCase());
-            };
-          case "keys":
-            return () => {
-              target.sort();
-              return new Set(URLSearchParams.prototype.keys.call(target)).keys();
-            };
-          default:
-            return Reflect.get(target, p, receiver);
-        }
-      }
-    });
-  }
-  get [Symbol.toStringTag]() {
-    return this.constructor.name;
-  }
-  toString() {
-    return Object.prototype.toString.call(this);
-  }
-  get(name) {
-    const values = this.getAll(name);
-    if (values.length === 0) {
-      return null;
-    }
-    let value = values.join(", ");
-    if (/^content-encoding$/i.test(name)) {
-      value = value.toLowerCase();
-    }
-    return value;
-  }
-  forEach(callback, thisArg = void 0) {
-    for (const name of this.keys()) {
-      Reflect.apply(callback, thisArg, [this.get(name), name, this]);
-    }
-  }
-  *values() {
-    for (const name of this.keys()) {
-      yield this.get(name);
-    }
-  }
-  *entries() {
-    for (const name of this.keys()) {
-      yield [name, this.get(name)];
-    }
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  raw() {
-    return [...this.keys()].reduce((result, key) => {
-      result[key] = this.getAll(key);
-      return result;
-    }, {});
-  }
-  [Symbol.for("nodejs.util.inspect.custom")]() {
-    return [...this.keys()].reduce((result, key) => {
-      const values = this.getAll(key);
-      if (key === "host") {
-        result[key] = values[0];
-      } else {
-        result[key] = values.length > 1 ? values : values[0];
-      }
-      return result;
-    }, {});
-  }
-};
-Object.defineProperties(Headers.prototype, ["get", "entries", "forEach", "values"].reduce((result, property) => {
-  result[property] = { enumerable: true };
-  return result;
-}, {}));
-function fromRawHeaders(headers = []) {
-  return new Headers(headers.reduce((result, value, index, array) => {
-    if (index % 2 === 0) {
-      result.push(array.slice(index, index + 2));
-    }
-    return result;
-  }, []).filter(([name, value]) => {
-    try {
-      validateHeaderName(name);
-      validateHeaderValue(name, String(value));
-      return true;
-    } catch (e2) {
-      return false;
-    }
-  }));
-}
-
-// node_modules/node-fetch/src/utils/is-redirect.js
-var redirectStatus = /* @__PURE__ */ new Set([301, 302, 303, 307, 308]);
-var isRedirect = (code) => {
-  return redirectStatus.has(code);
-};
-
-// node_modules/node-fetch/src/response.js
-var INTERNALS2 = Symbol("Response internals");
-var Response = class extends Body {
-  constructor(body = null, options = {}) {
-    super(body, options);
-    const status = options.status != null ? options.status : 200;
-    const headers = new Headers(options.headers);
-    if (body !== null && !headers.has("Content-Type")) {
-      const contentType = extractContentType(body, this);
-      if (contentType) {
-        headers.append("Content-Type", contentType);
-      }
-    }
-    this[INTERNALS2] = {
-      type: "default",
-      url: options.url,
-      status,
-      statusText: options.statusText || "",
-      headers,
-      counter: options.counter,
-      highWaterMark: options.highWaterMark
-    };
-  }
-  get type() {
-    return this[INTERNALS2].type;
-  }
-  get url() {
-    return this[INTERNALS2].url || "";
-  }
-  get status() {
-    return this[INTERNALS2].status;
-  }
-  get ok() {
-    return this[INTERNALS2].status >= 200 && this[INTERNALS2].status < 300;
-  }
-  get redirected() {
-    return this[INTERNALS2].counter > 0;
-  }
-  get statusText() {
-    return this[INTERNALS2].statusText;
-  }
-  get headers() {
-    return this[INTERNALS2].headers;
-  }
-  get highWaterMark() {
-    return this[INTERNALS2].highWaterMark;
-  }
-  clone() {
-    return new Response(clone(this, this.highWaterMark), {
-      type: this.type,
-      url: this.url,
-      status: this.status,
-      statusText: this.statusText,
-      headers: this.headers,
-      ok: this.ok,
-      redirected: this.redirected,
-      size: this.size,
-      highWaterMark: this.highWaterMark
-    });
-  }
-  static redirect(url, status = 302) {
-    if (!isRedirect(status)) {
-      throw new RangeError('Failed to execute "redirect" on "response": Invalid status code');
-    }
-    return new Response(null, {
-      headers: {
-        location: new URL(url).toString()
-      },
-      status
-    });
-  }
-  static error() {
-    const response = new Response(null, { status: 0, statusText: "" });
-    response[INTERNALS2].type = "error";
-    return response;
-  }
-  static json(data = void 0, init = {}) {
-    const body = JSON.stringify(data);
-    if (body === void 0) {
-      throw new TypeError("data is not JSON serializable");
-    }
-    const headers = new Headers(init && init.headers);
-    if (!headers.has("content-type")) {
-      headers.set("content-type", "application/json");
-    }
-    return new Response(body, {
-      ...init,
-      headers
-    });
-  }
-  get [Symbol.toStringTag]() {
-    return "Response";
-  }
-};
-Object.defineProperties(Response.prototype, {
-  type: { enumerable: true },
-  url: { enumerable: true },
-  status: { enumerable: true },
-  ok: { enumerable: true },
-  redirected: { enumerable: true },
-  statusText: { enumerable: true },
-  headers: { enumerable: true },
-  clone: { enumerable: true }
-});
-
-// node_modules/node-fetch/src/request.js
-var import_node_url = require("node:url");
-var import_node_util3 = require("node:util");
-
-// node_modules/node-fetch/src/utils/get-search.js
-var getSearch = (parsedURL) => {
-  if (parsedURL.search) {
-    return parsedURL.search;
-  }
-  const lastOffset = parsedURL.href.length - 1;
-  const hash = parsedURL.hash || (parsedURL.href[lastOffset] === "#" ? "#" : "");
-  return parsedURL.href[lastOffset - hash.length] === "?" ? "?" : "";
-};
-
-// node_modules/node-fetch/src/utils/referrer.js
-var import_node_net = require("node:net");
-function stripURLForUseAsAReferrer(url, originOnly = false) {
-  if (url == null) {
-    return "no-referrer";
-  }
-  url = new URL(url);
-  if (/^(about|blob|data):$/.test(url.protocol)) {
-    return "no-referrer";
-  }
-  url.username = "";
-  url.password = "";
-  url.hash = "";
-  if (originOnly) {
-    url.pathname = "";
-    url.search = "";
-  }
-  return url;
-}
-var ReferrerPolicy = /* @__PURE__ */ new Set([
-  "",
-  "no-referrer",
-  "no-referrer-when-downgrade",
-  "same-origin",
-  "origin",
-  "strict-origin",
-  "origin-when-cross-origin",
-  "strict-origin-when-cross-origin",
-  "unsafe-url"
-]);
-var DEFAULT_REFERRER_POLICY = "strict-origin-when-cross-origin";
-function validateReferrerPolicy(referrerPolicy) {
-  if (!ReferrerPolicy.has(referrerPolicy)) {
-    throw new TypeError(`Invalid referrerPolicy: ${referrerPolicy}`);
-  }
-  return referrerPolicy;
-}
-function isOriginPotentiallyTrustworthy(url) {
-  if (/^(http|ws)s:$/.test(url.protocol)) {
-    return true;
-  }
-  const hostIp = url.host.replace(/(^\[)|(]$)/g, "");
-  const hostIPVersion = (0, import_node_net.isIP)(hostIp);
-  if (hostIPVersion === 4 && /^127\./.test(hostIp)) {
-    return true;
-  }
-  if (hostIPVersion === 6 && /^(((0+:){7})|(::(0+:){0,6}))0*1$/.test(hostIp)) {
-    return true;
-  }
-  if (url.host === "localhost" || url.host.endsWith(".localhost")) {
-    return false;
-  }
-  if (url.protocol === "file:") {
-    return true;
-  }
-  return false;
-}
-function isUrlPotentiallyTrustworthy(url) {
-  if (/^about:(blank|srcdoc)$/.test(url)) {
-    return true;
-  }
-  if (url.protocol === "data:") {
-    return true;
-  }
-  if (/^(blob|filesystem):$/.test(url.protocol)) {
-    return true;
-  }
-  return isOriginPotentiallyTrustworthy(url);
-}
-function determineRequestsReferrer(request4, { referrerURLCallback, referrerOriginCallback } = {}) {
-  if (request4.referrer === "no-referrer" || request4.referrerPolicy === "") {
-    return null;
-  }
-  const policy = request4.referrerPolicy;
-  if (request4.referrer === "about:client") {
-    return "no-referrer";
-  }
-  const referrerSource = request4.referrer;
-  let referrerURL = stripURLForUseAsAReferrer(referrerSource);
-  let referrerOrigin = stripURLForUseAsAReferrer(referrerSource, true);
-  if (referrerURL.toString().length > 4096) {
-    referrerURL = referrerOrigin;
-  }
-  if (referrerURLCallback) {
-    referrerURL = referrerURLCallback(referrerURL);
-  }
-  if (referrerOriginCallback) {
-    referrerOrigin = referrerOriginCallback(referrerOrigin);
-  }
-  const currentURL = new URL(request4.url);
-  switch (policy) {
-    case "no-referrer":
-      return "no-referrer";
-    case "origin":
-      return referrerOrigin;
-    case "unsafe-url":
-      return referrerURL;
-    case "strict-origin":
-      if (isUrlPotentiallyTrustworthy(referrerURL) && !isUrlPotentiallyTrustworthy(currentURL)) {
-        return "no-referrer";
-      }
-      return referrerOrigin.toString();
-    case "strict-origin-when-cross-origin":
-      if (referrerURL.origin === currentURL.origin) {
-        return referrerURL;
-      }
-      if (isUrlPotentiallyTrustworthy(referrerURL) && !isUrlPotentiallyTrustworthy(currentURL)) {
-        return "no-referrer";
-      }
-      return referrerOrigin;
-    case "same-origin":
-      if (referrerURL.origin === currentURL.origin) {
-        return referrerURL;
-      }
-      return "no-referrer";
-    case "origin-when-cross-origin":
-      if (referrerURL.origin === currentURL.origin) {
-        return referrerURL;
-      }
-      return referrerOrigin;
-    case "no-referrer-when-downgrade":
-      if (isUrlPotentiallyTrustworthy(referrerURL) && !isUrlPotentiallyTrustworthy(currentURL)) {
-        return "no-referrer";
-      }
-      return referrerURL;
+// src/utils.ts
+function fileExtensionToMimeType(extension) {
+  switch (extension) {
+    case "pdf":
+      return "application/pdf";
+    case "png":
+      return "image/png";
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "md":
+    case "markdown":
+      return "text/markdown";
+    case "org":
+      return "text/org";
     default:
-      throw new TypeError(`Invalid referrerPolicy: ${policy}`);
+      return "text/plain";
   }
 }
-function parseReferrerPolicyFromHeader(headers) {
-  const policyTokens = (headers.get("referrer-policy") || "").split(/[,\s]+/);
-  let policy = "";
-  for (const token of policyTokens) {
-    if (token && ReferrerPolicy.has(token)) {
-      policy = token;
-    }
+function filenameToMimeType(filename) {
+  switch (filename.extension) {
+    case "pdf":
+      return "application/pdf";
+    case "png":
+      return "image/png";
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "webp":
+      return "image/webp";
+    case "md":
+    case "markdown":
+      return "text/markdown";
+    case "org":
+      return "text/org";
+    default:
+      console.warn(`Unknown file type: ${filename.extension}. Defaulting to text/plain.`);
+      return "text/plain";
   }
-  return policy;
 }
-
-// node_modules/node-fetch/src/request.js
-var INTERNALS3 = Symbol("Request internals");
-var isRequest = (object) => {
-  return typeof object === "object" && typeof object[INTERNALS3] === "object";
+var fileTypeToExtension = {
+  "pdf": ["pdf"],
+  "image": ["png", "jpg", "jpeg", "webp"],
+  "markdown": ["md", "markdown"]
 };
-var doBadDataWarn = (0, import_node_util3.deprecate)(() => {
-}, ".data is not a valid RequestInit property, use .body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (request)");
-var Request = class extends Body {
-  constructor(input, init = {}) {
-    let parsedURL;
-    if (isRequest(input)) {
-      parsedURL = new URL(input.url);
-    } else {
-      parsedURL = new URL(input);
-      input = {};
+var supportedImageFilesTypes = fileTypeToExtension.image;
+var supportedBinaryFileTypes = fileTypeToExtension.pdf.concat(supportedImageFilesTypes);
+var supportedFileTypes = fileTypeToExtension.markdown.concat(supportedBinaryFileTypes);
+async function updateContentIndex(vault, setting, lastSync, regenerate = false, userTriggered = false) {
+  var _a;
+  console.log(`Khoj: Updating Khoj content index...`);
+  const files = vault.getFiles().filter((file) => supportedFileTypes.includes(file.extension)).filter((file) => {
+    if (fileTypeToExtension.markdown.includes(file.extension))
+      return setting.syncFileType.markdown;
+    if (fileTypeToExtension.pdf.includes(file.extension))
+      return setting.syncFileType.pdf;
+    if (fileTypeToExtension.image.includes(file.extension))
+      return setting.syncFileType.images;
+    return false;
+  }).filter((file) => {
+    if (setting.syncFolders.length === 0)
+      return true;
+    return setting.syncFolders.some((folder) => file.path.startsWith(folder + "/") || file.path === folder);
+  });
+  let countOfFilesToIndex = 0;
+  let countOfFilesToDelete = 0;
+  lastSync = lastSync.size > 0 ? lastSync : /* @__PURE__ */ new Map();
+  let fileData = [];
+  let currentBatchSize = 0;
+  const MAX_BATCH_SIZE = 10 * 1024 * 1024;
+  let currentBatch = [];
+  for (const file of files) {
+    if (!regenerate && file.stat.mtime < ((_a = lastSync.get(file)) != null ? _a : 0)) {
+      continue;
     }
-    if (parsedURL.username !== "" || parsedURL.password !== "") {
-      throw new TypeError(`${parsedURL} is an url with embedded credentials.`);
+    countOfFilesToIndex++;
+    const encoding = supportedBinaryFileTypes.includes(file.extension) ? "binary" : "utf8";
+    const mimeType = fileExtensionToMimeType(file.extension) + (encoding === "utf8" ? "; charset=UTF-8" : "");
+    const fileContent = encoding == "binary" ? await vault.readBinary(file) : await vault.read(file);
+    const fileItem = { blob: new Blob([fileContent], { type: mimeType }), path: file.path };
+    const fileSize = typeof fileContent === "string" ? new Blob([fileContent]).size : fileContent.byteLength;
+    if (currentBatchSize + fileSize > MAX_BATCH_SIZE && currentBatch.length > 0) {
+      fileData.push(currentBatch);
+      currentBatch = [];
+      currentBatchSize = 0;
     }
-    let method = init.method || input.method || "GET";
-    if (/^(delete|get|head|options|post|put)$/i.test(method)) {
-      method = method.toUpperCase();
+    currentBatch.push(fileItem);
+    currentBatchSize += fileSize;
+  }
+  let filesToDelete = [];
+  for (const lastSyncedFile of lastSync.keys()) {
+    if (!files.includes(lastSyncedFile)) {
+      countOfFilesToDelete++;
+      let fileObj = new Blob([""], { type: filenameToMimeType(lastSyncedFile) });
+      currentBatch.push({ blob: fileObj, path: lastSyncedFile.path });
+      filesToDelete.push(lastSyncedFile);
     }
-    if (!isRequest(init) && "data" in init) {
-      doBadDataWarn();
-    }
-    if ((init.body != null || isRequest(input) && input.body !== null) && (method === "GET" || method === "HEAD")) {
-      throw new TypeError("Request with GET/HEAD method cannot have body");
-    }
-    const inputBody = init.body ? init.body : isRequest(input) && input.body !== null ? clone(input) : null;
-    super(inputBody, {
-      size: init.size || input.size || 0
-    });
-    const headers = new Headers(init.headers || input.headers || {});
-    if (inputBody !== null && !headers.has("Content-Type")) {
-      const contentType = extractContentType(inputBody, this);
-      if (contentType) {
-        headers.set("Content-Type", contentType);
+  }
+  if (currentBatch.length > 0) {
+    fileData.push(currentBatch);
+  }
+  let error_message = null;
+  const contentTypesToDelete = [];
+  if (regenerate) {
+    if (setting.syncFileType.markdown)
+      contentTypesToDelete.push("markdown");
+    if (setting.syncFileType.pdf)
+      contentTypesToDelete.push("pdf");
+    if (setting.syncFileType.images)
+      contentTypesToDelete.push("image");
+  }
+  for (const contentType of contentTypesToDelete) {
+    const response = await fetch(`${setting.khojUrl}/api/content/type/${contentType}?client=obsidian`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${setting.khojApiKey}`
       }
+    });
+    if (!response.ok) {
+      error_message = "\u2757\uFE0FFailed to clear existing content index";
+      fileData = [];
     }
-    let signal = isRequest(input) ? input.signal : null;
-    if ("signal" in init) {
-      signal = init.signal;
-    }
-    if (signal != null && !isAbortSignal(signal)) {
-      throw new TypeError("Expected signal to be an instanceof AbortSignal or EventTarget");
-    }
-    let referrer = init.referrer == null ? input.referrer : init.referrer;
-    if (referrer === "") {
-      referrer = "no-referrer";
-    } else if (referrer) {
-      const parsedReferrer = new URL(referrer);
-      referrer = /^about:(\/\/)?client$/.test(parsedReferrer) ? "client" : parsedReferrer;
-    } else {
-      referrer = void 0;
-    }
-    this[INTERNALS3] = {
+  }
+  let responses = [];
+  for (const batch of fileData) {
+    const formData = new FormData();
+    batch.forEach((fileItem) => {
+      formData.append("files", fileItem.blob, fileItem.path);
+    });
+    const method = regenerate ? "PUT" : "PATCH";
+    const response = await fetch(`${setting.khojUrl}/api/content?client=obsidian`, {
       method,
-      redirect: init.redirect || input.redirect || "follow",
-      headers,
-      parsedURL,
-      signal,
-      referrer
-    };
-    this.follow = init.follow === void 0 ? input.follow === void 0 ? 20 : input.follow : init.follow;
-    this.compress = init.compress === void 0 ? input.compress === void 0 ? true : input.compress : init.compress;
-    this.counter = init.counter || input.counter || 0;
-    this.agent = init.agent || input.agent;
-    this.highWaterMark = init.highWaterMark || input.highWaterMark || 16384;
-    this.insecureHTTPParser = init.insecureHTTPParser || input.insecureHTTPParser || false;
-    this.referrerPolicy = init.referrerPolicy || input.referrerPolicy || "";
-  }
-  get method() {
-    return this[INTERNALS3].method;
-  }
-  get url() {
-    return (0, import_node_url.format)(this[INTERNALS3].parsedURL);
-  }
-  get headers() {
-    return this[INTERNALS3].headers;
-  }
-  get redirect() {
-    return this[INTERNALS3].redirect;
-  }
-  get signal() {
-    return this[INTERNALS3].signal;
-  }
-  get referrer() {
-    if (this[INTERNALS3].referrer === "no-referrer") {
-      return "";
+      headers: {
+        "Authorization": `Bearer ${setting.khojApiKey}`
+      },
+      body: formData
+    });
+    if (!response.ok) {
+      if (response.status === 429) {
+        let response_text = await response.text();
+        if (response_text.includes("Too much data")) {
+          const errorFragment = document.createDocumentFragment();
+          errorFragment.appendChild(document.createTextNode("\u2757\uFE0FExceeded data sync limits. To resolve this either:"));
+          const bulletList = document.createElement("ul");
+          const limitFilesItem = document.createElement("li");
+          const settingsPrefixText = document.createTextNode("Limit files to sync from ");
+          const settingsLink = document.createElement("a");
+          settingsLink.textContent = "Khoj settings";
+          settingsLink.href = "#";
+          settingsLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            openKhojPluginSettings();
+          });
+          limitFilesItem.appendChild(settingsPrefixText);
+          limitFilesItem.appendChild(settingsLink);
+          bulletList.appendChild(limitFilesItem);
+          const upgradeItem = document.createElement("li");
+          const upgradeLink = document.createElement("a");
+          upgradeLink.href = `${setting.khojUrl}/settings#subscription`;
+          upgradeLink.textContent = "Upgrade your subscription";
+          upgradeLink.target = "_blank";
+          upgradeItem.appendChild(upgradeLink);
+          bulletList.appendChild(upgradeItem);
+          errorFragment.appendChild(bulletList);
+          error_message = errorFragment;
+        } else {
+          error_message = `\u2757\uFE0FFailed to sync your content with Khoj server. Requests were throttled. Upgrade your subscription or try again later.`;
+        }
+        break;
+      } else if (response.status === 404) {
+        error_message = `\u2757\uFE0FCould not connect to Khoj server. Ensure you can connect to it.`;
+        break;
+      } else {
+        error_message = `\u2757\uFE0FFailed to sync all your content with Khoj server. Raise issue on Khoj Discord or Github
+Error: ${response.statusText}`;
+      }
+    } else {
+      responses.push(await response.text());
     }
-    if (this[INTERNALS3].referrer === "client") {
-      return "about:client";
+  }
+  files.filter((file) => responses.find((response) => response.includes(file.path))).reduce((newSync, file) => {
+    newSync.set(file, new Date().getTime());
+    return newSync;
+  }, lastSync);
+  filesToDelete.filter((file) => responses.find((response) => response.includes(file.path))).forEach((file) => lastSync.delete(file));
+  if (error_message) {
+    new import_obsidian2.Notice(error_message);
+  } else {
+    if (userTriggered)
+      new import_obsidian2.Notice("\u2705 Updated Khoj index.");
+    console.log(`\u2705 Refreshed Khoj content index. Updated: ${countOfFilesToIndex} files, Deleted: ${countOfFilesToDelete} files.`);
+  }
+  return lastSync;
+}
+async function openKhojPluginSettings() {
+  const setting = this.app.setting;
+  await setting.open();
+  setting.openTabById("khoj");
+}
+async function createNote(name, newLeaf = false) {
+  var _a, _b;
+  try {
+    let pathPrefix;
+    switch (this.app.vault.getConfig("newFileLocation")) {
+      case "current":
+        pathPrefix = ((_b = (_a = this.app.workspace.getActiveFile()) == null ? void 0 : _a.parent.path) != null ? _b : "") + "/";
+        break;
+      case "folder":
+        pathPrefix = this.app.vault.getConfig("newFileFolderPath") + "/";
+        break;
+      default:
+        pathPrefix = "";
+        break;
     }
-    if (this[INTERNALS3].referrer) {
-      return this[INTERNALS3].referrer.toString();
+    await this.app.workspace.openLinkText(`${pathPrefix}${name}.md`, "", newLeaf);
+  } catch (e) {
+    console.error("Khoj: Could not create note.\n" + e.message);
+    throw e;
+  }
+}
+async function createNoteAndCloseModal(query, modal, opt) {
+  try {
+    await createNote(query, opt == null ? void 0 : opt.newLeaf);
+  } catch (e) {
+    new import_obsidian2.Notice(e.message);
+    return;
+  }
+  modal.close();
+}
+async function canConnectToBackend(khojUrl, khojApiKey, showNotice = false) {
+  let connectedToBackend = false;
+  let userInfo = null;
+  if (!!khojUrl) {
+    let headers = !!khojApiKey ? { "Authorization": `Bearer ${khojApiKey}` } : void 0;
+    try {
+      let response = await (0, import_obsidian2.request)({ url: `${khojUrl}/api/v1/user`, method: "GET", headers });
+      connectedToBackend = true;
+      userInfo = JSON.parse(response);
+    } catch (error) {
+      connectedToBackend = false;
+      console.log(`Khoj connection error:
+
+${error}`);
+    }
+    ;
+  }
+  let statusMessage = getBackendStatusMessage(connectedToBackend, userInfo == null ? void 0 : userInfo.email, khojUrl, khojApiKey);
+  if (showNotice)
+    new import_obsidian2.Notice(statusMessage);
+  return { connectedToBackend, statusMessage, userInfo };
+}
+function getBackendStatusMessage(connectedToServer, userEmail, khojUrl, khojApiKey) {
+  if (!khojApiKey && khojUrl === "https://app.khoj.dev")
+    return `\u{1F308} Welcome to Khoj! Get your API key from ${khojUrl}/settings#clients and set it in the Khoj plugin settings on Obsidian`;
+  if (!connectedToServer)
+    return `\u2757\uFE0FCould not connect to Khoj at ${khojUrl}. Ensure your can access it`;
+  else if (!userEmail)
+    return `\u2705 Connected to Khoj. \u2757\uFE0FGet a valid API key from ${khojUrl}/settings#clients to log in`;
+  else if (userEmail === "default@example.com")
+    return `\u2705 Welcome back to Khoj`;
+  else
+    return `\u2705 Welcome back to Khoj, ${userEmail}`;
+}
+async function populateHeaderPane(headerEl, setting, viewType) {
+  let userInfo = null;
+  try {
+    const { userInfo: extractedUserInfo } = await canConnectToBackend(setting.khojUrl, setting.khojApiKey, false);
+    userInfo = extractedUserInfo;
+  } catch (error) {
+    console.error("\u2757\uFE0FCould not connect to Khoj");
+  }
+  const titlePaneEl = headerEl.createDiv();
+  titlePaneEl.className = "khoj-header-title-pane";
+  const titleEl = titlePaneEl.createDiv();
+  titleEl.className = "khoj-logo";
+  titleEl.textContent = "Khoj";
+  const nav = titlePaneEl.createEl("nav");
+  nav.className = "khoj-nav";
+  titlePaneEl.appendChild(titleEl);
+  titlePaneEl.appendChild(nav);
+  const chatLink = nav.createEl("a");
+  chatLink.id = "chat-nav";
+  chatLink.className = "khoj-nav chat-nav";
+  chatLink.dataset.view = KhojView.CHAT;
+  const chatIcon = chatLink.createEl("span");
+  chatIcon.className = "khoj-nav-icon khoj-nav-icon-chat";
+  (0, import_obsidian2.setIcon)(chatIcon, "khoj-chat");
+  const chatText = chatLink.createEl("span");
+  chatText.className = "khoj-nav-item-text";
+  chatText.textContent = "Chat";
+  chatLink.appendChild(chatIcon);
+  chatLink.appendChild(chatText);
+  const searchLink = nav.createEl("a");
+  searchLink.id = "search-nav";
+  searchLink.className = "khoj-nav search-nav";
+  const searchIcon = searchLink.createEl("span");
+  searchIcon.className = "khoj-nav-icon khoj-nav-icon-search";
+  (0, import_obsidian2.setIcon)(searchIcon, "khoj-search");
+  const searchText = searchLink.createEl("span");
+  searchText.className = "khoj-nav-item-text";
+  searchText.textContent = "Search";
+  searchLink.appendChild(searchIcon);
+  searchLink.appendChild(searchText);
+  const similarLink = nav.createEl("a");
+  similarLink.id = "similar-nav";
+  similarLink.className = "khoj-nav similar-nav";
+  similarLink.dataset.view = KhojView.SIMILAR;
+  const similarIcon = similarLink.createEl("span");
+  similarIcon.id = "similar-nav-icon";
+  similarIcon.className = "khoj-nav-icon khoj-nav-icon-similar";
+  (0, import_obsidian2.setIcon)(similarIcon, "webhook");
+  const similarText = similarLink.createEl("span");
+  similarText.className = "khoj-nav-item-text";
+  similarText.textContent = "Similar";
+  similarLink.appendChild(similarIcon);
+  similarLink.appendChild(similarText);
+  const getCurrentKhojLeaf = () => {
+    const activeLeaf = this.app.workspace.activeLeaf;
+    if (activeLeaf && activeLeaf.view && (activeLeaf.view.getViewType() === KhojView.CHAT || activeLeaf.view.getViewType() === KhojView.SIMILAR)) {
+      return activeLeaf;
     }
     return void 0;
-  }
-  get referrerPolicy() {
-    return this[INTERNALS3].referrerPolicy;
-  }
-  set referrerPolicy(referrerPolicy) {
-    this[INTERNALS3].referrerPolicy = validateReferrerPolicy(referrerPolicy);
-  }
-  clone() {
-    return new Request(this);
-  }
-  get [Symbol.toStringTag]() {
-    return "Request";
-  }
-};
-Object.defineProperties(Request.prototype, {
-  method: { enumerable: true },
-  url: { enumerable: true },
-  headers: { enumerable: true },
-  redirect: { enumerable: true },
-  clone: { enumerable: true },
-  signal: { enumerable: true },
-  referrer: { enumerable: true },
-  referrerPolicy: { enumerable: true }
-});
-var getNodeRequestOptions = (request4) => {
-  const { parsedURL } = request4[INTERNALS3];
-  const headers = new Headers(request4[INTERNALS3].headers);
-  if (!headers.has("Accept")) {
-    headers.set("Accept", "*/*");
-  }
-  let contentLengthValue = null;
-  if (request4.body === null && /^(post|put)$/i.test(request4.method)) {
-    contentLengthValue = "0";
-  }
-  if (request4.body !== null) {
-    const totalBytes = getTotalBytes(request4);
-    if (typeof totalBytes === "number" && !Number.isNaN(totalBytes)) {
-      contentLengthValue = String(totalBytes);
-    }
-  }
-  if (contentLengthValue) {
-    headers.set("Content-Length", contentLengthValue);
-  }
-  if (request4.referrerPolicy === "") {
-    request4.referrerPolicy = DEFAULT_REFERRER_POLICY;
-  }
-  if (request4.referrer && request4.referrer !== "no-referrer") {
-    request4[INTERNALS3].referrer = determineRequestsReferrer(request4);
-  } else {
-    request4[INTERNALS3].referrer = "no-referrer";
-  }
-  if (request4[INTERNALS3].referrer instanceof URL) {
-    headers.set("Referer", request4.referrer);
-  }
-  if (!headers.has("User-Agent")) {
-    headers.set("User-Agent", "node-fetch");
-  }
-  if (request4.compress && !headers.has("Accept-Encoding")) {
-    headers.set("Accept-Encoding", "gzip, deflate, br");
-  }
-  let { agent } = request4;
-  if (typeof agent === "function") {
-    agent = agent(parsedURL);
-  }
-  if (!headers.has("Connection") && !agent) {
-    headers.set("Connection", "close");
-  }
-  const search = getSearch(parsedURL);
-  const options = {
-    path: parsedURL.pathname + search,
-    method: request4.method,
-    headers: headers[Symbol.for("nodejs.util.inspect.custom")](),
-    insecureHTTPParser: request4.insecureHTTPParser,
-    agent
   };
-  return {
-    parsedURL,
-    options
-  };
-};
-
-// node_modules/node-fetch/src/errors/abort-error.js
-var AbortError = class extends FetchBaseError {
-  constructor(message, type = "aborted") {
-    super(message, type);
-  }
-};
-
-// node_modules/node-fetch/src/index.js
-init_esm_min();
-init_from();
-var supportedSchemas = /* @__PURE__ */ new Set(["data:", "http:", "https:"]);
-async function fetch2(url, options_) {
-  return new Promise((resolve, reject) => {
-    const request4 = new Request(url, options_);
-    const { parsedURL, options } = getNodeRequestOptions(request4);
-    if (!supportedSchemas.has(parsedURL.protocol)) {
-      throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${parsedURL.protocol.replace(/:$/, "")}" is not supported.`);
-    }
-    if (parsedURL.protocol === "data:") {
-      const data = dist_default(request4.url);
-      const response2 = new Response(data, { headers: { "Content-Type": data.typeFull } });
-      resolve(response2);
-      return;
-    }
-    const send = (parsedURL.protocol === "https:" ? import_node_https.default : import_node_http2.default).request;
-    const { signal } = request4;
-    let response = null;
-    const abort = () => {
-      const error = new AbortError("The operation was aborted.");
-      reject(error);
-      if (request4.body && request4.body instanceof import_node_stream2.default.Readable) {
-        request4.body.destroy(error);
-      }
-      if (!response || !response.body) {
-        return;
-      }
-      response.body.emit("error", error);
-    };
-    if (signal && signal.aborted) {
-      abort();
-      return;
-    }
-    const abortAndFinalize = () => {
-      abort();
-      finalize();
-    };
-    const request_ = send(parsedURL.toString(), options);
-    if (signal) {
-      signal.addEventListener("abort", abortAndFinalize);
-    }
-    const finalize = () => {
-      request_.abort();
-      if (signal) {
-        signal.removeEventListener("abort", abortAndFinalize);
-      }
-    };
-    request_.on("error", (error) => {
-      reject(new FetchError(`request to ${request4.url} failed, reason: ${error.message}`, "system", error));
-      finalize();
-    });
-    fixResponseChunkedTransferBadEnding(request_, (error) => {
-      if (response && response.body) {
-        response.body.destroy(error);
-      }
-    });
-    if (process.version < "v14") {
-      request_.on("socket", (s2) => {
-        let endedWithEventsCount;
-        s2.prependListener("end", () => {
-          endedWithEventsCount = s2._eventsCount;
-        });
-        s2.prependListener("close", (hadError) => {
-          if (response && endedWithEventsCount < s2._eventsCount && !hadError) {
-            const error = new Error("Premature close");
-            error.code = "ERR_STREAM_PREMATURE_CLOSE";
-            response.body.emit("error", error);
-          }
-        });
-      });
-    }
-    request_.on("response", (response_) => {
-      request_.setTimeout(0);
-      const headers = fromRawHeaders(response_.rawHeaders);
-      if (isRedirect(response_.statusCode)) {
-        const location = headers.get("Location");
-        let locationURL = null;
-        try {
-          locationURL = location === null ? null : new URL(location, request4.url);
-        } catch (e2) {
-          if (request4.redirect !== "manual") {
-            reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, "invalid-redirect"));
-            finalize();
-            return;
-          }
-        }
-        switch (request4.redirect) {
-          case "error":
-            reject(new FetchError(`uri requested responds with a redirect, redirect mode is set to error: ${request4.url}`, "no-redirect"));
-            finalize();
-            return;
-          case "manual":
-            break;
-          case "follow": {
-            if (locationURL === null) {
-              break;
-            }
-            if (request4.counter >= request4.follow) {
-              reject(new FetchError(`maximum redirect reached at: ${request4.url}`, "max-redirect"));
-              finalize();
-              return;
-            }
-            const requestOptions = {
-              headers: new Headers(request4.headers),
-              follow: request4.follow,
-              counter: request4.counter + 1,
-              agent: request4.agent,
-              compress: request4.compress,
-              method: request4.method,
-              body: clone(request4),
-              signal: request4.signal,
-              size: request4.size,
-              referrer: request4.referrer,
-              referrerPolicy: request4.referrerPolicy
-            };
-            if (!isDomainOrSubdomain(request4.url, locationURL) || !isSameProtocol(request4.url, locationURL)) {
-              for (const name of ["authorization", "www-authenticate", "cookie", "cookie2"]) {
-                requestOptions.headers.delete(name);
-              }
-            }
-            if (response_.statusCode !== 303 && request4.body && options_.body instanceof import_node_stream2.default.Readable) {
-              reject(new FetchError("Cannot follow redirect with body being a readable stream", "unsupported-redirect"));
-              finalize();
-              return;
-            }
-            if (response_.statusCode === 303 || (response_.statusCode === 301 || response_.statusCode === 302) && request4.method === "POST") {
-              requestOptions.method = "GET";
-              requestOptions.body = void 0;
-              requestOptions.headers.delete("content-length");
-            }
-            const responseReferrerPolicy = parseReferrerPolicyFromHeader(headers);
-            if (responseReferrerPolicy) {
-              requestOptions.referrerPolicy = responseReferrerPolicy;
-            }
-            resolve(fetch2(new Request(locationURL, requestOptions)));
-            finalize();
-            return;
-          }
-          default:
-            return reject(new TypeError(`Redirect option '${request4.redirect}' is not a valid value of RequestRedirect`));
-        }
-      }
-      if (signal) {
-        response_.once("end", () => {
-          signal.removeEventListener("abort", abortAndFinalize);
-        });
-      }
-      let body = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error) => {
-        if (error) {
-          reject(error);
-        }
-      });
-      if (process.version < "v12.10") {
-        response_.on("aborted", abortAndFinalize);
-      }
-      const responseOptions = {
-        url: request4.url,
-        status: response_.statusCode,
-        statusText: response_.statusMessage,
-        headers,
-        size: request4.size,
-        counter: request4.counter,
-        highWaterMark: request4.highWaterMark
-      };
-      const codings = headers.get("Content-Encoding");
-      if (!request4.compress || request4.method === "HEAD" || codings === null || response_.statusCode === 204 || response_.statusCode === 304) {
-        response = new Response(body, responseOptions);
-        resolve(response);
-        return;
-      }
-      const zlibOptions = {
-        flush: import_node_zlib.default.Z_SYNC_FLUSH,
-        finishFlush: import_node_zlib.default.Z_SYNC_FLUSH
-      };
-      if (codings === "gzip" || codings === "x-gzip") {
-        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createGunzip(zlibOptions), (error) => {
-          if (error) {
-            reject(error);
-          }
-        });
-        response = new Response(body, responseOptions);
-        resolve(response);
-        return;
-      }
-      if (codings === "deflate" || codings === "x-deflate") {
-        const raw = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error) => {
-          if (error) {
-            reject(error);
-          }
-        });
-        raw.once("data", (chunk) => {
-          if ((chunk[0] & 15) === 8) {
-            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflate(), (error) => {
-              if (error) {
-                reject(error);
-              }
-            });
-          } else {
-            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflateRaw(), (error) => {
-              if (error) {
-                reject(error);
-              }
-            });
-          }
-          response = new Response(body, responseOptions);
-          resolve(response);
-        });
-        raw.once("end", () => {
-          if (!response) {
-            response = new Response(body, responseOptions);
-            resolve(response);
-          }
-        });
-        return;
-      }
-      if (codings === "br") {
-        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createBrotliDecompress(), (error) => {
-          if (error) {
-            reject(error);
-          }
-        });
-        response = new Response(body, responseOptions);
-        resolve(response);
-        return;
-      }
-      response = new Response(body, responseOptions);
-      resolve(response);
-    });
-    writeToStream(request_, request4).catch(reject);
+  chatLink.addEventListener("click", () => {
+    const khojPlugin = this.app.plugins.plugins.khoj;
+    khojPlugin == null ? void 0 : khojPlugin.activateView(KhojView.CHAT, getCurrentKhojLeaf());
   });
+  searchLink.addEventListener("click", () => {
+    new KhojSearchModal(this.app, setting).open();
+  });
+  similarLink.addEventListener("click", () => {
+    const khojPlugin = this.app.plugins.plugins.khoj;
+    khojPlugin == null ? void 0 : khojPlugin.activateView(KhojView.SIMILAR, getCurrentKhojLeaf());
+  });
+  nav.appendChild(chatLink);
+  nav.appendChild(searchLink);
+  nav.appendChild(similarLink);
+  headerEl.appendChild(titlePaneEl);
+  if (viewType === KhojView.CHAT) {
+    const newChatEl = headerEl.createDiv("khoj-header-right-container");
+    const agentContainer = newChatEl.createDiv("khoj-header-agent-container");
+    agentContainer.createEl("select", {
+      attr: {
+        class: "khoj-header-agent-select",
+        id: "khoj-header-agent-select"
+      }
+    });
+    const newChatButton = newChatEl.createEl("button");
+    newChatButton.className = "khoj-header-new-chat-button";
+    newChatButton.title = "Start New Chat (Ctrl+Alt+N)";
+    (0, import_obsidian2.setIcon)(newChatButton, "plus-circle");
+    newChatButton.textContent = "New Chat";
+    newChatButton.addEventListener("click", () => {
+      const khojPlugin = this.app.plugins.plugins.khoj;
+      if (khojPlugin) {
+        khojPlugin.activateView(KhojView.CHAT).then(() => {
+          setTimeout(() => {
+            const leaves = this.app.workspace.getLeavesOfType(KhojView.CHAT);
+            if (leaves.length > 0) {
+              const chatView = leaves[0].view;
+              if (chatView && typeof chatView.createNewConversation === "function") {
+                chatView.createNewConversation();
+              }
+            }
+          }, 100);
+        });
+      }
+    });
+    headerEl.appendChild(newChatEl);
+  }
+  const updateActiveState = () => {
+    var _a;
+    const activeLeaf = this.app.workspace.activeLeaf;
+    if (!activeLeaf)
+      return;
+    const viewType2 = (_a = activeLeaf.view) == null ? void 0 : _a.getViewType();
+    chatLink.classList.remove("khoj-nav-selected");
+    similarLink.classList.remove("khoj-nav-selected");
+    if (viewType2 === KhojView.CHAT) {
+      chatLink.classList.add("khoj-nav-selected");
+    } else if (viewType2 === KhojView.SIMILAR) {
+      similarLink.classList.add("khoj-nav-selected");
+    }
+  };
+  updateActiveState();
+  this.app.workspace.on("active-leaf-change", updateActiveState);
 }
-function fixResponseChunkedTransferBadEnding(request4, errorCallback) {
-  const LAST_CHUNK = import_node_buffer2.Buffer.from("0\r\n\r\n");
-  let isChunkedTransfer = false;
-  let properLastChunkReceived = false;
-  let previousChunk;
-  request4.on("response", (response) => {
-    const { headers } = response;
-    isChunkedTransfer = headers["transfer-encoding"] === "chunked" && !headers["content-length"];
+var KhojView = /* @__PURE__ */ ((KhojView2) => {
+  KhojView2["CHAT"] = "khoj-chat-view";
+  KhojView2["SIMILAR"] = "khoj-similar-view";
+  return KhojView2;
+})(KhojView || {});
+function copyParentText(event, message, originalButton) {
+  var _a;
+  const button = event.currentTarget;
+  if (!button || !((_a = button == null ? void 0 : button.parentNode) == null ? void 0 : _a.textContent))
+    return;
+  if (!!button.firstChild)
+    button.removeChild(button.firstChild);
+  const textContent = message != null ? message : button.parentNode.textContent.trim();
+  navigator.clipboard.writeText(textContent).then(() => {
+    (0, import_obsidian2.setIcon)(button, "copy-check");
+    setTimeout(() => {
+      (0, import_obsidian2.setIcon)(button, originalButton);
+    }, 1e3);
+  }).catch((error) => {
+    console.error("Error copying text to clipboard:", error);
+    const originalButtonText = button.innerHTML;
+    (0, import_obsidian2.setIcon)(button, "x-circle");
+    setTimeout(() => {
+      button.innerHTML = originalButtonText;
+      (0, import_obsidian2.setIcon)(button, originalButton);
+    }, 2e3);
   });
-  request4.on("socket", (socket) => {
-    const onSocketClose = () => {
-      if (isChunkedTransfer && !properLastChunkReceived) {
-        const error = new Error("Premature close");
-        error.code = "ERR_STREAM_PREMATURE_CLOSE";
-        errorCallback(error);
-      }
-    };
-    const onData = (buf) => {
-      properLastChunkReceived = import_node_buffer2.Buffer.compare(buf.slice(-5), LAST_CHUNK) === 0;
-      if (!properLastChunkReceived && previousChunk) {
-        properLastChunkReceived = import_node_buffer2.Buffer.compare(previousChunk.slice(-3), LAST_CHUNK.slice(0, 3)) === 0 && import_node_buffer2.Buffer.compare(buf.slice(-2), LAST_CHUNK.slice(3)) === 0;
-      }
-      previousChunk = buf;
-    };
-    socket.prependListener("close", onSocketClose);
-    socket.on("data", onData);
-    request4.on("close", () => {
-      socket.removeListener("close", onSocketClose);
-      socket.removeListener("data", onData);
+  return textContent;
+}
+function createCopyParentText(message, originalButton = "copy-plus") {
+  return function(event) {
+    let markdownMessage = copyParentText(event, message, originalButton);
+    const editRegex = /<details class="khoj-edit-accordion">[\s\S]*?<pre><code class="language-khoj-edit">([\s\S]*?)<\/code><\/pre>[\s\S]*?<\/details>/g;
+    markdownMessage = markdownMessage == null ? void 0 : markdownMessage.replace(editRegex, (_, content) => {
+      return `<khoj-edit>
+${content}
+</khoj-edit>`;
     });
-  });
+    return markdownMessage;
+  };
+}
+function pasteTextAtCursor(text) {
+  var _a;
+  const editor = (_a = this.app.workspace.getActiveFileView()) == null ? void 0 : _a.editor;
+  if (!editor || !text)
+    return;
+  const cursor = editor.getCursor();
+  if (editor == null ? void 0 : editor.getSelection()) {
+    editor.replaceSelection(text);
+  } else if (cursor) {
+    editor.replaceRange(text, cursor);
+  }
+}
+function getFileFromPath(sourceFiles, chosenFile) {
+  let fileMatch = sourceFiles.sort((a, b) => b.path.length - a.path.length).find((file) => chosenFile.replace(/\\/g, "/").endsWith(file.path));
+  return fileMatch;
+}
+function getLinkToEntry(sourceFiles, chosenFile, chosenEntry) {
+  let fileMatch = getFileFromPath(sourceFiles, chosenFile);
+  if (fileMatch) {
+    let resultHeading = fileMatch.extension !== "pdf" ? chosenEntry.split("\n", 1)[0] : "";
+    let linkToEntry = resultHeading.startsWith("#") ? `${fileMatch.path}${resultHeading}` : fileMatch.path;
+    console.log(`Link: ${linkToEntry}, File: ${fileMatch.path}, Heading: ${resultHeading}`);
+    return linkToEntry;
+  }
+}
+async function fetchChatModels(settings) {
+  if (!settings.connectedToBackend || !settings.khojUrl) {
+    return [];
+  }
+  try {
+    const response = await fetch(`${settings.khojUrl}/api/model/chat/options`, {
+      method: "GET",
+      headers: settings.khojApiKey ? { "Authorization": `Bearer ${settings.khojApiKey}` } : {}
+    });
+    if (response.ok) {
+      const modelsData = await response.json();
+      if (Array.isArray(modelsData)) {
+        return modelsData.map((model) => ({
+          id: model.id.toString(),
+          name: model.name
+        }));
+      }
+    } else {
+      console.warn("Khoj: Failed to fetch chat models:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Khoj: Error fetching chat models:", error);
+  }
+  return [];
+}
+async function fetchUserServerSettings(settings) {
+  if (!settings.connectedToBackend || !settings.khojUrl) {
+    return null;
+  }
+  try {
+    const response = await fetch(`${settings.khojUrl}/api/settings?detailed=true`, {
+      method: "GET",
+      headers: settings.khojApiKey ? { "Authorization": `Bearer ${settings.khojApiKey}` } : {}
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.warn("Khoj: Failed to fetch user server settings:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Khoj: Error fetching user server settings:", error);
+  }
+  return null;
+}
+async function updateServerChatModel(modelId, settings) {
+  if (!settings.connectedToBackend || !settings.khojUrl) {
+    new import_obsidian2.Notice("\uFE0F\u26D4\uFE0F Connect to Khoj to update chat model.");
+    return false;
+  }
+  try {
+    const response = await fetch(`${settings.khojUrl}/api/model/chat?id=${modelId}`, {
+      method: "POST",
+      headers: settings.khojApiKey ? { "Authorization": `Bearer ${settings.khojApiKey}` } : {}
+    });
+    if (response.ok) {
+      settings.selectedChatModelId = modelId;
+      return true;
+    } else {
+      const errorData = await response.text();
+      new import_obsidian2.Notice(`\uFE0F\u26D4\uFE0F Failed to update chat model on server: ${response.status} ${errorData}`);
+      console.error("Khoj: Failed to update chat model:", response.status, errorData);
+      return false;
+    }
+  } catch (error) {
+    new import_obsidian2.Notice("\uFE0F\u26D4\uFE0F Error updating chat model on server. See console.");
+    console.error("Khoj: Error updating chat model:", error);
+    return false;
+  }
 }
 
-// src/chat_modal.ts
-var KhojChatModal = class extends import_obsidian4.Modal {
-  constructor(app2, setting) {
-    super(app2);
-    this.setting = setting;
-    this.scope.register([], "Enter", async () => {
-      let input_el = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
-      let user_message = input_el.value;
+// src/settings.ts
+var DEFAULT_SETTINGS = {
+  resultsCount: 15,
+  khojUrl: "https://app.khoj.dev",
+  khojApiKey: "",
+  connectedToBackend: false,
+  autoConfigure: true,
+  lastSync: /* @__PURE__ */ new Map(),
+  syncFileType: {
+    markdown: true,
+    images: true,
+    pdf: true
+  },
+  userInfo: null,
+  syncFolders: [],
+  syncInterval: 60,
+  autoVoiceResponse: true,
+  fileAccessMode: "read",
+  selectedChatModelId: null,
+  availableChatModels: []
+};
+var KhojSettingTab = class extends import_obsidian3.PluginSettingTab {
+  constructor(app, plugin) {
+    super(app, plugin);
+    this.chatModelSetting = null;
+    this.plugin = plugin;
+  }
+  display() {
+    var _a, _b;
+    const { containerEl } = this;
+    containerEl.empty();
+    this.chatModelSetting = null;
+    let backendStatusMessage = getBackendStatusMessage(this.plugin.settings.connectedToBackend, (_a = this.plugin.settings.userInfo) == null ? void 0 : _a.email, this.plugin.settings.khojUrl, this.plugin.settings.khojApiKey);
+    const connectHeaderEl = containerEl.createEl("h3", { title: backendStatusMessage });
+    const connectHeaderContentEl = connectHeaderEl.createSpan({ cls: "khoj-connect-settings-header" });
+    const connectTitleEl = connectHeaderContentEl.createSpan({ text: "Connect" });
+    const backendStatusEl = connectTitleEl.createSpan({ text: this.connectStatusIcon(), cls: "khoj-connect-settings-header-status" });
+    if (this.plugin.settings.userInfo && this.plugin.settings.connectedToBackend) {
+      if (this.plugin.settings.userInfo.photo) {
+        const profilePicEl = connectHeaderContentEl.createEl("img", {
+          attr: { src: this.plugin.settings.userInfo.photo },
+          cls: "khoj-profile"
+        });
+        profilePicEl.addEventListener("click", () => {
+          new import_obsidian3.Notice(backendStatusMessage);
+        });
+      } else if (this.plugin.settings.userInfo.email) {
+        const initial = this.plugin.settings.userInfo.email[0].toUpperCase();
+        const profilePicEl = connectHeaderContentEl.createDiv({
+          text: initial,
+          cls: "khoj-profile khoj-profile-initial"
+        });
+        profilePicEl.addEventListener("click", () => {
+          new import_obsidian3.Notice(backendStatusMessage);
+        });
+      }
+    }
+    if (this.plugin.settings.userInfo && this.plugin.settings.userInfo.email) {
+      connectHeaderEl.title = ((_b = this.plugin.settings.userInfo) == null ? void 0 : _b.email) === "default@example.com" ? "Signed in" : `Signed in as ${this.plugin.settings.userInfo.email}`;
+    }
+    const apiKeySetting = new import_obsidian3.Setting(containerEl).setName("Khoj API Key").addText((text) => text.setValue(`${this.plugin.settings.khojApiKey}`).onChange(async (value) => {
+      this.plugin.settings.khojApiKey = value.trim();
+      ({
+        connectedToBackend: this.plugin.settings.connectedToBackend,
+        userInfo: this.plugin.settings.userInfo,
+        statusMessage: backendStatusMessage
+      } = await canConnectToBackend(this.plugin.settings.khojUrl, this.plugin.settings.khojApiKey));
+      if (!this.plugin.settings.connectedToBackend) {
+        this.plugin.settings.availableChatModels = [];
+        this.plugin.settings.selectedChatModelId = null;
+      }
+      await this.plugin.saveSettings();
+      backendStatusEl.setText(this.connectStatusIcon());
+      connectHeaderEl.title = backendStatusMessage;
+      await this.refreshModelsAndServerPreference();
+    }));
+    apiKeySetting.descEl.createEl("span", {
+      text: "Connect your Khoj Cloud account. "
+    });
+    apiKeySetting.descEl.createEl("a", {
+      text: "Get your API Key",
+      href: `${this.plugin.settings.khojUrl}/settings#clients`,
+      attr: { target: "_blank" }
+    });
+    new import_obsidian3.Setting(containerEl).setName("Khoj URL").setDesc("The URL of the Khoj backend.").addText((text) => text.setValue(`${this.plugin.settings.khojUrl}`).onChange(async (value) => {
+      this.plugin.settings.khojUrl = value.trim().replace(/\/$/, "");
+      ({
+        connectedToBackend: this.plugin.settings.connectedToBackend,
+        userInfo: this.plugin.settings.userInfo,
+        statusMessage: backendStatusMessage
+      } = await canConnectToBackend(this.plugin.settings.khojUrl, this.plugin.settings.khojApiKey));
+      if (!this.plugin.settings.connectedToBackend) {
+        this.plugin.settings.availableChatModels = [];
+        this.plugin.settings.selectedChatModelId = null;
+      }
+      await this.plugin.saveSettings();
+      backendStatusEl.setText(this.connectStatusIcon());
+      connectHeaderEl.title = backendStatusMessage;
+      await this.refreshModelsAndServerPreference();
+    }));
+    containerEl.createEl("h3", { text: "Interact" });
+    this.renderChatModelDropdown();
+    if (this.plugin.settings.connectedToBackend) {
+      setTimeout(async () => {
+        await this.refreshModelsAndServerPreference();
+      }, 1e3);
+    }
+    new import_obsidian3.Setting(containerEl).setName("Auto Voice Response").setDesc("Automatically read responses after voice messages").addToggle((toggle) => toggle.setValue(this.plugin.settings.autoVoiceResponse).onChange(async (value) => {
+      this.plugin.settings.autoVoiceResponse = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Results Count").setDesc("The number of results to show in search and use for chat.").addSlider((slider) => slider.setLimits(1, 30, 1).setValue(this.plugin.settings.resultsCount).setDynamicTooltip().onChange(async (value) => {
+      this.plugin.settings.resultsCount = value;
+      await this.plugin.saveSettings();
+    }));
+    containerEl.createEl("h3", { text: "Sync" });
+    new import_obsidian3.Setting(containerEl).setName("Auto Sync").setDesc("Automatically index your vault with Khoj.").addToggle((toggle) => toggle.setValue(this.plugin.settings.autoConfigure).onChange(async (value) => {
+      this.plugin.settings.autoConfigure = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Sync Notes").setDesc("Index Markdown files in your vault with Khoj.").addToggle((toggle) => toggle.setValue(this.plugin.settings.syncFileType.markdown).onChange(async (value) => {
+      this.plugin.settings.syncFileType.markdown = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Sync Images").setDesc("Index images in your vault with Khoj.").addToggle((toggle) => toggle.setValue(this.plugin.settings.syncFileType.images).onChange(async (value) => {
+      this.plugin.settings.syncFileType.images = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Sync PDFs").setDesc("Index PDF files in your vault with Khoj.").addToggle((toggle) => toggle.setValue(this.plugin.settings.syncFileType.pdf).onChange(async (value) => {
+      this.plugin.settings.syncFileType.pdf = value;
+      await this.plugin.saveSettings();
+    }));
+    const syncIntervalValues = [1, 5, 10, 20, 30, 45, 60, 120, 1440];
+    new import_obsidian3.Setting(containerEl).setName("Sync Interval").setDesc("Minutes between automatic synchronizations").addDropdown((dropdown) => dropdown.addOptions(Object.fromEntries(syncIntervalValues.map((value) => [
+      value.toString(),
+      value === 1 ? "1 minute" : value === 1440 ? "24 hours" : `${value} minutes`
+    ]))).setValue(this.plugin.settings.syncInterval.toString()).onChange(async (value) => {
+      this.plugin.settings.syncInterval = parseInt(value);
+      await this.plugin.saveSettings();
+      this.plugin.restartSyncTimer();
+    }));
+    const syncFoldersContainer = containerEl.createDiv("sync-folders-container");
+    new import_obsidian3.Setting(syncFoldersContainer).setName("Sync Folders").setDesc("Specify folders to sync (leave empty to sync entire vault)").addButton((button) => button.setButtonText("Add Folder").onClick(() => {
+      const modal = new FolderSuggestModal(this.app, (folder) => {
+        if (!this.plugin.settings.syncFolders.includes(folder)) {
+          this.plugin.settings.syncFolders.push(folder);
+          this.plugin.saveSettings();
+          this.updateFolderList(folderListEl);
+        }
+      });
+      modal.open();
+    }));
+    const folderListEl = syncFoldersContainer.createDiv("folder-list");
+    this.updateFolderList(folderListEl);
+    let indexVaultSetting = new import_obsidian3.Setting(containerEl);
+    indexVaultSetting.setName("Force Sync").setDesc("Manually force Khoj to re-index your Obsidian Vault.").addButton((button) => button.setButtonText("Update").setCta().onClick(async () => {
+      button.setButtonText("Updating \u{1F311}");
+      button.removeCta();
+      indexVaultSetting = indexVaultSetting.setDisabled(true);
+      const progress_indicator = window.setInterval(() => {
+        if (button.buttonEl.innerText === "Updating \u{1F311}") {
+          button.setButtonText("Updating \u{1F318}");
+        } else if (button.buttonEl.innerText === "Updating \u{1F318}") {
+          button.setButtonText("Updating \u{1F317}");
+        } else if (button.buttonEl.innerText === "Updating \u{1F317}") {
+          button.setButtonText("Updating \u{1F316}");
+        } else if (button.buttonEl.innerText === "Updating \u{1F316}") {
+          button.setButtonText("Updating \u{1F315}");
+        } else if (button.buttonEl.innerText === "Updating \u{1F315}") {
+          button.setButtonText("Updating \u{1F314}");
+        } else if (button.buttonEl.innerText === "Updating \u{1F314}") {
+          button.setButtonText("Updating \u{1F313}");
+        } else if (button.buttonEl.innerText === "Updating \u{1F313}") {
+          button.setButtonText("Updating \u{1F312}");
+        } else if (button.buttonEl.innerText === "Updating \u{1F312}") {
+          button.setButtonText("Updating \u{1F311}");
+        }
+      }, 300);
+      this.plugin.registerInterval(progress_indicator);
+      this.plugin.settings.lastSync = await updateContentIndex(this.app.vault, this.plugin.settings, this.plugin.settings.lastSync, true, true);
+      window.clearInterval(progress_indicator);
+      button.setButtonText("Update");
+      button.setCta();
+      indexVaultSetting = indexVaultSetting.setDisabled(false);
+    }));
+  }
+  connectStatusIcon() {
+    var _a;
+    if (this.plugin.settings.connectedToBackend && ((_a = this.plugin.settings.userInfo) == null ? void 0 : _a.email))
+      return "\u{1F7E2}";
+    else if (this.plugin.settings.connectedToBackend)
+      return "\u{1F7E1}";
+    else
+      return "\u{1F534}";
+  }
+  async refreshModelsAndServerPreference() {
+    let serverSelectedModelId = null;
+    if (this.plugin.settings.connectedToBackend) {
+      const [availableModels, serverConfig] = await Promise.all([
+        fetchChatModels(this.plugin.settings),
+        fetchUserServerSettings(this.plugin.settings)
+      ]);
+      this.plugin.settings.availableChatModels = availableModels;
+      if (serverConfig && serverConfig.selected_chat_model_config !== void 0 && serverConfig.selected_chat_model_config !== null) {
+        const serverModelIdStr = serverConfig.selected_chat_model_config.toString();
+        if (this.plugin.settings.availableChatModels.some((m) => m.id === serverModelIdStr)) {
+          serverSelectedModelId = serverModelIdStr;
+        } else {
+          console.warn(`Khoj: Server's selected model ID ${serverModelIdStr} not in available models. Falling back to default.`);
+          serverSelectedModelId = null;
+        }
+      } else {
+        serverSelectedModelId = null;
+      }
+      this.plugin.settings.selectedChatModelId = serverSelectedModelId;
+    } else {
+      this.plugin.settings.availableChatModels = [];
+      this.plugin.settings.selectedChatModelId = null;
+    }
+    await this.plugin.saveSettings();
+    this.renderChatModelDropdown();
+  }
+  renderChatModelDropdown() {
+    if (!this.chatModelSetting) {
+      this.chatModelSetting = new import_obsidian3.Setting(this.containerEl).setName("Chat Model");
+    } else {
+      this.chatModelSetting.descEl.empty();
+      this.chatModelSetting.controlEl.empty();
+    }
+    const modelSetting = this.chatModelSetting;
+    if (!this.plugin.settings.connectedToBackend) {
+      modelSetting.setDesc("Connect to Khoj to load and set chat model options.");
+      modelSetting.addText((text) => text.setValue("Not connected").setDisabled(true));
+      return;
+    }
+    if (this.plugin.settings.availableChatModels.length === 0 && this.plugin.settings.connectedToBackend) {
+      modelSetting.setDesc("Fetching models or no models available. Check Khoj connection or try refreshing.");
+      modelSetting.addButton((button) => button.setButtonText("Refresh Models").onClick(async () => {
+        button.setButtonText("Refreshing...").setDisabled(true);
+        await this.refreshModelsAndServerPreference();
+      }));
+      return;
+    }
+    modelSetting.setDesc("The default AI model used for chat.");
+    modelSetting.addDropdown((dropdown) => {
+      dropdown.addOption("", "Default");
+      this.plugin.settings.availableChatModels.forEach((model) => {
+        dropdown.addOption(model.id, model.name);
+      });
+      dropdown.setValue(this.plugin.settings.selectedChatModelId || "").onChange(async (value) => {
+        const success = await updateServerChatModel(value, this.plugin.settings);
+        if (success) {
+          await this.plugin.saveSettings();
+        } else {
+          dropdown.setValue(this.plugin.settings.selectedChatModelId || "");
+        }
+      });
+    });
+  }
+  updateFolderList(containerEl) {
+    containerEl.empty();
+    if (this.plugin.settings.syncFolders.length === 0) {
+      containerEl.createEl("div", {
+        text: "Syncing entire vault",
+        cls: "folder-list-empty"
+      });
+      return;
+    }
+    const list = containerEl.createEl("ul", { cls: "folder-list" });
+    this.plugin.settings.syncFolders.forEach((folder) => {
+      const item = list.createEl("li", { cls: "folder-list-item" });
+      item.createSpan({ text: folder });
+      const removeButton = item.createEl("button", {
+        cls: "folder-list-remove",
+        text: "\xD7"
+      });
+      removeButton.addEventListener("click", async () => {
+        this.plugin.settings.syncFolders = this.plugin.settings.syncFolders.filter((f) => f !== folder);
+        await this.plugin.saveSettings();
+        this.updateFolderList(containerEl);
+      });
+    });
+  }
+};
+var FolderSuggestModal = class extends import_obsidian3.SuggestModal {
+  constructor(app, onChoose) {
+    super(app);
+    this.onChoose = onChoose;
+  }
+  getSuggestions(query) {
+    const folders = this.getAllFolders();
+    if (!query)
+      return folders;
+    return folders.filter((folder) => folder.toLowerCase().includes(query.toLowerCase()));
+  }
+  renderSuggestion(folder, el) {
+    el.createSpan({
+      text: folder || "/",
+      cls: "folder-suggest-item"
+    });
+  }
+  onChooseSuggestion(folder, _) {
+    this.onChoose(folder);
+  }
+  getAllFolders() {
+    const folders = /* @__PURE__ */ new Set();
+    folders.add("");
+    this.app.vault.getAllLoadedFiles().forEach((file) => {
+      var _a;
+      const folderPath = (_a = file.parent) == null ? void 0 : _a.path;
+      if (folderPath) {
+        folders.add(folderPath);
+        let parent = folderPath;
+        while (parent.includes("/")) {
+          parent = parent.substring(0, parent.lastIndexOf("/"));
+          folders.add(parent);
+        }
+      }
+    });
+    return Array.from(folders).sort();
+  }
+};
+
+// src/chat_view.ts
+var import_obsidian6 = require("obsidian");
+var DOMPurify = __toESM(require_browser());
+
+// src/pane_view.ts
+var import_obsidian4 = require("obsidian");
+var KhojPaneView = class extends import_obsidian4.ItemView {
+  constructor(leaf, plugin) {
+    super(leaf);
+    this.setting = plugin.settings;
+    this.plugin = plugin;
+  }
+  async onOpen() {
+    var _a, _b, _c;
+    let { contentEl } = this;
+    let headerEl = contentEl.createDiv({ attr: { id: "khoj-header", class: "khoj-header" } });
+    const viewType = this.getViewType();
+    await populateHeaderPane(headerEl, this.setting, viewType);
+    if (viewType === "khoj-chat-view" /* CHAT */) {
+      (_a = headerEl.querySelector(".chat-nav")) == null ? void 0 : _a.classList.add("khoj-nav-selected");
+    } else if (viewType === "khoj-similar-view" /* SIMILAR */) {
+      (_b = headerEl.querySelector(".similar-nav")) == null ? void 0 : _b.classList.add("khoj-nav-selected");
+    }
+    let similarNavSvgEl = (_c = headerEl.getElementsByClassName("khoj-nav-icon-similar")[0]) == null ? void 0 : _c.firstElementChild;
+    if (!!similarNavSvgEl)
+      similarNavSvgEl.id = "similar-nav-icon-svg";
+  }
+  async activateView(viewType) {
+    const { workspace } = this.app;
+    let leaf = null;
+    const leaves = workspace.getLeavesOfType(viewType);
+    if (leaves.length > 0) {
+      leaf = leaves[0];
+    } else {
+      leaf = workspace.getRightLeaf(false);
+      await (leaf == null ? void 0 : leaf.setViewState({ type: viewType, active: true }));
+    }
+    if (leaf) {
+      if (viewType === "khoj-chat-view" /* CHAT */) {
+        let chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+        if (chatInput)
+          chatInput.focus();
+      }
+      workspace.revealLeaf(leaf);
+    }
+  }
+};
+
+// src/interact_with_files.ts
+var import_obsidian5 = require("obsidian");
+
+// node_modules/diff/libesm/diff/base.js
+var Diff = class {
+  diff(oldStr, newStr, options = {}) {
+    let callback;
+    if (typeof options === "function") {
+      callback = options;
+      options = {};
+    } else if ("callback" in options) {
+      callback = options.callback;
+    }
+    const oldString = this.castInput(oldStr, options);
+    const newString = this.castInput(newStr, options);
+    const oldTokens = this.removeEmpty(this.tokenize(oldString, options));
+    const newTokens = this.removeEmpty(this.tokenize(newString, options));
+    return this.diffWithOptionsObj(oldTokens, newTokens, options, callback);
+  }
+  diffWithOptionsObj(oldTokens, newTokens, options, callback) {
+    var _a;
+    const done = (value) => {
+      value = this.postProcess(value, options);
+      if (callback) {
+        setTimeout(function() {
+          callback(value);
+        }, 0);
+        return void 0;
+      } else {
+        return value;
+      }
+    };
+    const newLen = newTokens.length, oldLen = oldTokens.length;
+    let editLength = 1;
+    let maxEditLength = newLen + oldLen;
+    if (options.maxEditLength != null) {
+      maxEditLength = Math.min(maxEditLength, options.maxEditLength);
+    }
+    const maxExecutionTime = (_a = options.timeout) !== null && _a !== void 0 ? _a : Infinity;
+    const abortAfterTimestamp = Date.now() + maxExecutionTime;
+    const bestPath = [{ oldPos: -1, lastComponent: void 0 }];
+    let newPos = this.extractCommon(bestPath[0], newTokens, oldTokens, 0, options);
+    if (bestPath[0].oldPos + 1 >= oldLen && newPos + 1 >= newLen) {
+      return done(this.buildValues(bestPath[0].lastComponent, newTokens, oldTokens));
+    }
+    let minDiagonalToConsider = -Infinity, maxDiagonalToConsider = Infinity;
+    const execEditLength = () => {
+      for (let diagonalPath = Math.max(minDiagonalToConsider, -editLength); diagonalPath <= Math.min(maxDiagonalToConsider, editLength); diagonalPath += 2) {
+        let basePath;
+        const removePath = bestPath[diagonalPath - 1], addPath = bestPath[diagonalPath + 1];
+        if (removePath) {
+          bestPath[diagonalPath - 1] = void 0;
+        }
+        let canAdd = false;
+        if (addPath) {
+          const addPathNewPos = addPath.oldPos - diagonalPath;
+          canAdd = addPath && 0 <= addPathNewPos && addPathNewPos < newLen;
+        }
+        const canRemove = removePath && removePath.oldPos + 1 < oldLen;
+        if (!canAdd && !canRemove) {
+          bestPath[diagonalPath] = void 0;
+          continue;
+        }
+        if (!canRemove || canAdd && removePath.oldPos < addPath.oldPos) {
+          basePath = this.addToPath(addPath, true, false, 0, options);
+        } else {
+          basePath = this.addToPath(removePath, false, true, 1, options);
+        }
+        newPos = this.extractCommon(basePath, newTokens, oldTokens, diagonalPath, options);
+        if (basePath.oldPos + 1 >= oldLen && newPos + 1 >= newLen) {
+          return done(this.buildValues(basePath.lastComponent, newTokens, oldTokens)) || true;
+        } else {
+          bestPath[diagonalPath] = basePath;
+          if (basePath.oldPos + 1 >= oldLen) {
+            maxDiagonalToConsider = Math.min(maxDiagonalToConsider, diagonalPath - 1);
+          }
+          if (newPos + 1 >= newLen) {
+            minDiagonalToConsider = Math.max(minDiagonalToConsider, diagonalPath + 1);
+          }
+        }
+      }
+      editLength++;
+    };
+    if (callback) {
+      (function exec() {
+        setTimeout(function() {
+          if (editLength > maxEditLength || Date.now() > abortAfterTimestamp) {
+            return callback(void 0);
+          }
+          if (!execEditLength()) {
+            exec();
+          }
+        }, 0);
+      })();
+    } else {
+      while (editLength <= maxEditLength && Date.now() <= abortAfterTimestamp) {
+        const ret = execEditLength();
+        if (ret) {
+          return ret;
+        }
+      }
+    }
+  }
+  addToPath(path, added, removed, oldPosInc, options) {
+    const last = path.lastComponent;
+    if (last && !options.oneChangePerToken && last.added === added && last.removed === removed) {
+      return {
+        oldPos: path.oldPos + oldPosInc,
+        lastComponent: { count: last.count + 1, added, removed, previousComponent: last.previousComponent }
+      };
+    } else {
+      return {
+        oldPos: path.oldPos + oldPosInc,
+        lastComponent: { count: 1, added, removed, previousComponent: last }
+      };
+    }
+  }
+  extractCommon(basePath, newTokens, oldTokens, diagonalPath, options) {
+    const newLen = newTokens.length, oldLen = oldTokens.length;
+    let oldPos = basePath.oldPos, newPos = oldPos - diagonalPath, commonCount = 0;
+    while (newPos + 1 < newLen && oldPos + 1 < oldLen && this.equals(oldTokens[oldPos + 1], newTokens[newPos + 1], options)) {
+      newPos++;
+      oldPos++;
+      commonCount++;
+      if (options.oneChangePerToken) {
+        basePath.lastComponent = { count: 1, previousComponent: basePath.lastComponent, added: false, removed: false };
+      }
+    }
+    if (commonCount && !options.oneChangePerToken) {
+      basePath.lastComponent = { count: commonCount, previousComponent: basePath.lastComponent, added: false, removed: false };
+    }
+    basePath.oldPos = oldPos;
+    return newPos;
+  }
+  equals(left, right, options) {
+    if (options.comparator) {
+      return options.comparator(left, right);
+    } else {
+      return left === right || !!options.ignoreCase && left.toLowerCase() === right.toLowerCase();
+    }
+  }
+  removeEmpty(array) {
+    const ret = [];
+    for (let i = 0; i < array.length; i++) {
+      if (array[i]) {
+        ret.push(array[i]);
+      }
+    }
+    return ret;
+  }
+  castInput(value, options) {
+    return value;
+  }
+  tokenize(value, options) {
+    return Array.from(value);
+  }
+  join(chars) {
+    return chars.join("");
+  }
+  postProcess(changeObjects, options) {
+    return changeObjects;
+  }
+  get useLongestToken() {
+    return false;
+  }
+  buildValues(lastComponent, newTokens, oldTokens) {
+    const components = [];
+    let nextComponent;
+    while (lastComponent) {
+      components.push(lastComponent);
+      nextComponent = lastComponent.previousComponent;
+      delete lastComponent.previousComponent;
+      lastComponent = nextComponent;
+    }
+    components.reverse();
+    const componentLen = components.length;
+    let componentPos = 0, newPos = 0, oldPos = 0;
+    for (; componentPos < componentLen; componentPos++) {
+      const component = components[componentPos];
+      if (!component.removed) {
+        if (!component.added && this.useLongestToken) {
+          let value = newTokens.slice(newPos, newPos + component.count);
+          value = value.map(function(value2, i) {
+            const oldValue = oldTokens[oldPos + i];
+            return oldValue.length > value2.length ? oldValue : value2;
+          });
+          component.value = this.join(value);
+        } else {
+          component.value = this.join(newTokens.slice(newPos, newPos + component.count));
+        }
+        newPos += component.count;
+        if (!component.added) {
+          oldPos += component.count;
+        }
+      } else {
+        component.value = this.join(oldTokens.slice(oldPos, oldPos + component.count));
+        oldPos += component.count;
+      }
+    }
+    return components;
+  }
+};
+
+// node_modules/diff/libesm/util/string.js
+function longestCommonPrefix(str1, str2) {
+  let i;
+  for (i = 0; i < str1.length && i < str2.length; i++) {
+    if (str1[i] != str2[i]) {
+      return str1.slice(0, i);
+    }
+  }
+  return str1.slice(0, i);
+}
+function longestCommonSuffix(str1, str2) {
+  let i;
+  if (!str1 || !str2 || str1[str1.length - 1] != str2[str2.length - 1]) {
+    return "";
+  }
+  for (i = 0; i < str1.length && i < str2.length; i++) {
+    if (str1[str1.length - (i + 1)] != str2[str2.length - (i + 1)]) {
+      return str1.slice(-i);
+    }
+  }
+  return str1.slice(-i);
+}
+function replacePrefix(string, oldPrefix, newPrefix) {
+  if (string.slice(0, oldPrefix.length) != oldPrefix) {
+    throw Error(`string ${JSON.stringify(string)} doesn't start with prefix ${JSON.stringify(oldPrefix)}; this is a bug`);
+  }
+  return newPrefix + string.slice(oldPrefix.length);
+}
+function replaceSuffix(string, oldSuffix, newSuffix) {
+  if (!oldSuffix) {
+    return string + newSuffix;
+  }
+  if (string.slice(-oldSuffix.length) != oldSuffix) {
+    throw Error(`string ${JSON.stringify(string)} doesn't end with suffix ${JSON.stringify(oldSuffix)}; this is a bug`);
+  }
+  return string.slice(0, -oldSuffix.length) + newSuffix;
+}
+function removePrefix(string, oldPrefix) {
+  return replacePrefix(string, oldPrefix, "");
+}
+function removeSuffix(string, oldSuffix) {
+  return replaceSuffix(string, oldSuffix, "");
+}
+function maximumOverlap(string1, string2) {
+  return string2.slice(0, overlapCount(string1, string2));
+}
+function overlapCount(a, b) {
+  let startA = 0;
+  if (a.length > b.length) {
+    startA = a.length - b.length;
+  }
+  let endB = b.length;
+  if (a.length < b.length) {
+    endB = a.length;
+  }
+  const map = Array(endB);
+  let k = 0;
+  map[0] = 0;
+  for (let j = 1; j < endB; j++) {
+    if (b[j] == b[k]) {
+      map[j] = map[k];
+    } else {
+      map[j] = k;
+    }
+    while (k > 0 && b[j] != b[k]) {
+      k = map[k];
+    }
+    if (b[j] == b[k]) {
+      k++;
+    }
+  }
+  k = 0;
+  for (let i = startA; i < a.length; i++) {
+    while (k > 0 && a[i] != b[k]) {
+      k = map[k];
+    }
+    if (a[i] == b[k]) {
+      k++;
+    }
+  }
+  return k;
+}
+function trailingWs(string) {
+  let i;
+  for (i = string.length - 1; i >= 0; i--) {
+    if (!string[i].match(/\s/)) {
+      break;
+    }
+  }
+  return string.substring(i + 1);
+}
+function leadingWs(string) {
+  const match = string.match(/^\s*/);
+  return match ? match[0] : "";
+}
+
+// node_modules/diff/libesm/diff/word.js
+var extendedWordChars = "a-zA-Z0-9_\\u{C0}-\\u{FF}\\u{D8}-\\u{F6}\\u{F8}-\\u{2C6}\\u{2C8}-\\u{2D7}\\u{2DE}-\\u{2FF}\\u{1E00}-\\u{1EFF}";
+var tokenizeIncludingWhitespace = new RegExp(`[${extendedWordChars}]+|\\s+|[^${extendedWordChars}]`, "ug");
+var WordDiff = class extends Diff {
+  equals(left, right, options) {
+    if (options.ignoreCase) {
+      left = left.toLowerCase();
+      right = right.toLowerCase();
+    }
+    return left.trim() === right.trim();
+  }
+  tokenize(value, options = {}) {
+    let parts;
+    if (options.intlSegmenter) {
+      const segmenter = options.intlSegmenter;
+      if (segmenter.resolvedOptions().granularity != "word") {
+        throw new Error('The segmenter passed must have a granularity of "word"');
+      }
+      parts = Array.from(segmenter.segment(value), (segment) => segment.segment);
+    } else {
+      parts = value.match(tokenizeIncludingWhitespace) || [];
+    }
+    const tokens = [];
+    let prevPart = null;
+    parts.forEach((part) => {
+      if (/\s/.test(part)) {
+        if (prevPart == null) {
+          tokens.push(part);
+        } else {
+          tokens.push(tokens.pop() + part);
+        }
+      } else if (prevPart != null && /\s/.test(prevPart)) {
+        if (tokens[tokens.length - 1] == prevPart) {
+          tokens.push(tokens.pop() + part);
+        } else {
+          tokens.push(prevPart + part);
+        }
+      } else {
+        tokens.push(part);
+      }
+      prevPart = part;
+    });
+    return tokens;
+  }
+  join(tokens) {
+    return tokens.map((token, i) => {
+      if (i == 0) {
+        return token;
+      } else {
+        return token.replace(/^\s+/, "");
+      }
+    }).join("");
+  }
+  postProcess(changes, options) {
+    if (!changes || options.oneChangePerToken) {
+      return changes;
+    }
+    let lastKeep = null;
+    let insertion = null;
+    let deletion = null;
+    changes.forEach((change) => {
+      if (change.added) {
+        insertion = change;
+      } else if (change.removed) {
+        deletion = change;
+      } else {
+        if (insertion || deletion) {
+          dedupeWhitespaceInChangeObjects(lastKeep, deletion, insertion, change);
+        }
+        lastKeep = change;
+        insertion = null;
+        deletion = null;
+      }
+    });
+    if (insertion || deletion) {
+      dedupeWhitespaceInChangeObjects(lastKeep, deletion, insertion, null);
+    }
+    return changes;
+  }
+};
+var wordDiff = new WordDiff();
+function diffWords(oldStr, newStr, options) {
+  if ((options === null || options === void 0 ? void 0 : options.ignoreWhitespace) != null && !options.ignoreWhitespace) {
+    return diffWordsWithSpace(oldStr, newStr, options);
+  }
+  return wordDiff.diff(oldStr, newStr, options);
+}
+function dedupeWhitespaceInChangeObjects(startKeep, deletion, insertion, endKeep) {
+  if (deletion && insertion) {
+    const oldWsPrefix = leadingWs(deletion.value);
+    const oldWsSuffix = trailingWs(deletion.value);
+    const newWsPrefix = leadingWs(insertion.value);
+    const newWsSuffix = trailingWs(insertion.value);
+    if (startKeep) {
+      const commonWsPrefix = longestCommonPrefix(oldWsPrefix, newWsPrefix);
+      startKeep.value = replaceSuffix(startKeep.value, newWsPrefix, commonWsPrefix);
+      deletion.value = removePrefix(deletion.value, commonWsPrefix);
+      insertion.value = removePrefix(insertion.value, commonWsPrefix);
+    }
+    if (endKeep) {
+      const commonWsSuffix = longestCommonSuffix(oldWsSuffix, newWsSuffix);
+      endKeep.value = replacePrefix(endKeep.value, newWsSuffix, commonWsSuffix);
+      deletion.value = removeSuffix(deletion.value, commonWsSuffix);
+      insertion.value = removeSuffix(insertion.value, commonWsSuffix);
+    }
+  } else if (insertion) {
+    if (startKeep) {
+      const ws = leadingWs(insertion.value);
+      insertion.value = insertion.value.substring(ws.length);
+    }
+    if (endKeep) {
+      const ws = leadingWs(endKeep.value);
+      endKeep.value = endKeep.value.substring(ws.length);
+    }
+  } else if (startKeep && endKeep) {
+    const newWsFull = leadingWs(endKeep.value), delWsStart = leadingWs(deletion.value), delWsEnd = trailingWs(deletion.value);
+    const newWsStart = longestCommonPrefix(newWsFull, delWsStart);
+    deletion.value = removePrefix(deletion.value, newWsStart);
+    const newWsEnd = longestCommonSuffix(removePrefix(newWsFull, newWsStart), delWsEnd);
+    deletion.value = removeSuffix(deletion.value, newWsEnd);
+    endKeep.value = replacePrefix(endKeep.value, newWsFull, newWsEnd);
+    startKeep.value = replaceSuffix(startKeep.value, newWsFull, newWsFull.slice(0, newWsFull.length - newWsEnd.length));
+  } else if (endKeep) {
+    const endKeepWsPrefix = leadingWs(endKeep.value);
+    const deletionWsSuffix = trailingWs(deletion.value);
+    const overlap = maximumOverlap(deletionWsSuffix, endKeepWsPrefix);
+    deletion.value = removeSuffix(deletion.value, overlap);
+  } else if (startKeep) {
+    const startKeepWsSuffix = trailingWs(startKeep.value);
+    const deletionWsPrefix = leadingWs(deletion.value);
+    const overlap = maximumOverlap(startKeepWsSuffix, deletionWsPrefix);
+    deletion.value = removePrefix(deletion.value, overlap);
+  }
+}
+var WordsWithSpaceDiff = class extends Diff {
+  tokenize(value) {
+    const regex = new RegExp(`(\\r?\\n)|[${extendedWordChars}]+|[^\\S\\n\\r]+|[^${extendedWordChars}]`, "ug");
+    return value.match(regex) || [];
+  }
+};
+var wordsWithSpaceDiff = new WordsWithSpaceDiff();
+function diffWordsWithSpace(oldStr, newStr, options) {
+  return wordsWithSpaceDiff.diff(oldStr, newStr, options);
+}
+
+// src/interact_with_files.ts
+var FileInteractions = class {
+  constructor(app) {
+    this.EDIT_BLOCK_START = "<khoj_edit>";
+    this.EDIT_BLOCK_END = "</khoj_edit>";
+    this.CONTEXT_FILES_LIMIT = 3;
+    this.app = app;
+  }
+  getRecentActiveMarkdownFiles(N) {
+    const seen = /* @__PURE__ */ new Set();
+    const recentActiveFiles = this.app.workspace.getLeavesOfType("markdown").sort((a, b) => b.activeTime - a.activeTime).map((leaf) => {
+      var _a;
+      return (_a = leaf.view) == null ? void 0 : _a.file;
+    }).filter((file) => {
+      if (!file || seen.has(file.path))
+        return false;
+      seen.add(file.path);
+      return true;
+    }).slice(0, N);
+    console.log(`Using ${recentActiveFiles.length} recently viewed md files for context: ${recentActiveFiles.map((file) => file.path).join(", ")}`);
+    return recentActiveFiles;
+  }
+  async getOpenFilesContent(fileAccessMode) {
+    if (fileAccessMode === "none")
+      return "";
+    const recentFiles = this.getRecentActiveMarkdownFiles(this.CONTEXT_FILES_LIMIT);
+    if (recentFiles.length === 0)
+      return "";
+    let editInstructions = "";
+    if (fileAccessMode === "write") {
+      editInstructions = `
+If the user requests, you can suggest edits to files provided in the WORKING_FILE_SET provided below.
+Once you understand the user request you MUST:
+
+1. Decide if you need to propose *SEARCH/REPLACE* edits to any files that haven't been added to the chat.
+
+If you need to propose edits to existing files not already added to the chat, you *MUST* tell the user their full path names and ask them to *add the files to the chat*.
+End your reply and wait for their approval.
+You can keep asking if you then decide you need to edit more files.
+
+2. Think step-by-step and explain the needed changes in a few short sentences before each EDIT block.
+
+3. Describe each change with a *SEARCH/REPLACE block* like the examples below.
+
+All changes to files must use this *SEARCH/REPLACE block* format.
+ONLY EVER RETURN EDIT TEXT IN A *SEARCH/REPLACE BLOCK*!
+
+# *SEARCH/REPLACE block* Rules:
+
+Every *SEARCH/REPLACE block* must use this format:
+1. The opening fence: \`${this.EDIT_BLOCK_START}\`
+2. The *FULL* file path alone on a line, verbatim. No bold asterisks, no quotes around it, no escaping of characters, etc.
+3. The start of search block: <<<<<<< SEARCH
+4. A contiguous chunk of lines to search for in the source file
+5. The dividing line: =======
+6. The lines to replace into the source file
+7. The end of the replace block: >>>>>>> REPLACE
+8. The closing fence: \`${this.EDIT_BLOCK_END}\`
+
+Use the *FULL* file path, as shown to you by the user.
+
+Every *SEARCH* section must *EXACTLY MATCH* the existing file content, character for character, including all comments, docstrings, etc.
+If the file contains code or other data wrapped/escaped in json/xml/quotes or other containers, you need to propose edits to the literal contents of the file, including the container markup.
+
+*SEARCH/REPLACE* blocks will *only* replace the first match occurrence.
+Including multiple unique *SEARCH/REPLACE* blocks if needed.
+Include enough lines in each SEARCH section to uniquely match each set of lines that need to change.
+
+Keep *SEARCH/REPLACE* blocks concise.
+Break large *SEARCH/REPLACE* blocks into a series of smaller blocks that each change a small portion of the file.
+Include just the changing lines, and a few surrounding lines if needed for uniqueness.
+Do not include long runs of unchanging lines in *SEARCH/REPLACE* blocks.
+
+Only create *SEARCH/REPLACE* blocks for files that the user has added to the chat!
+
+To move text within a file, use 2 *SEARCH/REPLACE* blocks: 1 to delete it from its current location, 1 to insert it in the new location.
+
+Pay attention to which filenames the user wants you to edit, especially if they are asking you to create a new file.
+
+If you want to put text in a new file, use a *SEARCH/REPLACE block* with:
+- A new file path, including dir name if needed
+- An empty \`SEARCH\` section
+- The new file's contents in the \`REPLACE\` section
+
+ONLY EVER RETURN EDIT TEXT IN A *SEARCH/REPLACE BLOCK*!
+
+<EDIT_INSTRUCTIONS>
+Suggest edits using targeted modifications. Use multiple edit blocks to make precise changes rather than rewriting entire sections.
+
+Here's how to use the *SEARCH/REPLACE block* format:
+
+${this.EDIT_BLOCK_START}
+target-filename
+<<<<<<< SEARCH
+from flask import Flask
+=======
+import math
+from flask import Flask
+>>>>>>> REPLACE
+${this.EDIT_BLOCK_END}
+
+\u26A0\uFE0F Important:
+- The target-filename parameter is required and must match an open file name.
+- The XML format ${this.EDIT_BLOCK_START}...${this.EDIT_BLOCK_END} ensures reliable parsing.
+- The SEARCH block content must completely and uniquely identify the section to edit.
+- The REPLACE block content will replace the first SEARCH block match in the specified \`target-filename\`.
+
+\u{1F4DD} Example note:
+
+\`\`\`
+---
+date: 2024-01-20
+tags: meeting, planning
+status: active
+---
+# file: Meeting Notes.md
+
+Action items from today:
+- Review Q4 metrics
+- Schedule follow-up with marketing team about new campaign launch
+- Update project timeline and milestones for Q1 2024
+
+Next steps:
+- Send summary to team
+- Book conference room for next week
+\`\`\`
+
+Examples of targeted edits:
+
+1. Using just a few words to identify long text (notice how "campaign launch" is kept in content):
+
+Add deadline and specificity to the marketing team follow-up.
+${this.EDIT_BLOCK_START}
+Meeting Notes.md
+<<<<<<< SEARCH
+- Schedule follow-up with marketing team about new campaign launch
+=======
+- Schedule follow-up with marketing team by Wednesday to discuss Q1 campaign launch
+>>>>>>> REPLACE
+${this.EDIT_BLOCK_END}
+
+2. Multiple targeted changes with escaped characters:
+
+Add HIGH priority flag with code reference to Q4 metrics review"
+${this.EDIT_BLOCK_START}
+Meeting Notes.md
+<<<<<<< SEARCH
+- Review Q4 metrics
+=======
+- [HIGH] Review Q4 metrics (see "metrics.ts" and \`calculateQ4Metrics()\`)
+>>>>>>> REPLACE
+</${this.EDIT_BLOCK_END}>
+
+Add resource allocation to project timeline task
+<${this.EDIT_BLOCK_START}>
+Meeting Notes.md
+<<<<<<< SEARCH
+- Update project timeline and milestones for Q1 2024
+=======
+- Update project timeline and add resource allocation for Q1 2024
+>>>>>>> REPLACE
+</${this.EDIT_BLOCK_END}>
+
+3. Adding new content between sections:
+Insert a new section for discussion points after the action items section:
+${this.EDIT_BLOCK_START}
+Meeting Notes.md
+<<<<<<< SEARCH
+Action items from today:
+- Review Q4 metrics
+- Schedule follow-up with marketing team about new campaign launch
+- Update project timeline and milestones for Q1 2024
+=======
+Action items from today:
+- Review Q4 metrics
+- Schedule follow-up
+- Update timeline
+
+Discussion Points:
+- Budget review
+- Team feedback
+>>>>>>> REPLACE
+</${this.EDIT_BLOCK_END}>
+
+4. Completely replacing a file content (preserving frontmatter):
+Replace entire file content while keeping frontmatter metadata
+${this.EDIT_BLOCK_START}
+Meeting Notes.md
+<<<<<<< SEARCH
+=======
+# Project Overview
+
+## Goals
+- Increase user engagement by 25%
+- Launch mobile app by Q3
+- Expand to 3 new markets
+
+## Timeline
+1. Q1: Research & Planning
+2. Q2: Development
+3. Q3: Testing & Launch
+4. Q4: Market Expansion
+>>>>>>> REPLACE
+${this.EDIT_BLOCK_END}
+
+- The SEARCH block must uniquely identify the section to edit
+- The REPLACE block content replaces the first SEARCH block match in the specified file
+- Frontmatter metadata (between --- markers at top of file) cannot be modified
+- Use an empty SEARCH block to replace entire file content with content in REPLACE block (while preserving frontmatter).
+- Remember to escape special characters: use " for quotes in content
+- Each edit block must be fenced in ${this.EDIT_BLOCK_START}...${this.EDIT_BLOCK_END} XML tags
+
+</EDIT_INSTRUCTIONS>
+`;
+    }
+    let openFilesContent = `
+For context, the user is currently working on the following files:
+<WORKING_FILE_SET>
+
+`;
+    for (const file of recentFiles) {
+      let fileContent;
+      try {
+        fileContent = await this.app.vault.read(file);
+      } catch (error) {
+        console.error(`Error reading file ${file.path}:`, error);
+        continue;
+      }
+      openFilesContent += `<OPEN_FILE>
+# file: ${file.basename}.md
+
+${fileContent}
+</OPEN_FILE>
+
+`;
+    }
+    openFilesContent += "</WORKING_FILE_SET>\n";
+    let context;
+    if (fileAccessMode === "write") {
+      context = `
+
+<SYSTEM>${editInstructions + openFilesContent}</SYSTEM>`;
+    } else {
+      context = `
+
+<SYSTEM>${openFilesContent}</SYSTEM>`;
+    }
+    return context;
+  }
+  levenshteinDistance(a, b) {
+    if (a.length === 0)
+      return b.length;
+    if (b.length === 0)
+      return a.length;
+    const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+    for (let i = 0; i <= a.length; i++)
+      matrix[0][i] = i;
+    for (let j = 0; j <= b.length; j++)
+      matrix[j][0] = j;
+    for (let j = 1; j <= b.length; j++) {
+      for (let i = 1; i <= a.length; i++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        matrix[j][i] = Math.min(matrix[j][i - 1] + 1, matrix[j - 1][i] + 1, matrix[j - 1][i - 1] + cost);
+      }
+    }
+    return matrix[b.length][a.length];
+  }
+  findBestMatchingFile(targetName, files) {
+    const MAX_DISTANCE = 10;
+    let bestMatch = null;
+    for (const file of files) {
+      const distanceWithExt = this.levenshteinDistance(targetName.toLowerCase(), file.name.toLowerCase());
+      const distanceWithoutExt = this.levenshteinDistance(targetName.toLowerCase(), file.basename.toLowerCase());
+      const distance = Math.min(distanceWithExt, distanceWithoutExt);
+      if (distance <= MAX_DISTANCE && (!bestMatch || distance < bestMatch.distance)) {
+        bestMatch = { file, distance };
+      }
+    }
+    return (bestMatch == null ? void 0 : bestMatch.file) || null;
+  }
+  parseEditBlock(content, isComplete = true) {
+    let cleanContent = "";
+    try {
+      cleanContent = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n").replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim();
+      if (!isComplete) {
+        const partialData = {
+          file: "",
+          find: "",
+          replace: ""
+        };
+        const firstLineMatch = cleanContent.match(/^([^\n]+)/);
+        if (firstLineMatch) {
+          partialData.file = firstLineMatch[1].trim();
+        }
+        const searchStartMatch = cleanContent.match(/<<<<<<< SEARCH\n([\s\S]*)/);
+        if (searchStartMatch) {
+          partialData.find = searchStartMatch[1];
+          if (!partialData.file) {
+            const lines = cleanContent.split("\n");
+            const searchIndex = lines.findIndex((line) => line.startsWith("<<<<<<< SEARCH"));
+            if (searchIndex > 0) {
+              partialData.file = lines[searchIndex - 1].trim();
+            }
+          }
+        }
+        return {
+          editData: partialData,
+          cleanContent,
+          inProgress: true
+        };
+      }
+      const newFormatRegex = /^([^\n]+)\n<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n?>>>>>>> REPLACE\s*$/;
+      const newFormatMatch = newFormatRegex.exec(cleanContent);
+      let editData = null;
+      if (newFormatMatch) {
+        editData = {
+          file: newFormatMatch[1].trim(),
+          find: newFormatMatch[2],
+          replace: newFormatMatch[3]
+        };
+      }
+      let error = null;
+      if (editData && !editData.file) {
+        error = {
+          type: "missing_field",
+          message: 'Missing "file" field in edit block',
+          details: 'The "file" field is required and should contain the target file name'
+        };
+      } else if (editData && (editData.find === void 0 || editData.find === null)) {
+        error = {
+          type: "missing_field",
+          message: 'Missing "find" field markers',
+          details: 'The "find" field is required. It should contain the content to find in the file or be empty for new files'
+        };
+      } else if (editData && editData.replace === void 0) {
+        error = {
+          type: "missing_field",
+          message: 'Missing "replace" field in edit block',
+          details: 'The "replace" field is required. It should contain the content to replace or be empty to indicate deletion'
+        };
+      }
+      return error ? { editData, cleanContent, error } : { editData, cleanContent };
+    } catch (error) {
+      console.error("Error parsing edit block:", error);
+      console.error("Content causing error:", content);
+      return {
+        editData: null,
+        cleanContent,
+        error: {
+          type: "invalid_format",
+          message: "Invalid JSON format in edit block",
+          details: error.message
+        }
+      };
+    }
+  }
+  parseEditBlocks(message) {
+    const editBlocks = [];
+    const editBlockRegex = new RegExp(`${this.EDIT_BLOCK_START}([\\s\\S]*?)${this.EDIT_BLOCK_END}`, "g");
+    let match;
+    while ((match = editBlockRegex.exec(message)) !== null) {
+      const { editData, cleanContent, error } = this.parseEditBlock(match[1]);
+      if (error) {
+        console.error("Failed to parse edit block:", error);
+        console.debug("Content causing error:", match[1]);
+        editBlocks.push({
+          file: "unknown",
+          find: "",
+          replace: `Error: ${error.message}
+Original content:
+${match[1]}`,
+          note: "Error parsing edit block",
+          hasError: true,
+          error
+        });
+        continue;
+      }
+      if (!editData) {
+        console.debug("No edit data parsed");
+        continue;
+      }
+      editBlocks.push({
+        note: "Suggested edit",
+        file: editData.file,
+        find: editData.find,
+        replace: editData.replace,
+        hasError: !!error,
+        error: error || void 0
+      });
+    }
+    return editBlocks;
+  }
+  createPreviewWithDiff(originalText, newText) {
+    const HIGHLIGHT_TOKEN = "___KHOJ_HIGHLIGHT_MARKER___";
+    const STRIKETHROUGH_TOKEN = "___KHOJ_STRIKETHROUGH_MARKER___";
+    const preserveFormatting = (text) => {
+      let processed = text.replace(/==(.*?)==/g, `${HIGHLIGHT_TOKEN}$1${HIGHLIGHT_TOKEN}`);
+      processed = processed.replace(/~~(.*?)~~/g, `${STRIKETHROUGH_TOKEN}$1${STRIKETHROUGH_TOKEN}`);
+      return processed;
+    };
+    const restoreFormatting = (text) => {
+      let processed = text.replace(new RegExp(HIGHLIGHT_TOKEN + "(.*?)" + HIGHLIGHT_TOKEN, "g"), "==$1==");
+      processed = processed.replace(new RegExp(STRIKETHROUGH_TOKEN + "(.*?)" + STRIKETHROUGH_TOKEN, "g"), "~~$1~~");
+      return processed;
+    };
+    const preservedOriginal = preserveFormatting(originalText);
+    const preservedNew = preserveFormatting(newText);
+    let prefixLength = 0;
+    const minLength = Math.min(preservedOriginal.length, preservedNew.length);
+    while (prefixLength < minLength && preservedOriginal[prefixLength] === preservedNew[prefixLength]) {
+      prefixLength++;
+    }
+    let suffixLength = 0;
+    while (suffixLength < minLength - prefixLength && preservedOriginal[preservedOriginal.length - 1 - suffixLength] === preservedNew[preservedNew.length - 1 - suffixLength]) {
+      suffixLength++;
+    }
+    const commonPrefix = preservedOriginal.slice(0, prefixLength);
+    const commonSuffix = preservedOriginal.slice(preservedOriginal.length - suffixLength);
+    const originalDiff = preservedOriginal.slice(prefixLength, preservedOriginal.length - suffixLength);
+    const newDiff = preservedNew.slice(prefixLength, preservedNew.length - suffixLength);
+    const formatLines = (text, marker) => {
+      if (!text)
+        return "";
+      return text.split("\n").map((line) => {
+        line = line.trim();
+        if (!line) {
+          return marker === "==" ? "" : "~~";
+        }
+        return `${marker}${line}${marker}`;
+      }).filter((line) => line !== "~~").join("\n");
+    };
+    const diffPreview = commonPrefix + (originalDiff ? formatLines(originalDiff, "~~") : "") + (newDiff ? formatLines(newDiff, "==") : "") + commonSuffix;
+    return restoreFormatting(diffPreview);
+  }
+  textNormalize(text) {
+    return text.replace(/\u00A0/g, " ").replace(/[\u2002\u2003\u2007\u2008\u2009\u200A\u205F\u3000]/g, " ").replace(/[\u2013\u2014]/g, "-").replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, "...").normalize("NFC");
+  }
+  processSingleEdit(rawFindText, replaceText, rawCurrentFileContent, frontmatterEndIndex) {
+    let startIndex = -1;
+    let endIndex = -1;
+    const findText = this.textNormalize(rawFindText);
+    const currentFileContent = this.textNormalize(rawCurrentFileContent);
+    if (findText === "") {
+      startIndex = frontmatterEndIndex;
+      endIndex = currentFileContent.length;
+    } else {
+      startIndex = currentFileContent.indexOf(findText, frontmatterEndIndex);
+      if (startIndex !== -1) {
+        endIndex = startIndex + findText.length;
+      }
+    }
+    if (startIndex === -1 || endIndex === -1 || startIndex > endIndex) {
+      return {
+        preview: "",
+        newContent: currentFileContent,
+        error: `No matching text found in file.`
+      };
+    }
+    const textToReplace = currentFileContent.substring(startIndex, endIndex);
+    const newText = replaceText.trim();
+    const preview = this.createPreviewWithDiff(textToReplace, newText);
+    const newContent = currentFileContent.substring(0, startIndex) + preview + currentFileContent.substring(endIndex);
+    return { preview, newContent };
+  }
+  async applyEditBlocks(editBlocks, onRetryNeeded) {
+    var _a;
+    if (editBlocks.length === 0) {
+      return { editResults: [], fileBackups: /* @__PURE__ */ new Map() };
+    }
+    const fileBackups = /* @__PURE__ */ new Map();
+    const currentFileContents = /* @__PURE__ */ new Map();
+    const files = this.getRecentActiveMarkdownFiles(this.CONTEXT_FILES_LIMIT);
+    const editResults = [];
+    const blocksNeedingRetry = [];
+    const validationResults = [];
+    for (const block of editBlocks) {
+      try {
+        if (block.hasError) {
+          validationResults.push({
+            block,
+            valid: false,
+            error: ((_a = block.error) == null ? void 0 : _a.message) || "Parsing error"
+          });
+          continue;
+        }
+        const targetFile = this.findBestMatchingFile(block.file, files);
+        if (!targetFile) {
+          validationResults.push({
+            block,
+            valid: false,
+            error: `No matching file found for "${block.file}"`
+          });
+          continue;
+        }
+        if (!fileBackups.has(targetFile.path)) {
+          const content = await this.app.vault.read(targetFile);
+          fileBackups.set(targetFile.path, content);
+          currentFileContents.set(targetFile.path, content);
+        }
+        const currentContent = currentFileContents.get(targetFile.path);
+        const frontmatterMatch = currentContent.match(/^---\n[\s\S]*?\n---\n/);
+        const frontmatterEndIndex = frontmatterMatch ? frontmatterMatch[0].length : 0;
+        const processedEdit = this.processSingleEdit(block.find, block.replace, currentContent, frontmatterEndIndex);
+        if (processedEdit.error) {
+          validationResults.push({ block, valid: false, error: processedEdit.error });
+          continue;
+        }
+        validationResults.push({ block, valid: true, targetFile });
+        currentFileContents.set(targetFile.path, processedEdit.newContent);
+      } catch (error) {
+        validationResults.push({ block, valid: false, error: error.message });
+      }
+    }
+    const allValid = validationResults.every((result) => result.valid);
+    if (!allValid) {
+      currentFileContents.clear();
+      for (const result of validationResults) {
+        if (!result.valid) {
+          blocksNeedingRetry.push({
+            ...result.block,
+            hasError: true,
+            error: {
+              type: "invalid_format",
+              message: result.error || "Validation failed",
+              details: result.error || "Could not validate edit"
+            }
+          });
+          editResults.push({
+            block: result.block,
+            success: false,
+            error: result.error || "Validation failed"
+          });
+        } else {
+          editResults.push({
+            block: result.block,
+            success: false,
+            error: "Other edits in the group failed validation"
+          });
+        }
+      }
+      if (blocksNeedingRetry.length > 0 && onRetryNeeded) {
+        onRetryNeeded(blocksNeedingRetry[0]);
+      }
+      return { editResults, fileBackups };
+    }
+    try {
+      currentFileContents.clear();
+      for (const [path, content] of fileBackups.entries()) {
+        currentFileContents.set(path, content);
+      }
+      for (const result of validationResults) {
+        const block = result.block;
+        const targetFile = result.targetFile;
+        const content = currentFileContents.get(targetFile.path);
+        const frontmatterMatch = content.match(/^---\n[\s\S]*?\n---\n/);
+        const frontmatterEndIndex = frontmatterMatch ? frontmatterMatch[0].length : 0;
+        const processedEdit = this.processSingleEdit(block.find, block.replace, content, frontmatterEndIndex);
+        if (processedEdit.error) {
+          throw new Error(`Failed to re-locate edit markers for file "${targetFile.basename}" during application. Content may have shifted.`);
+        }
+        await this.app.vault.modify(targetFile, processedEdit.newContent);
+        currentFileContents.set(targetFile.path, processedEdit.newContent);
+        editResults.push({ block: { ...block, replace: processedEdit.preview }, success: true });
+      }
+    } catch (error) {
+      console.error(`Error applying edits:`, error);
+      for (const [path, content] of fileBackups.entries()) {
+        const file = this.app.vault.getAbstractFileByPath(path);
+        if (file && file instanceof import_obsidian5.TFile) {
+          await this.app.vault.modify(file, content);
+        }
+      }
+      for (const block of editBlocks) {
+        blocksNeedingRetry.push(block);
+        editResults.push({
+          block,
+          success: false,
+          error: `Failed to apply edits: ${error.message}`
+        });
+      }
+      if (blocksNeedingRetry.length > 0 && onRetryNeeded) {
+        onRetryNeeded(blocksNeedingRetry[0]);
+      }
+    }
+    return { editResults, fileBackups };
+  }
+  transformEditBlocks(message) {
+    const files = this.app.workspace.getLeavesOfType("markdown").map((leaf) => {
+      var _a;
+      return (_a = leaf.view) == null ? void 0 : _a.file;
+    }).filter((file) => file && file.extension === "md");
+    const partialBlocks = this.detectPartialEditBlocks(message);
+    let transformedMessage = message;
+    for (const block of partialBlocks) {
+      const isComplete = block.isComplete;
+      const content = block.content;
+      const { editData, cleanContent, error, inProgress } = this.parseEditBlock(content, isComplete);
+      if (!editData && !error) {
+        continue;
+      }
+      const diff = diffWords((editData == null ? void 0 : editData.find) || "", (editData == null ? void 0 : editData.replace) || "");
+      let diffContent = diff.map((part) => {
+        if (part.added) {
+          return `<span class="cm-positive">${part.value}</span>`;
+        } else if (part.removed) {
+          return `<span class="cm-negative"><s>${part.value}</s></span>`;
+        } else {
+          return `<span>${part.value}</span>`;
+        }
+      }).join("").trim();
+      let htmlRender = "";
+      if (error) {
+        console.error("Error parsing khoj-edit block:", error);
+        console.error("Content causing error:", content);
+        const errorTitle = `Error: ${(error == null ? void 0 : error.message) || "Parse error"}`;
+        const errorDetails = `Failed to parse edit block. Please check the JSON format and ensure all required fields are present.`;
+        htmlRender = `<details class="khoj-edit-accordion error">
+                    <summary>${errorTitle}</summary>
+                    <div class="khoj-edit-content">
+                        <p class="khoj-edit-error-message">${errorDetails}</p>
+                        <pre><code class="language-md error">${diffContent}</code></pre>
+                    </div>
+                </details>`;
+      } else if (editData && inProgress) {
+        htmlRender = `<details class="khoj-edit-accordion in-progress">
+                    <summary>\u{1F4C4} ${editData.file} <span class="khoj-edit-status">In Progress</span></summary>
+                    <div class="khoj-edit-content">
+                        <pre><code class="language-md">${diffContent}</code></pre>
+                    </div>
+                </details>`;
+      } else if (editData) {
+        const targetFile = this.findBestMatchingFile(editData.file, files);
+        const displayFileName = targetFile ? `${targetFile.basename}.${targetFile.extension}` : editData.file;
+        htmlRender = `<details class="khoj-edit-accordion success">
+                    <summary>\u{1F4C4} ${displayFileName}</summary>
+                    <div class="khoj-edit-content">
+                        <div>${diffContent}</div>
+                    </div>
+                </details>`;
+      }
+      if (isComplete) {
+        transformedMessage = transformedMessage.replace(`${this.EDIT_BLOCK_START}${content}${this.EDIT_BLOCK_END}`, htmlRender);
+      } else {
+        transformedMessage = transformedMessage.replace(`${this.EDIT_BLOCK_START}${content}`, htmlRender);
+      }
+    }
+    return transformedMessage;
+  }
+  detectPartialEditBlocks(message) {
+    const results = [];
+    const regex = new RegExp(`${this.EDIT_BLOCK_START}([\\s\\S]*?)(?:${this.EDIT_BLOCK_END}|$)`, "g");
+    let match;
+    while ((match = regex.exec(message)) !== null) {
+      const content = match[1];
+      const isComplete = match[0].endsWith(this.EDIT_BLOCK_END);
+      results.push({
+        content,
+        isComplete
+      });
+    }
+    return results;
+  }
+};
+
+// src/chat_view.ts
+var KhojChatView = class extends KhojPaneView {
+  constructor(leaf, plugin) {
+    var _a;
+    super(leaf, plugin);
+    this.location = { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone };
+    this.keyPressTimeout = null;
+    this.userMessages = [];
+    this.currentMessageIndex = -1;
+    this.voiceChatActive = false;
+    this.currentUserInput = "";
+    this.startingMessage = this.getLearningMoment();
+    this.agents = [];
+    this.currentAgent = null;
+    this.fileAccessMode = "read";
+    this.chatModes = [
+      { value: "default", label: "Default", iconName: "target", command: "/default" },
+      { value: "general", label: "General", iconName: "message-circle", command: "/general" },
+      { value: "notes", label: "Notes", iconName: "file-text", command: "/notes" },
+      { value: "online", label: "Online", iconName: "globe", command: "/online" },
+      { value: "code", label: "Code", iconName: "code", command: "/code" },
+      { value: "image", label: "Image", iconName: "image", command: "/image" },
+      { value: "research", label: "Research", iconName: "microscope", command: "/research" },
+      { value: "operator", label: "Operator", iconName: "laptop", command: "/operator" }
+    ];
+    this.editRetryCount = 0;
+    this.modeDropdown = null;
+    this.selectedOptionIndex = -1;
+    this.isStreaming = false;
+    this.maxEditRetries = 1;
+    this.fileInteractions = new FileInteractions(this.app);
+    this.fileAccessMode = (_a = this.setting.fileAccessMode) != null ? _a : "read";
+    this.waitingForLocation = true;
+    fetch("https://ipapi.co/json").then((response) => response.json()).then((data) => {
+      this.location = {
+        region: data.region,
+        city: data.city,
+        countryName: data.country_name,
+        countryCode: data.country_code,
+        timezone: data.timezone
+      };
+    }).catch((err) => {
+      console.log(err);
+    }).finally(() => {
+      this.waitingForLocation = false;
+    });
+    this.scope = new import_obsidian6.Scope(this.app.scope);
+    this.scope.register(["Ctrl", "Alt"], "n", (_) => this.createNewConversation(this.currentAgent));
+    this.scope.register(["Ctrl", "Alt"], "o", async (_) => await this.toggleChatSessions());
+    this.scope.register(["Ctrl", "Alt"], "v", (_) => this.speechToText(this.voiceChatActive ? new KeyboardEvent("keyup") : new KeyboardEvent("keydown")));
+    this.scope.register(["Ctrl"], "f", (_) => new KhojSearchModal(this.app, this.setting).open());
+    this.scope.register(["Ctrl"], "r", (_) => {
+      this.activateView("khoj-similar-view" /* SIMILAR */);
+    });
+  }
+  getViewType() {
+    return "khoj-chat-view" /* CHAT */;
+  }
+  getDisplayText() {
+    return "Khoj Chat";
+  }
+  getIcon() {
+    return "message-circle";
+  }
+  async chat(isVoice = false) {
+    await this.cancelPendingEdits();
+    let input_el = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    let user_message = input_el.value.trim();
+    if (user_message) {
+      const selectedMode = this.chatModes.find((mode) => this.contentEl.querySelector(`#khoj-mode-${mode.value}:checked`));
+      const modeMatch = this.chatModes.find((mode) => user_message.startsWith(mode.command));
+      let displayMessage = user_message;
+      let apiMessage = user_message;
+      if (modeMatch) {
+        displayMessage = user_message.replace(modeMatch.command, `[${modeMatch.label}]`);
+      } else if (selectedMode) {
+        displayMessage = `[${selectedMode.label}] ${user_message}`;
+        apiMessage = `${selectedMode.command} ${user_message}`;
+      }
+      this.userMessages.push(user_message);
+      this.startingMessage = this.getLearningMoment();
+      input_el.placeholder = this.startingMessage;
       input_el.value = "";
-      await this.getChatResponse(user_message);
-    });
+      this.autoResize();
+      await this.getChatResponse(apiMessage, displayMessage, isVoice);
+    }
   }
   async onOpen() {
     let { contentEl } = this;
+    let defaultDomains = `'self' ${this.setting.khojUrl} https://*.obsidian.md https://app.khoj.dev https://assets.khoj.dev`;
+    const defaultSrc = `default-src ${defaultDomains};`;
+    const scriptSrc = `script-src ${defaultDomains} 'unsafe-inline';`;
+    const connectSrc = `connect-src ${this.setting.khojUrl} wss://*.obsidian.md/ https://ipapi.co/json;`;
+    const styleSrc = `style-src ${defaultDomains} 'unsafe-inline';`;
+    const imgSrc = `img-src * app: data:;`;
+    const childSrc = `child-src 'none';`;
+    const objectSrc = `object-src 'none';`;
+    const csp = `${defaultSrc} ${scriptSrc} ${connectSrc} ${styleSrc} ${imgSrc} ${childSrc} ${objectSrc}`;
+    await super.onOpen();
+    await this.fetchAgents();
+    const headerAgentSelect = this.contentEl.querySelector(".khoj-header-agent-select");
+    if (headerAgentSelect && this.agents.length > 0) {
+      headerAgentSelect.innerHTML = "";
+      headerAgentSelect.createEl("option", {
+        text: "Default Agent",
+        value: "khoj"
+      });
+      this.agents.forEach((agent) => {
+        if (agent.slug === "khoj")
+          return;
+        const option = headerAgentSelect.createEl("option", {
+          text: agent.name,
+          value: agent.slug
+        });
+        if (agent.description) {
+          option.title = agent.description;
+        }
+      });
+      headerAgentSelect.addEventListener("change", (event) => {
+        const select = event.target;
+        this.currentAgent = select.value || null;
+      });
+    }
     contentEl.addClass("khoj-chat");
-    contentEl.createEl("h1", { attr: { id: "khoj-chat-title" }, text: "Khoj Chat" });
-    contentEl.createDiv({ attr: { id: "khoj-chat-body", class: "khoj-chat-body" } });
-    await this.getChatHistory();
-    contentEl.createEl("input", {
+    let chatBodyEl = contentEl.createDiv({ attr: { id: "khoj-chat-body", class: "khoj-chat-body" } });
+    let inputRow = contentEl.createDiv("khoj-input-row");
+    let chatSessions = inputRow.createEl("button", {
+      text: "Chat Sessions",
       attr: {
-        type: "text",
+        class: "khoj-input-row-button clickable-icon",
+        title: "Show Conversations (Ctrl+Alt+O)"
+      }
+    });
+    chatSessions.addEventListener("click", async (_) => {
+      await this.toggleChatSessions();
+    });
+    (0, import_obsidian6.setIcon)(chatSessions, "history");
+    let fileAccessButton = inputRow.createEl("button", {
+      text: "File Access",
+      attr: {
+        class: "khoj-input-row-button clickable-icon",
+        title: "Toggle open file access"
+      }
+    });
+    switch (this.fileAccessMode) {
+      case "none":
+        (0, import_obsidian6.setIcon)(fileAccessButton, "file-x");
+        fileAccessButton.title = "Toggle open file access (No Access)";
+        break;
+      case "write":
+        (0, import_obsidian6.setIcon)(fileAccessButton, "file-edit");
+        fileAccessButton.title = "Toggle open file access (Read & Write)";
+        break;
+      case "read":
+      default:
+        (0, import_obsidian6.setIcon)(fileAccessButton, "file-search");
+        fileAccessButton.title = "Toggle open file access (Read Only)";
+        break;
+    }
+    fileAccessButton.addEventListener("click", async () => {
+      switch (this.fileAccessMode) {
+        case "none":
+          this.fileAccessMode = "read";
+          (0, import_obsidian6.setIcon)(fileAccessButton, "file-search");
+          fileAccessButton.title = "Toggle open file access (Read Only)";
+          break;
+        case "read":
+          this.fileAccessMode = "write";
+          (0, import_obsidian6.setIcon)(fileAccessButton, "file-edit");
+          fileAccessButton.title = "Toggle open file access (Read & Write)";
+          break;
+        case "write":
+          this.fileAccessMode = "none";
+          (0, import_obsidian6.setIcon)(fileAccessButton, "file-x");
+          fileAccessButton.title = "Toggle open file access (No Access)";
+          break;
+      }
+      this.setting.fileAccessMode = this.fileAccessMode;
+      await this.plugin.saveSettings();
+    });
+    let chatInput = inputRow.createEl("textarea", {
+      attr: {
         id: "khoj-chat-input",
         autofocus: "autofocus",
-        placeholder: "Chat with Khoj [Hit Enter to send message]",
         class: "khoj-chat-input option"
       }
-    }).addEventListener("change", (event) => {
-      this.result = event.target.value;
     });
-    this.modalEl.scrollTop = this.modalEl.scrollHeight;
-  }
-  generateReference(messageEl, reference, index) {
-    let escaped_ref = reference.replace(/"/g, "&quot;");
-    return messageEl.createEl("sup").createEl("abbr", {
+    chatInput.addEventListener("input", (_) => {
+      this.onChatInput();
+    });
+    chatInput.addEventListener("keydown", (event) => {
+      this.incrementalChat(event);
+      this.handleArrowKeys(event);
+    });
+    this.contentEl.addEventListener("keydown", this.handleKeyDown.bind(this));
+    this.contentEl.addEventListener("keyup", this.handleKeyUp.bind(this));
+    let transcribe = inputRow.createEl("button", {
+      text: "Transcribe",
       attr: {
-        title: escaped_ref,
-        tabindex: "0"
-      },
-      text: `[${index}] `
+        id: "khoj-transcribe",
+        class: "khoj-transcribe khoj-input-row-button clickable-icon ",
+        title: "Hold to Voice Chat (Ctrl+Alt+V)"
+      }
+    });
+    transcribe.addEventListener("mousedown", (event) => {
+      this.startSpeechToText(event);
+    });
+    transcribe.addEventListener("mouseup", async (event) => {
+      await this.stopSpeechToText(event);
+    });
+    transcribe.addEventListener("touchstart", async (event) => {
+      await this.speechToText(event);
+    });
+    transcribe.addEventListener("touchend", async (event) => {
+      await this.speechToText(event);
+    });
+    transcribe.addEventListener("touchcancel", async (event) => {
+      await this.speechToText(event);
+    });
+    (0, import_obsidian6.setIcon)(transcribe, "mic");
+    let send = inputRow.createEl("button", {
+      text: "Send",
+      attr: {
+        id: "khoj-chat-send",
+        class: "khoj-chat-send khoj-input-row-button clickable-icon"
+      }
+    });
+    (0, import_obsidian6.setIcon)(send, "arrow-up-circle");
+    let sendImg = send.getElementsByClassName("lucide-arrow-up-circle")[0];
+    sendImg.addEventListener("click", async (_) => {
+      await this.chat();
+    });
+    let getChatHistorySucessfully = await this.getChatHistory(chatBodyEl);
+    let placeholderText = getChatHistorySucessfully ? this.startingMessage : "Configure Khoj to enable chat";
+    chatInput.placeholder = placeholderText;
+    chatInput.disabled = !getChatHistorySucessfully;
+    this.autoResize();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.scrollChatToBottom();
+        const chatInput2 = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+        chatInput2 == null ? void 0 : chatInput2.focus();
+      });
     });
   }
-  renderMessageWithReferences(message, sender, context, dt) {
-    let messageEl = this.renderMessage(message, sender, dt);
-    if (context && !!messageEl) {
-      context.map((reference, index) => this.generateReference(messageEl, reference, index + 1));
+  startSpeechToText(event, timeout = 200) {
+    if (!this.keyPressTimeout) {
+      this.keyPressTimeout = setTimeout(async () => {
+        if (this.sendMessageTimeout) {
+          clearTimeout(this.sendMessageTimeout);
+          const sendButton = this.contentEl.getElementsByClassName("khoj-chat-send")[0];
+          (0, import_obsidian6.setIcon)(sendButton, "arrow-up-circle");
+          let sendImg = sendButton.getElementsByClassName("lucide-arrow-up-circle")[0];
+          sendImg.addEventListener("click", async (_) => {
+            await this.chat();
+          });
+          const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+          chatInput.value = "";
+        }
+        await this.speechToText(event);
+      }, timeout);
     }
   }
-  renderMessage(message, sender, dt) {
-    let message_time = this.formatDate(dt != null ? dt : new Date());
-    let emojified_sender = sender == "khoj" ? "\u{1F3EE} Khoj" : "\u{1F914} You";
-    let chat_body_el = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
-    let chat_message_el = chat_body_el.createDiv({
-      attr: {
-        "data-meta": `${emojified_sender} at ${message_time}`,
-        class: `khoj-chat-message ${sender}`
+  async stopSpeechToText(event) {
+    if (this.mediaRecorder) {
+      await this.speechToText(event);
+    }
+    if (this.keyPressTimeout) {
+      clearTimeout(this.keyPressTimeout);
+      this.keyPressTimeout = null;
+    }
+  }
+  handleKeyDown(event) {
+    if (event.key === "s" && event.getModifierState("Control"))
+      this.startSpeechToText(event);
+  }
+  async handleKeyUp(event) {
+    if (event.key === "s" && event.getModifierState("Control"))
+      await this.stopSpeechToText(event);
+  }
+  processOnlineReferences(referenceSection, onlineContext) {
+    let numOnlineReferences = 0;
+    for (let subquery in onlineContext) {
+      let onlineReference = onlineContext[subquery];
+      if (onlineReference.organic && onlineReference.organic.length > 0) {
+        numOnlineReferences += onlineReference.organic.length;
+        for (let key in onlineReference.organic) {
+          let reference = onlineReference.organic[key];
+          let polishedReference = this.generateOnlineReference(referenceSection, reference, key);
+          referenceSection.appendChild(polishedReference);
+        }
       }
-    }).createDiv({
-      attr: {
-        class: `khoj-chat-message-text ${sender}`
-      },
-      text: `${message}`
+      if (onlineReference.knowledgeGraph && onlineReference.knowledgeGraph.length > 0) {
+        numOnlineReferences += onlineReference.knowledgeGraph.length;
+        for (let key in onlineReference.knowledgeGraph) {
+          let reference = onlineReference.knowledgeGraph[key];
+          let polishedReference = this.generateOnlineReference(referenceSection, reference, key);
+          referenceSection.appendChild(polishedReference);
+        }
+      }
+      if (onlineReference.peopleAlsoAsk && onlineReference.peopleAlsoAsk.length > 0) {
+        numOnlineReferences += onlineReference.peopleAlsoAsk.length;
+        for (let key in onlineReference.peopleAlsoAsk) {
+          let reference = onlineReference.peopleAlsoAsk[key];
+          let polishedReference = this.generateOnlineReference(referenceSection, reference, key);
+          referenceSection.appendChild(polishedReference);
+        }
+      }
+      if (onlineReference.webpages && onlineReference.webpages.length > 0) {
+        numOnlineReferences += onlineReference.webpages.length;
+        for (let key in onlineReference.webpages) {
+          let reference = onlineReference.webpages[key];
+          let polishedReference = this.generateOnlineReference(referenceSection, reference, key);
+          referenceSection.appendChild(polishedReference);
+        }
+      }
+    }
+    return numOnlineReferences;
+  }
+  generateOnlineReference(messageEl, reference, index) {
+    let title = reference.title || reference.link;
+    let link = reference.link;
+    let snippet = reference.snippet;
+    let question = reference.question ? `<b>Question:</b> ${reference.question}<br><br>` : "";
+    let referenceButton = messageEl.createEl("button");
+    let linkElement = referenceButton.createEl("a");
+    linkElement.setAttribute("href", link);
+    linkElement.setAttribute("target", "_blank");
+    linkElement.setAttribute("rel", "noopener noreferrer");
+    linkElement.classList.add("reference-link");
+    linkElement.setAttribute("title", title);
+    linkElement.textContent = title;
+    referenceButton.id = `ref-${index}`;
+    referenceButton.classList.add("reference-button");
+    referenceButton.classList.add("collapsed");
+    referenceButton.tabIndex = 0;
+    referenceButton.addEventListener("click", function() {
+      if (this.classList.contains("collapsed")) {
+        this.classList.remove("collapsed");
+        this.classList.add("expanded");
+        this.innerHTML = linkElement.outerHTML + `<br><br>${question + snippet}`;
+      } else {
+        this.classList.add("collapsed");
+        this.classList.remove("expanded");
+        this.innerHTML = linkElement.outerHTML;
+      }
     });
-    chat_message_el.style.userSelect = "text";
-    this.modalEl.scrollTop = this.modalEl.scrollHeight;
-    return chat_message_el;
+    return referenceButton;
+  }
+  generateReference(messageEl, referenceJson, index) {
+    let reference = referenceJson.hasOwnProperty("compiled") ? referenceJson.compiled : referenceJson;
+    let referenceFile = referenceJson.hasOwnProperty("file") ? referenceJson.file : null;
+    const mdFiles = this.app.vault.getMarkdownFiles();
+    const pdfFiles = this.app.vault.getFiles().filter((file) => file.extension === "pdf");
+    reference = reference.split("\n").slice(1).join("\n");
+    let escaped_ref = reference.replace(/"/g, "&quot;");
+    let referenceButton = messageEl.createEl("button");
+    if (referenceFile) {
+      const linkToEntry = getLinkToEntry(mdFiles.concat(pdfFiles), referenceFile, reference);
+      const linkElement = referenceButton.createEl("span");
+      linkElement.setAttribute("title", escaped_ref);
+      linkElement.textContent = referenceFile;
+      if (linkElement && linkToEntry) {
+        linkElement.classList.add("reference-link");
+        linkElement.addEventListener("click", (event) => {
+          event.stopPropagation();
+          this.app.workspace.openLinkText(linkToEntry, "");
+        });
+      }
+    }
+    let referenceText = referenceButton.createDiv();
+    referenceText.textContent = escaped_ref;
+    referenceButton.id = `ref-${index}`;
+    referenceButton.classList.add("reference-button");
+    referenceButton.classList.add("collapsed");
+    referenceButton.tabIndex = 0;
+    referenceButton.addEventListener("click", function() {
+      if (this.classList.contains("collapsed")) {
+        this.classList.remove("collapsed");
+        this.classList.add("expanded");
+      } else {
+        this.classList.add("collapsed");
+        this.classList.remove("expanded");
+      }
+    });
+    return referenceButton;
+  }
+  textToSpeech(message, event = null) {
+    let loader = document.createElement("span");
+    loader.classList.add("loader");
+    let speechButton;
+    let speechIcon;
+    if (event === null) {
+      let speechButtons = document.getElementsByClassName("speech-button");
+      speechButton = speechButtons[speechButtons.length - 1];
+      let speechIcons = document.getElementsByClassName("speech-icon");
+      speechIcon = speechIcons[speechIcons.length - 1];
+    } else {
+      speechButton = event.currentTarget;
+      speechIcon = event.target;
+    }
+    speechButton.appendChild(loader);
+    speechButton.disabled = true;
+    const context = new AudioContext();
+    let textToSpeechApi = `${this.setting.khojUrl}/api/chat/speech?text=${encodeURIComponent(message)}`;
+    fetch(textToSpeechApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${this.setting.khojApiKey}`
+      }
+    }).then((response) => response.arrayBuffer()).then((arrayBuffer) => context.decodeAudioData(arrayBuffer)).then((audioBuffer) => {
+      const source = context.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(context.destination);
+      source.start(0);
+      source.onended = function() {
+        speechButton.removeChild(loader);
+        speechButton.disabled = false;
+      };
+    }).catch((err) => {
+      console.error("Error playing speech:", err);
+      speechButton.removeChild(loader);
+      speechButton.disabled = false;
+    });
+  }
+  formatHTMLMessage(message, raw = false, willReplace = true) {
+    message = message.replace(/<s>\[INST\].+(<\/s>)?/g, "");
+    const { content, header } = this.processTrainOfThought(message);
+    message = content;
+    if (!raw) {
+      message = this.transformEditBlocks(message);
+    }
+    message = DOMPurify.sanitize(message);
+    let chatMessageBodyTextEl = this.contentEl.createDiv();
+    chatMessageBodyTextEl.innerHTML = this.markdownTextToSanitizedHtml(message, this);
+    if (willReplace === true) {
+      this.renderActionButtons(message, chatMessageBodyTextEl);
+    }
+    return chatMessageBodyTextEl;
+  }
+  markdownTextToSanitizedHtml(markdownText, component) {
+    let virtualChatMessageBodyTextEl = document.createElement("div");
+    import_obsidian6.MarkdownRenderer.render(this.app, markdownText, virtualChatMessageBodyTextEl, "", component);
+    virtualChatMessageBodyTextEl.innerHTML = virtualChatMessageBodyTextEl.innerHTML.replace(/<img(?:(?!src=["'](app:|data:|https:\/\/generated\.khoj\.dev)).)*?>/gis, "");
+    return DOMPurify.sanitize(virtualChatMessageBodyTextEl.innerHTML);
+  }
+  processTrainOfThought(message) {
+    let extractedHeader = message.match(/\*\*(.*)\*\*/);
+    let header = extractedHeader ? extractedHeader[1] : "";
+    let content = message;
+    let jsonMessage = null;
+    try {
+      const jsonMatch = message.match(/\{.*("action": "screenshot"|"type": "screenshot"|"image": "data:image\/.*").*\}/);
+      if (jsonMatch) {
+        jsonMessage = JSON.parse(jsonMatch[0]);
+        const screenshotHtmlString = `<img src="${jsonMessage.image}" alt="State of environment" class="max-w-full" />`;
+        content = content.replace(`:
+**Action**: ${jsonMatch[0]}`, `
+
+- ${jsonMessage.text}
+${screenshotHtmlString}`);
+      }
+    } catch (e) {
+      console.error("Failed to parse screenshot data", e);
+    }
+    return { content, header };
+  }
+  renderMessageWithReferences(chatEl, message, sender, turnId, context, onlineContext, dt, intentType, inferredQueries, conversationId, images, excalidrawDiagram, mermaidjsDiagram) {
+    if (!message)
+      return;
+    let chatMessageEl;
+    if ((intentType == null ? void 0 : intentType.includes("text-to-image")) || intentType === "excalidraw" || images && images.length > 0 || mermaidjsDiagram || excalidrawDiagram) {
+      let imageMarkdown = this.generateImageMarkdown(message, intentType != null ? intentType : "", inferredQueries, conversationId, images, excalidrawDiagram, mermaidjsDiagram);
+      chatMessageEl = this.renderMessage({
+        chatBodyEl: chatEl,
+        message: imageMarkdown,
+        sender,
+        dt,
+        turnId
+      });
+    } else {
+      chatMessageEl = this.renderMessage({
+        chatBodyEl: chatEl,
+        message,
+        sender,
+        dt,
+        turnId
+      });
+    }
+    if ((context == null || context.length == 0) && (onlineContext == null || onlineContext && Object.keys(onlineContext).length == 0)) {
+      return;
+    }
+    let references = {};
+    if (!!context)
+      references["notes"] = context;
+    if (!!onlineContext)
+      references["online"] = onlineContext;
+    let chatMessageBodyEl = chatMessageEl.getElementsByClassName("khoj-chat-message-text")[0];
+    chatMessageBodyEl.appendChild(this.createReferenceSection(references));
+  }
+  generateImageMarkdown(message, intentType, inferredQueries, conversationId, images, excalidrawDiagram, mermaidjsDiagram) {
+    let imageMarkdown = "";
+    if (intentType === "text-to-image") {
+      imageMarkdown = `![](data:image/png;base64,${message})`;
+    } else if (intentType === "text-to-image2") {
+      imageMarkdown = `![](${message})`;
+    } else if (intentType === "text-to-image-v3") {
+      imageMarkdown = `![](${message})`;
+    } else if (intentType === "excalidraw" || excalidrawDiagram) {
+      const domain = this.setting.khojUrl.endsWith("/") ? this.setting.khojUrl : `${this.setting.khojUrl}/`;
+      const redirectMessage = `Hey, I'm not ready to show you diagrams yet here. But you can view it in ${domain}chat?conversationId=${conversationId}`;
+      imageMarkdown = redirectMessage;
+    } else if (mermaidjsDiagram) {
+      imageMarkdown = "```mermaid\n" + mermaidjsDiagram + "\n```";
+    } else if (images && images.length > 0) {
+      imageMarkdown += images.map((image) => `![](${image})`).join("\n\n");
+      imageMarkdown += message;
+    }
+    if ((images == null ? void 0 : images.length) === 0 && inferredQueries) {
+      imageMarkdown += "\n\n**Inferred Query**:";
+      for (let inferredQuery of inferredQueries) {
+        imageMarkdown += `
+
+${inferredQuery}`;
+      }
+    }
+    return imageMarkdown;
+  }
+  renderMessage({ chatBodyEl, message, sender, dt, turnId, raw = false, willReplace = true, isSystemMessage = false }) {
+    let message_time = this.formatDate(dt != null ? dt : new Date());
+    let chatMessageEl = chatBodyEl.createDiv({
+      attr: {
+        "data-meta": message_time,
+        class: `khoj-chat-message ${sender}`,
+        ...turnId && { "data-turnid": turnId }
+      }
+    });
+    let chatMessageBodyEl = chatMessageEl.createDiv();
+    chatMessageBodyEl.addClasses(["khoj-chat-message-text", sender]);
+    let chatMessageBodyTextEl = chatMessageBodyEl.createDiv();
+    if (sender === "you") {
+      message = message.replace(/<SYSTEM>.*?<\/SYSTEM>/s, "");
+    }
+    message = DOMPurify.sanitize(message);
+    if (raw) {
+      chatMessageBodyTextEl.innerHTML = message;
+    } else {
+      chatMessageBodyTextEl.innerHTML = this.markdownTextToSanitizedHtml(message, this);
+    }
+    if (willReplace === true) {
+      this.renderActionButtons(message, chatMessageBodyTextEl, isSystemMessage);
+    }
+    chatMessageEl.style.userSelect = "text";
+    this.scrollChatToBottom();
+    return chatMessageEl;
   }
   createKhojResponseDiv(dt) {
-    let message_time = this.formatDate(dt != null ? dt : new Date());
-    let chat_body_el = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
-    let chat_message_el = chat_body_el.createDiv({
+    let messageTime = this.formatDate(dt != null ? dt : new Date());
+    let chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    let chatMessageEl = chatBodyEl.createDiv({
       attr: {
-        "data-meta": `\u{1F3EE} Khoj at ${message_time}`,
+        "data-meta": messageTime,
         class: `khoj-chat-message khoj`
       }
-    }).createDiv({
-      attr: {
-        class: `khoj-chat-message-text khoj`
-      }
     });
-    this.modalEl.scrollTop = this.modalEl.scrollHeight;
-    return chat_message_el;
+    this.scrollChatToBottom();
+    return chatMessageEl;
   }
-  renderIncrementalMessage(htmlElement, additionalMessage) {
-    htmlElement.innerHTML += additionalMessage;
-    this.modalEl.scrollTop = this.modalEl.scrollHeight;
+  async renderIncrementalMessage(htmlElement, additionalMessage) {
+    this.chatMessageState.rawResponse += additionalMessage;
+    let sanitizedResponse = DOMPurify.sanitize(this.chatMessageState.rawResponse);
+    const transformedResponse = this.transformEditBlocks(sanitizedResponse);
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = this.markdownTextToSanitizedHtml(transformedResponse, this);
+    htmlElement.innerHTML = tempElement.innerHTML;
+    this.renderActionButtons(this.chatMessageState.rawResponse, htmlElement);
+    this.scrollChatToBottom();
+  }
+  renderActionButtons(message, chatMessageBodyTextEl, isSystemMessage = false) {
+    var _a;
+    let copyButton = this.contentEl.createEl("button");
+    copyButton.classList.add("chat-action-button");
+    copyButton.title = "Copy Message to Clipboard";
+    (0, import_obsidian6.setIcon)(copyButton, "copy-plus");
+    copyButton.addEventListener("click", createCopyParentText(message));
+    let pasteToFile = this.contentEl.createEl("button");
+    pasteToFile.classList.add("chat-action-button");
+    pasteToFile.title = "Paste Message to File";
+    (0, import_obsidian6.setIcon)(pasteToFile, "clipboard-paste");
+    pasteToFile.addEventListener("click", (event) => {
+      pasteTextAtCursor(createCopyParentText(message, "clipboard-paste")(event));
+    });
+    let editButton = null;
+    if (!isSystemMessage && chatMessageBodyTextEl.closest(".khoj-chat-message.you")) {
+      editButton = this.contentEl.createEl("button");
+      editButton.classList.add("chat-action-button");
+      editButton.title = "Edit Message";
+      (0, import_obsidian6.setIcon)(editButton, "edit-3");
+      editButton.addEventListener("click", async () => {
+        const messageEl = chatMessageBodyTextEl.closest(".khoj-chat-message");
+        if (messageEl) {
+          const allMessages = Array.from(this.contentEl.getElementsByClassName("khoj-chat-message"));
+          const currentIndex = allMessages.indexOf(messageEl);
+          const messagesToDelete = allMessages.slice(currentIndex);
+          let messageContent = message;
+          const emojiRegex = /^[^\p{L}\p{N}]+\s*/u;
+          messageContent = messageContent.replace(emojiRegex, "");
+          const chatInput = this.contentEl.querySelector(".khoj-chat-input");
+          if (chatInput) {
+            chatInput.value = messageContent;
+            chatInput.focus();
+          }
+          for (let i = messagesToDelete.length - 1; i >= 0; i--) {
+            messagesToDelete[i].remove();
+          }
+          (async () => {
+            for (const msgToDelete of messagesToDelete) {
+              await this.deleteMessage(msgToDelete, true, false);
+            }
+          })();
+        }
+      });
+    }
+    let deleteButton = null;
+    if (!isSystemMessage) {
+      deleteButton = this.contentEl.createEl("button");
+      deleteButton.classList.add("chat-action-button");
+      deleteButton.title = "Delete Message";
+      (0, import_obsidian6.setIcon)(deleteButton, "trash-2");
+      deleteButton.addEventListener("click", () => {
+        const messageEl = chatMessageBodyTextEl.closest(".khoj-chat-message");
+        if (messageEl) {
+          if (confirm("Are you sure you want to delete this message?")) {
+            this.deleteMessage(messageEl);
+          }
+        }
+      });
+    }
+    chatMessageBodyTextEl.append(copyButton, pasteToFile);
+    if (editButton) {
+      chatMessageBodyTextEl.append(editButton);
+    }
+    if (deleteButton) {
+      chatMessageBodyTextEl.append(deleteButton);
+    }
+    if ((_a = this.setting.userInfo) == null ? void 0 : _a.is_active) {
+      let speechButton = this.contentEl.createEl("button");
+      speechButton.classList.add("chat-action-button", "speech-button");
+      speechButton.title = "Listen to Message";
+      (0, import_obsidian6.setIcon)(speechButton, "speech");
+      speechButton.addEventListener("click", (event) => this.textToSpeech(message, event));
+      chatMessageBodyTextEl.append(speechButton);
+    }
   }
   formatDate(date) {
     let time_string = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
     let date_string = date.toLocaleString("en-IN", { year: "numeric", month: "short", day: "2-digit" }).replace(/-/g, " ");
     return `${time_string}, ${date_string}`;
   }
-  async getChatHistory() {
-    let chatUrl = `${this.setting.khojUrl}/api/chat/history?client=obsidian`;
-    let response = await (0, import_obsidian4.request)(chatUrl);
-    let chatLogs = JSON.parse(response).response;
-    chatLogs.forEach((chatLog) => {
-      this.renderMessageWithReferences(chatLog.message, chatLog.by, chatLog.context, new Date(chatLog.created));
-    });
+  getLearningMoment() {
+    const modifierKey = import_obsidian6.Platform.isMacOS ? "\u2318" : "^";
+    const learningMoments = [
+      "Type '/' to select response mode."
+    ];
+    if (this.userMessages.length > 0) {
+      learningMoments.push(`Load previous messages with ${modifierKey}+\u2191/\u2193`);
+    }
+    return learningMoments[Math.floor(Math.random() * learningMoments.length)];
   }
-  async getChatResponse(query) {
-    if (!query || query === "")
-      return;
-    this.renderMessage(query, "you");
-    let encodedQuery = encodeURIComponent(query);
-    let chatUrl = `${this.setting.khojUrl}/api/chat?q=${encodedQuery}&n=${this.setting.resultsCount}&client=obsidian&stream=true`;
-    let responseElement = this.createKhojResponseDiv();
-    this.renderIncrementalMessage(responseElement, "\u{1F914}");
-    let response = await fetch2(chatUrl, {
-      method: "GET",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "text/event-stream"
-      }
-    });
+  async createNewConversation(agentSlug) {
+    let chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    chatBodyEl.innerHTML = "";
+    chatBodyEl.dataset.conversationId = "";
+    chatBodyEl.dataset.conversationTitle = "";
+    this.userMessages = [];
+    this.startingMessage = this.getLearningMoment();
+    const chatInput = this.contentEl.querySelector(".khoj-chat-input");
+    if (chatInput) {
+      chatInput.placeholder = this.startingMessage;
+    }
     try {
-      if (response.body == null) {
-        throw new Error("Response body is null");
+      let endpoint = `${this.setting.khojUrl}/api/chat/sessions`;
+      agentSlug = agentSlug || this.currentAgent;
+      if (agentSlug) {
+        endpoint += `?agent_slug=${encodeURIComponent(agentSlug)}`;
       }
-      if (responseElement.innerHTML === "\u{1F914}") {
-        responseElement.innerHTML = "";
-      }
-      for await (const chunk of response.body) {
-        const responseText = chunk.toString();
-        if (responseText.startsWith("### compiled references:")) {
-          return;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${this.setting.khojApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
+      });
+      if (response.ok) {
+        const sessionInfo = await response.json();
+        chatBodyEl.dataset.conversationId = sessionInfo.conversation_id;
+        this.currentAgent = agentSlug || null;
+        const agentSelect = this.contentEl.querySelector(".khoj-header-agent-select");
+        if (agentSelect) {
+          agentSelect.value = this.currentAgent || "";
         }
-        this.renderIncrementalMessage(responseElement, responseText);
+      } else {
+        console.error("Failed to create session:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error creating session:", error);
+    }
+    this.renderMessage({ chatBodyEl, message: "Hey, what's up?", sender: "khoj", isSystemMessage: true });
+  }
+  async toggleChatSessions(forceShow = false) {
+    var _a;
+    this.userMessages = [];
+    let chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    if (!forceShow && ((_a = this.contentEl.getElementsByClassName("side-panel")) == null ? void 0 : _a.length) > 0) {
+      chatBodyEl.innerHTML = "";
+      return this.getChatHistory(chatBodyEl);
+    }
+    chatBodyEl.innerHTML = "";
+    const sidePanelEl = chatBodyEl.createDiv("side-panel");
+    const newConversationEl = sidePanelEl.createDiv("new-conversation");
+    const conversationHeaderTitleEl = newConversationEl.createDiv("conversation-header-title");
+    conversationHeaderTitleEl.textContent = "Conversations";
+    const newConversationButtonEl = newConversationEl.createEl("button");
+    newConversationButtonEl.classList.add("new-conversation-button");
+    newConversationButtonEl.classList.add("side-panel-button");
+    newConversationButtonEl.addEventListener("click", (_) => this.createNewConversation(this.currentAgent));
+    (0, import_obsidian6.setIcon)(newConversationButtonEl, "plus");
+    newConversationButtonEl.innerHTML += "New";
+    newConversationButtonEl.title = "New Conversation (Ctrl+Alt+N)";
+    const existingConversationsEl = sidePanelEl.createDiv("existing-conversations");
+    const conversationListEl = existingConversationsEl.createDiv("conversation-list");
+    const conversationListBodyHeaderEl = conversationListEl.createDiv("conversation-list-header");
+    const conversationListBodyEl = conversationListEl.createDiv("conversation-list-body");
+    const chatSessionsUrl = `${this.setting.khojUrl}/api/chat/sessions?client=obsidian`;
+    const headers = { "Authorization": `Bearer ${this.setting.khojApiKey}` };
+    try {
+      let response = await fetch(chatSessionsUrl, { method: "GET", headers });
+      let responseJson = await response.json();
+      let conversationId = chatBodyEl.dataset.conversationId;
+      if (responseJson.length > 0) {
+        conversationListBodyHeaderEl.style.display = "block";
+        for (let key in responseJson) {
+          let conversation = responseJson[key];
+          let conversationSessionEl = this.contentEl.createEl("div");
+          let incomingConversationId = conversation["conversation_id"];
+          conversationSessionEl.classList.add("conversation-session");
+          if (incomingConversationId == conversationId) {
+            conversationSessionEl.classList.add("selected-conversation");
+          }
+          const conversationTitle = conversation["slug"].split("<SYSTEM>")[0].trim() || `New conversation \u{1F331}`;
+          const conversationSessionTitleEl = conversationSessionEl.createDiv("conversation-session-title");
+          conversationSessionTitleEl.textContent = conversationTitle;
+          conversationSessionTitleEl.addEventListener("click", () => {
+            chatBodyEl.innerHTML = "";
+            chatBodyEl.dataset.conversationId = incomingConversationId;
+            chatBodyEl.dataset.conversationTitle = conversationTitle;
+            this.getChatHistory(chatBodyEl);
+          });
+          let conversationMenuEl = this.contentEl.createEl("div");
+          conversationMenuEl = this.addConversationMenu(conversationMenuEl, conversationSessionEl, conversationTitle, conversationSessionTitleEl, chatBodyEl, incomingConversationId, incomingConversationId == conversationId);
+          conversationSessionEl.appendChild(conversationMenuEl);
+          conversationListBodyEl.appendChild(conversationSessionEl);
+        }
       }
     } catch (err) {
-      this.renderIncrementalMessage(responseElement, "Sorry, unable to get response from Khoj backend \u2764\uFE0F\u200D\u{1FA79}. Contact developer for help at team@khoj.dev or <a href='https://discord.gg/BDgyabRM6e'>in Discord</a>");
+      return false;
+    }
+    return true;
+  }
+  addConversationMenu(conversationMenuEl, conversationSessionEl, conversationTitle, conversationSessionTitleEl, chatBodyEl, incomingConversationId, selectedConversation) {
+    conversationMenuEl.classList.add("conversation-menu");
+    const headers = { "Authorization": `Bearer ${this.setting.khojApiKey}` };
+    let editConversationTitleButtonEl = this.contentEl.createEl("button");
+    (0, import_obsidian6.setIcon)(editConversationTitleButtonEl, "edit");
+    editConversationTitleButtonEl.title = "Rename";
+    editConversationTitleButtonEl.classList.add("edit-title-button", "three-dot-menu-button-item", "clickable-icon");
+    if (selectedConversation)
+      editConversationTitleButtonEl.classList.add("selected-conversation");
+    editConversationTitleButtonEl.addEventListener("click", (event) => {
+      event.stopPropagation();
+      let conversationMenuChildren = conversationMenuEl.children;
+      let totalItems = conversationMenuChildren.length;
+      for (let i = totalItems - 1; i >= 0; i--) {
+        conversationMenuChildren[i].remove();
+      }
+      let editConversationTitleInputEl = this.contentEl.createEl("input");
+      editConversationTitleInputEl.classList.add("conversation-title-input");
+      editConversationTitleInputEl.value = conversationTitle;
+      editConversationTitleInputEl.addEventListener("click", function(event2) {
+        event2.stopPropagation();
+      });
+      editConversationTitleInputEl.addEventListener("keydown", function(event2) {
+        if (event2.key === "Enter") {
+          event2.preventDefault();
+          editConversationTitleSaveButtonEl.click();
+        }
+      });
+      let editConversationTitleSaveButtonEl = this.contentEl.createEl("button");
+      conversationSessionTitleEl.replaceWith(editConversationTitleInputEl);
+      editConversationTitleSaveButtonEl.innerHTML = "Save";
+      editConversationTitleSaveButtonEl.classList.add("three-dot-menu-button-item", "clickable-icon");
+      if (selectedConversation)
+        editConversationTitleSaveButtonEl.classList.add("selected-conversation");
+      editConversationTitleSaveButtonEl.addEventListener("click", (event2) => {
+        event2.stopPropagation();
+        let newTitle = editConversationTitleInputEl.value;
+        if (newTitle != null) {
+          let editURL = `/api/chat/title?client=web&conversation_id=${incomingConversationId}&title=${newTitle}`;
+          fetch(`${this.setting.khojUrl}${editURL}`, { method: "PATCH", headers }).then((response) => response.ok ? response.json() : Promise.reject(response)).then((data) => {
+            conversationSessionTitleEl2.textContent = newTitle;
+          }).catch((err) => {
+            return;
+          });
+          const conversationSessionTitleEl2 = conversationSessionEl.createDiv("conversation-session-title");
+          conversationSessionTitleEl2.textContent = newTitle;
+          conversationSessionTitleEl2.addEventListener("click", () => {
+            chatBodyEl.innerHTML = "";
+            chatBodyEl.dataset.conversationId = incomingConversationId;
+            chatBodyEl.dataset.conversationTitle = conversationTitle;
+            this.getChatHistory(chatBodyEl);
+          });
+          let newConversationMenuEl = this.contentEl.createEl("div");
+          newConversationMenuEl = this.addConversationMenu(newConversationMenuEl, conversationSessionEl, newTitle, conversationSessionTitleEl2, chatBodyEl, incomingConversationId, selectedConversation);
+          conversationMenuEl.replaceWith(newConversationMenuEl);
+          editConversationTitleInputEl.replaceWith(conversationSessionTitleEl2);
+        }
+      });
+      conversationMenuEl.appendChild(editConversationTitleSaveButtonEl);
+    });
+    conversationMenuEl.appendChild(editConversationTitleButtonEl);
+    let deleteConversationButtonEl = this.contentEl.createEl("button");
+    (0, import_obsidian6.setIcon)(deleteConversationButtonEl, "trash");
+    deleteConversationButtonEl.title = "Delete";
+    deleteConversationButtonEl.classList.add("delete-conversation-button", "three-dot-menu-button-item", "clickable-icon");
+    if (selectedConversation)
+      deleteConversationButtonEl.classList.add("selected-conversation");
+    deleteConversationButtonEl.addEventListener("click", () => {
+      let confirmation = confirm("Are you sure you want to delete this chat session?");
+      if (!confirmation)
+        return;
+      let deleteURL = `/api/chat/history?client=obsidian&conversation_id=${incomingConversationId}`;
+      fetch(`${this.setting.khojUrl}${deleteURL}`, { method: "DELETE", headers }).then((response) => response.ok ? response.json() : Promise.reject(response)).then((data) => {
+        chatBodyEl.innerHTML = "";
+        chatBodyEl.dataset.conversationId = "";
+        chatBodyEl.dataset.conversationTitle = "";
+        this.toggleChatSessions(true);
+      }).catch((err) => {
+        return;
+      });
+    });
+    conversationMenuEl.appendChild(deleteConversationButtonEl);
+    return conversationMenuEl;
+  }
+  async getChatHistory(chatBodyEl) {
+    var _a, _b, _c;
+    let chatUrl = `${this.setting.khojUrl}/api/chat/history?client=obsidian`;
+    if (chatBodyEl.dataset.conversationId) {
+      chatUrl += `&conversation_id=${chatBodyEl.dataset.conversationId}`;
+    }
+    console.debug("Fetching chat history from:", chatUrl);
+    try {
+      let response = await fetch(chatUrl, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${this.setting.khojApiKey}` }
+      });
+      let responseJson = await response.json();
+      console.debug("Chat history response:", responseJson);
+      chatBodyEl.dataset.conversationId = responseJson.conversation_id;
+      if (responseJson.detail) {
+        let setupMsg = "Hi \u{1F44B}\u{1F3FE}, to start chatting add available chat models options via [the Django Admin panel](/server/admin) on the Server";
+        this.renderMessage({
+          chatBodyEl,
+          message: setupMsg,
+          sender: "khoj",
+          isSystemMessage: true
+        });
+        return false;
+      } else if (responseJson.response) {
+        chatBodyEl.dataset.conversationId = responseJson.response.conversation_id;
+        chatBodyEl.dataset.conversationTitle = responseJson.response.slug || `New conversation \u{1F331}`;
+        if ((_a = responseJson.response.agent) == null ? void 0 : _a.slug) {
+          console.debug("Found agent in conversation history:", responseJson.response.agent);
+          this.currentAgent = responseJson.response.agent.slug;
+          const agentSelect = this.contentEl.querySelector(".khoj-header-agent-select");
+          if (agentSelect && this.currentAgent) {
+            agentSelect.value = this.currentAgent;
+            console.log("Updated agent selector to:", this.currentAgent);
+          }
+        }
+        let chatLogs = ((_b = responseJson.response) == null ? void 0 : _b.conversation_id) ? (_c = responseJson.response.chat) != null ? _c : [] : responseJson.response;
+        chatLogs.forEach((chatLog) => {
+          var _a2, _b2, _c2;
+          if (chatLog.by === "you") {
+            chatLog.message = this.convertCommandsToEmojis(chatLog.message);
+          }
+          if (chatLog.by === "khoj") {
+            chatLog.message = this.transformEditBlocks(chatLog.message);
+          }
+          this.renderMessageWithReferences(chatBodyEl, chatLog.message, chatLog.by, chatLog.turnId, chatLog.context, chatLog.onlineContext, new Date(chatLog.created), (_a2 = chatLog.intent) == null ? void 0 : _a2.type, (_b2 = chatLog.intent) == null ? void 0 : _b2["inferred-queries"], (_c2 = chatBodyEl.dataset.conversationId) != null ? _c2 : "", chatLog.images, chatLog.excalidrawDiagram, chatLog.mermaidjsDiagram);
+          if (chatLog.by === "you") {
+            this.userMessages.push(chatLog.message);
+          }
+        });
+        this.startingMessage = this.getLearningMoment();
+        const chatInput = this.contentEl.querySelector(".khoj-chat-input");
+        if (chatInput) {
+          chatInput.placeholder = this.startingMessage;
+        }
+      }
+    } catch (err) {
+      let errorMsg = "Unable to get response from Khoj server \u2764\uFE0F\u200D\u{1FA79}. Ensure server is running or contact developers for help at [team@khoj.dev](mailto:team@khoj.dev) or in [Discord](https://discord.gg/BDgyabRM6e)";
+      this.renderMessage({
+        chatBodyEl,
+        message: errorMsg,
+        sender: "khoj",
+        isSystemMessage: true
+      });
+      return false;
+    }
+    return true;
+  }
+  convertMessageChunkToJson(rawChunk) {
+    if ((rawChunk == null ? void 0 : rawChunk.startsWith("{")) && (rawChunk == null ? void 0 : rawChunk.endsWith("}"))) {
+      try {
+        let jsonChunk = JSON.parse(rawChunk);
+        if (!jsonChunk.type)
+          jsonChunk = { type: "message", data: jsonChunk };
+        return jsonChunk;
+      } catch (e) {
+        return { type: "message", data: rawChunk };
+      }
+    } else if (rawChunk.length > 0) {
+      return { type: "message", data: rawChunk };
+    }
+    return { type: "", data: "" };
+  }
+  async processMessageChunk(rawChunk) {
+    var _a, _b, _c;
+    const chunk = this.convertMessageChunkToJson(rawChunk);
+    if (!chunk || !chunk.type)
+      return;
+    if (chunk.type === "start_llm_response") {
+      this.isStreaming = true;
+      const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+      if (chatInput) {
+        chatInput.style.overflowY = "hidden";
+      }
+    } else if (chunk.type === "status") {
+      const statusMessage = chunk.data;
+      this.handleStreamResponse(this.chatMessageState.newResponseTextEl, statusMessage, this.chatMessageState.loadingEllipsis, false);
+    } else if (chunk.type === "generated_assets") {
+      const generatedAssets = chunk.data;
+      const imageData = this.handleImageResponse(generatedAssets, this.chatMessageState.rawResponse);
+      this.chatMessageState.generatedAssets = imageData;
+      this.handleStreamResponse(this.chatMessageState.newResponseTextEl, imageData, this.chatMessageState.loadingEllipsis, false);
+    } else if (chunk.type === "end_llm_response") {
+      this.isStreaming = false;
+      const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+      if (chatInput) {
+        this.autoResize();
+      }
+    } else if (chunk.type === "end_response") {
+      this.isStreaming = false;
+      const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+      if (chatInput) {
+        this.autoResize();
+      }
+      if (this.fileAccessMode === "write") {
+        const editBlocks = this.parseEditBlocks(this.chatMessageState.rawResponse);
+        if (editBlocks.length > 0) {
+          const firstBlock = editBlocks[0];
+          if (firstBlock.hasError) {
+            if (this.editRetryCount < this.maxEditRetries) {
+              await this.handleEditRetry(firstBlock);
+              return;
+            } else {
+              console.warn("[Khoj] Max edit retries reached. Aborting further retries.");
+            }
+          } else {
+            this.editRetryCount = 0;
+            await this.applyEditBlocks(editBlocks);
+          }
+        } else {
+          this.editRetryCount = 0;
+        }
+      }
+      if (this.chatMessageState.isVoice && ((_a = this.setting.userInfo) == null ? void 0 : _a.is_active) && this.setting.autoVoiceResponse)
+        this.textToSpeech(this.chatMessageState.rawResponse);
+      this.finalizeChatBodyResponse(this.chatMessageState.references, this.chatMessageState.newResponseTextEl, this.chatMessageState.turnId);
+      const liveQuery = this.chatMessageState.rawQuery;
+      this.chatMessageState = {
+        newResponseTextEl: null,
+        newResponseEl: null,
+        loadingEllipsis: null,
+        references: {},
+        rawResponse: "",
+        rawQuery: liveQuery,
+        isVoice: false,
+        generatedAssets: "",
+        turnId: "",
+        editBlocks: [],
+        editRetryCount: 0,
+        parentRetryCount: 0
+      };
+    } else if (chunk.type === "references") {
+      this.chatMessageState.references = { "notes": chunk.data.context, "online": chunk.data.onlineContext };
+    } else if (chunk.type === "message") {
+      const chunkData = chunk.data;
+      if (typeof chunkData === "object" && chunkData !== null) {
+        this.handleJsonResponse(chunkData);
+      } else if (typeof chunkData === "string" && ((_b = chunkData.trim()) == null ? void 0 : _b.startsWith("{")) && ((_c = chunkData.trim()) == null ? void 0 : _c.endsWith("}"))) {
+        try {
+          const jsonData = JSON.parse(chunkData.trim());
+          this.handleJsonResponse(jsonData);
+        } catch (e) {
+          this.chatMessageState.rawResponse += chunkData;
+          this.handleStreamResponse(this.chatMessageState.newResponseTextEl, this.chatMessageState.rawResponse + this.chatMessageState.generatedAssets, this.chatMessageState.loadingEllipsis);
+        }
+      } else {
+        this.chatMessageState.rawResponse += chunkData;
+        this.handleStreamResponse(this.chatMessageState.newResponseTextEl, this.chatMessageState.rawResponse + this.chatMessageState.generatedAssets, this.chatMessageState.loadingEllipsis);
+      }
+    } else if (chunk.type === "metadata") {
+      const { turnId } = chunk.data;
+      if (turnId) {
+        this.chatMessageState.turnId = turnId;
+      }
+    }
+  }
+  handleJsonResponse(jsonData) {
+    if (jsonData.image || jsonData.detail || jsonData.images || jsonData.mermaidjsDiagram) {
+      this.chatMessageState.rawResponse = this.handleImageResponse(jsonData, this.chatMessageState.rawResponse);
+    } else if (jsonData.response) {
+      this.chatMessageState.rawResponse = jsonData.response;
+    }
+    if (this.chatMessageState.newResponseTextEl) {
+      this.chatMessageState.newResponseTextEl.innerHTML = "";
+      this.chatMessageState.newResponseTextEl.appendChild(this.formatHTMLMessage(this.chatMessageState.rawResponse));
+    }
+  }
+  async readChatStream(response) {
+    if (response.body == null)
+      return;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    const eventDelimiter = "\u2403\u{1F51A}\u2417";
+    let buffer = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) {
+        this.processMessageChunk(buffer);
+        buffer = "";
+        break;
+      }
+      const chunk = decoder.decode(value, { stream: true });
+      console.debug("Raw Chunk:", chunk);
+      buffer += chunk;
+      let newEventIndex;
+      while ((newEventIndex = buffer.indexOf(eventDelimiter)) !== -1) {
+        const event = buffer.slice(0, newEventIndex);
+        buffer = buffer.slice(newEventIndex + eventDelimiter.length);
+        if (event)
+          this.processMessageChunk(event);
+      }
+    }
+  }
+  async getChatResponse(query, displayQuery, isVoice = false, displayUserMessage = true) {
+    if (!query || query === "")
+      return;
+    let chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    if (displayUserMessage) {
+      this.renderMessage({ chatBodyEl, message: displayQuery || query, sender: "you" });
+    }
+    let conversationId = chatBodyEl.dataset.conversationId;
+    if (!conversationId) {
+      try {
+        const requestBody = {
+          ...this.currentAgent && { agent_slug: this.currentAgent }
+        };
+        const response2 = await fetch(`${this.setting.khojUrl}/api/chat/sessions`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${this.setting.khojApiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestBody)
+        });
+        if (response2.ok) {
+          const data = await response2.json();
+          conversationId = data.conversation_id;
+          chatBodyEl.dataset.conversationId = conversationId;
+        } else {
+          console.error("Failed to create session:", response2.statusText);
+          return;
+        }
+      } catch (error) {
+        console.error("Error creating session:", error);
+        return;
+      }
+    }
+    const openFilesContent = await this.getOpenFilesContent();
+    const modeMatch = this.chatModes.find((mode) => query.startsWith(mode.command));
+    const modeCommand = modeMatch ? query.substring(0, modeMatch.command.length) : "";
+    const queryWithoutMode = modeMatch ? query.substring(modeMatch.command.length).trim() : query;
+    const finalQuery = modeCommand + (modeCommand ? " " : "") + queryWithoutMode + openFilesContent;
+    const chatUrl = `${this.setting.khojUrl}/api/chat?client=obsidian`;
+    const body = {
+      q: finalQuery,
+      n: this.setting.resultsCount,
+      stream: true,
+      conversation_id: conversationId,
+      ...this.currentAgent && { agent_slug: this.currentAgent },
+      ...!!this.location && this.location.city && { city: this.location.city },
+      ...!!this.location && this.location.region && { region: this.location.region },
+      ...!!this.location && this.location.countryName && { country: this.location.countryName },
+      ...!!this.location && this.location.countryCode && { country_code: this.location.countryCode },
+      ...!!this.location && this.location.timezone && { timezone: this.location.timezone }
+    };
+    let newResponseEl = this.createKhojResponseDiv();
+    let newResponseTextEl = newResponseEl.createDiv();
+    newResponseTextEl.classList.add("khoj-chat-message-text", "khoj");
+    let loadingEllipsis = this.createLoadingEllipse();
+    newResponseTextEl.appendChild(loadingEllipsis);
+    this.chatMessageState = {
+      newResponseEl,
+      newResponseTextEl,
+      loadingEllipsis,
+      references: {},
+      rawQuery: query,
+      rawResponse: "",
+      isVoice,
+      generatedAssets: "",
+      turnId: "",
+      editBlocks: [],
+      editRetryCount: 0
+    };
+    let response = await fetch(chatUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${this.setting.khojApiKey}`
+      },
+      body: JSON.stringify(body)
+    });
+    try {
+      if (response.body === null)
+        throw new Error("Response body is null");
+      await this.readChatStream(response);
+    } catch (err) {
+      console.error(`Khoj chat response failed with
+${err}`);
+      let errorMsg = "Sorry, unable to get response from Khoj backend \u2764\uFE0F\u200D\u{1FA79}. Retry or contact developers for help at <a href=mailto:'team@khoj.dev'>team@khoj.dev</a> or <a href='https://discord.gg/BDgyabRM6e'>on Discord</a>";
+      newResponseTextEl.textContent = errorMsg;
+    }
+  }
+  flashStatusInChatInput(message) {
+    let chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    let originalPlaceholder = chatInput.placeholder;
+    chatInput.placeholder = message;
+    setTimeout(() => {
+      chatInput.placeholder = originalPlaceholder;
+    }, 2e3);
+  }
+  async clearConversationHistory() {
+    let chatBody = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    let response = await (0, import_obsidian6.request)({
+      url: `${this.setting.khojUrl}/api/chat/history?client=obsidian`,
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${this.setting.khojApiKey}` }
+    });
+    try {
+      let result = JSON.parse(response);
+      if (result.status !== "ok") {
+        throw new Error("Failed to clear conversation history");
+      } else {
+        let getChatHistoryStatus = await this.getChatHistory(chatBody);
+        if (getChatHistoryStatus)
+          chatBody.innerHTML = "";
+        let statusMsg = getChatHistoryStatus ? result.message : "Failed to clear conversation history";
+        this.flashStatusInChatInput(statusMsg);
+      }
+    } catch (err) {
+      this.flashStatusInChatInput("Failed to clear conversation history");
+    }
+  }
+  async speechToText(event) {
+    var _a, _b;
+    event.preventDefault();
+    const transcribeButton = this.contentEl.getElementsByClassName("khoj-transcribe")[0];
+    const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    const sendButton = this.contentEl.getElementsByClassName("khoj-chat-send")[0];
+    const generateRequestBody = async (audioBlob, boundary_string) => {
+      const boundary = `------${boundary_string}`;
+      const chunks = [];
+      chunks.push(new TextEncoder().encode(`${boundary}\r
+`));
+      chunks.push(new TextEncoder().encode(`Content-Disposition: form-data; name="file"; filename="blob"\r
+Content-Type: "application/octet-stream"\r
+\r
+`));
+      chunks.push(await audioBlob.arrayBuffer());
+      chunks.push(new TextEncoder().encode("\r\n"));
+      await Promise.all(chunks);
+      chunks.push(new TextEncoder().encode(`${boundary}--\r
+`));
+      return await new Blob(chunks).arrayBuffer();
+    };
+    const sendToServer = async (audioBlob) => {
+      const boundary_string = `Boundary${Math.random().toString(36).slice(2)}`;
+      const requestBody = await generateRequestBody(audioBlob, boundary_string);
+      const response = await (0, import_obsidian6.requestUrl)({
+        url: `${this.setting.khojUrl}/api/transcribe?client=obsidian`,
+        method: "POST",
+        headers: { "Authorization": `Bearer ${this.setting.khojApiKey}` },
+        contentType: `multipart/form-data; boundary=----${boundary_string}`,
+        body: requestBody
+      });
+      let noSpeechText = [
+        "Thanks for watching!",
+        "Thanks for watching.",
+        "Thank you for watching!",
+        "Thank you for watching.",
+        "You",
+        "Bye."
+      ];
+      let noSpeech = false;
+      if (response.status === 200) {
+        console.log(response);
+        noSpeech = noSpeechText.includes(response.json.text.trimStart());
+        if (!noSpeech)
+          chatInput.value += response.json.text.trimStart();
+        this.autoResize();
+      } else if (response.status === 501) {
+        throw new Error("\u26D4\uFE0F Configure speech-to-text model on server.");
+      } else if (response.status === 422) {
+        throw new Error("\u26D4\uFE0F Audio file to large to process.");
+      } else {
+        throw new Error("\u26D4\uFE0F Failed to transcribe audio.");
+      }
+      if (chatInput.value.length === 0 || noSpeech)
+        return;
+      (0, import_obsidian6.setIcon)(sendButton, "stop-circle");
+      let stopSendButtonImg = sendButton.getElementsByClassName("lucide-stop-circle")[0];
+      stopSendButtonImg.addEventListener("click", (_) => {
+        this.cancelSendMessage();
+      });
+      stopSendButtonImg.getElementsByTagName("circle")[0].style.animation = "countdown 3s linear 1 forwards";
+      stopSendButtonImg.getElementsByTagName("circle")[0].style.color = "var(--icon-color-active)";
+      this.sendMessageTimeout = setTimeout(() => {
+        (0, import_obsidian6.setIcon)(sendButton, "arrow-up-circle");
+        let sendImg = sendButton.getElementsByClassName("lucide-arrow-up-circle")[0];
+        sendImg.addEventListener("click", async (_) => {
+          await this.chat();
+        });
+        this.chat(true);
+      }, 3e3);
+    };
+    const handleRecording = (stream) => {
+      const audioChunks = [];
+      const recordingConfig = { mimeType: "audio/webm" };
+      this.mediaRecorder = new MediaRecorder(stream, recordingConfig);
+      this.mediaRecorder.addEventListener("dataavailable", function(event2) {
+        if (event2.data.size > 0)
+          audioChunks.push(event2.data);
+      });
+      this.mediaRecorder.addEventListener("stop", async function() {
+        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        await sendToServer(audioBlob);
+      });
+      this.mediaRecorder.start();
+      transcribeButton.classList.add("loading-encircle");
+    };
+    if (!this.mediaRecorder || this.mediaRecorder.state === "inactive" || event.type === "touchstart" || event.type === "mousedown" || event.type === "keydown") {
+      this.voiceChatActive = true;
+      (_a = navigator.mediaDevices.getUserMedia({ audio: true })) == null ? void 0 : _a.then(handleRecording).catch((e) => {
+        this.flashStatusInChatInput("\u26D4\uFE0F Failed to access microphone");
+      });
+    } else if (((_b = this.mediaRecorder) == null ? void 0 : _b.state) === "recording" || event.type === "touchend" || event.type === "touchcancel" || event.type === "mouseup" || event.type === "keyup") {
+      this.voiceChatActive = false;
+      this.mediaRecorder.stop();
+      this.mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+      this.mediaRecorder = void 0;
+      transcribeButton.classList.remove("loading-encircle");
+      (0, import_obsidian6.setIcon)(transcribeButton, "mic");
+    }
+  }
+  cancelSendMessage() {
+    clearTimeout(this.sendMessageTimeout);
+    let sendButton = this.contentEl.getElementsByClassName("khoj-chat-send")[0];
+    (0, import_obsidian6.setIcon)(sendButton, "arrow-up-circle");
+    let sendImg = sendButton.getElementsByClassName("lucide-arrow-up-circle")[0];
+    sendImg.addEventListener("click", async (_) => {
+      await this.chat();
+    });
+  }
+  incrementalChat(event) {
+    if (this.modeDropdown && this.modeDropdown.style.display !== "none" && event.key === "Enter") {
+      event.preventDefault();
+      const options = this.modeDropdown.querySelectorAll(".khoj-mode-dropdown-option");
+      const visibleOptions = Array.from(options).filter((option) => option.style.display !== "none");
+      if (this.selectedOptionIndex >= 0 && this.selectedOptionIndex < visibleOptions.length) {
+        const selectedOption = visibleOptions[this.selectedOptionIndex];
+        const index = parseInt(selectedOption.getAttribute("data-index") || "0");
+        const chatInput2 = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+        chatInput2.value = this.chatModes[index].command + " ";
+        chatInput2.focus();
+        this.currentUserInput = chatInput2.value;
+        this.hideModeDropdown();
+      } else if (visibleOptions.length === 1) {
+        const onlyOption = visibleOptions[0];
+        const index = parseInt(onlyOption.getAttribute("data-index") || "0");
+        const chatInput2 = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+        chatInput2.value = this.chatModes[index].command + " ";
+        chatInput2.focus();
+        this.currentUserInput = chatInput2.value;
+        this.hideModeDropdown();
+      }
+      return;
+    }
+    const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    const trimmedValue = chatInput.value.trim();
+    const isOnlyModeCommand = this.chatModes.some((mode) => trimmedValue === mode.command || trimmedValue === mode.command + " ");
+    if (event.key === "Enter" && !event.shiftKey) {
+      if (!trimmedValue || isOnlyModeCommand) {
+        event.preventDefault();
+        return;
+      }
+      event.preventDefault();
+      this.chat();
+    }
+  }
+  onChatInput() {
+    const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    chatInput.value = chatInput.value.trimStart();
+    this.currentMessageIndex = -1;
+    this.currentUserInput = chatInput.value;
+    if (chatInput.value.startsWith("/")) {
+      this.showModeDropdown(chatInput);
+      this.selectedOptionIndex = -1;
+    } else if (this.modeDropdown) {
+      this.hideModeDropdown();
+    }
+    this.autoResize();
+  }
+  autoResize() {
+    const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    if (this.isStreaming) {
+      return;
+    }
+    chatInput.style.height = "auto";
+    const maxHeight = 400;
+    const newHeight = Math.min(chatInput.scrollHeight, maxHeight);
+    chatInput.style.height = newHeight + "px";
+    if (chatInput.scrollHeight > maxHeight) {
+      chatInput.style.overflowY = "auto";
+    } else {
+      chatInput.style.overflowY = "hidden";
+    }
+    if (this.modeDropdown && this.modeDropdown.style.display !== "none") {
+      const inputRect = chatInput.getBoundingClientRect();
+      const containerRect = this.contentEl.getBoundingClientRect();
+      this.modeDropdown.style.left = `${inputRect.left - containerRect.left}px`;
+      this.modeDropdown.style.top = `${inputRect.top - containerRect.top - 4}px`;
+      this.modeDropdown.style.width = `${inputRect.width}px`;
+    }
+  }
+  scrollChatToBottom() {
+    const chat_body_el = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    if (!!chat_body_el)
+      chat_body_el.scrollTop = chat_body_el.scrollHeight;
+  }
+  createLoadingEllipse() {
+    let loadingEllipsis = this.contentEl.createEl("div");
+    loadingEllipsis.classList.add("lds-ellipsis");
+    let firstEllipsis = this.contentEl.createEl("div");
+    firstEllipsis.classList.add("lds-ellipsis-item");
+    let secondEllipsis = this.contentEl.createEl("div");
+    secondEllipsis.classList.add("lds-ellipsis-item");
+    let thirdEllipsis = this.contentEl.createEl("div");
+    thirdEllipsis.classList.add("lds-ellipsis-item");
+    let fourthEllipsis = this.contentEl.createEl("div");
+    fourthEllipsis.classList.add("lds-ellipsis-item");
+    loadingEllipsis.appendChild(firstEllipsis);
+    loadingEllipsis.appendChild(secondEllipsis);
+    loadingEllipsis.appendChild(thirdEllipsis);
+    loadingEllipsis.appendChild(fourthEllipsis);
+    return loadingEllipsis;
+  }
+  handleStreamResponse(newResponseElement, rawResponse, loadingEllipsis, replace = true) {
+    if (!newResponseElement)
+      return;
+    if (newResponseElement.getElementsByClassName("lds-ellipsis").length > 0 && loadingEllipsis)
+      newResponseElement.removeChild(loadingEllipsis);
+    newResponseElement.innerHTML = "";
+    const messageEl = this.formatHTMLMessage(rawResponse, false, true);
+    messageEl.classList.add("khoj-message-new-content");
+    newResponseElement.appendChild(messageEl);
+    setTimeout(() => {
+      newResponseElement.classList.remove("khoj-message-new-content");
+    }, 300);
+  }
+  handleImageResponse(imageJson, rawResponse) {
+    var _a, _b;
+    if (imageJson.image) {
+      const inferredQuery = (_b = (_a = imageJson.inferredQueries) == null ? void 0 : _a[0]) != null ? _b : "generated image";
+      if (imageJson.intentType === "text-to-image") {
+        rawResponse += `![generated_image](data:image/png;base64,${imageJson.image})`;
+      } else if (imageJson.intentType === "text-to-image2") {
+        rawResponse += `![generated_image](${imageJson.image})`;
+      } else if (imageJson.intentType === "text-to-image-v3") {
+        rawResponse = `![generated_image](${imageJson.image})`;
+      } else if (imageJson.intentType === "excalidraw") {
+        const domain = this.setting.khojUrl.endsWith("/") ? this.setting.khojUrl : `${this.setting.khojUrl}/`;
+        const redirectMessage = `Hey, I'm not ready to show you diagrams yet here. But you can view it in ${domain}`;
+        rawResponse += redirectMessage;
+      }
+      if (inferredQuery) {
+        rawResponse += `
+
+**Inferred Query**:
+
+${inferredQuery}`;
+      }
+    } else if (imageJson.images) {
+      imageJson.images.forEach((image) => {
+        rawResponse += `![generated_image](${image})
+
+`;
+      });
+    } else if (imageJson.excalidrawDiagram) {
+      const domain = this.setting.khojUrl.endsWith("/") ? this.setting.khojUrl : `${this.setting.khojUrl}/`;
+      const redirectMessage = `Hey, I'm not ready to show you diagrams yet here. But you can view it in ${domain}`;
+      rawResponse += redirectMessage;
+    } else if (imageJson.mermaidjsDiagram) {
+      rawResponse += imageJson.mermaidjsDiagram;
+    }
+    if (imageJson.detail)
+      rawResponse += imageJson.detail;
+    return rawResponse;
+  }
+  finalizeChatBodyResponse(references, newResponseElement, turnId) {
+    var _a, _b, _c;
+    if (!!newResponseElement && references != null && Object.keys(references).length > 0) {
+      newResponseElement.appendChild(this.createReferenceSection(references));
+    }
+    if (!!newResponseElement && turnId) {
+      (_a = newResponseElement.parentElement) == null ? void 0 : _a.setAttribute("data-turnid", turnId);
+      (_c = (_b = newResponseElement.parentElement) == null ? void 0 : _b.previousElementSibling) == null ? void 0 : _c.setAttribute("data-turnid", turnId);
+    }
+    this.scrollChatToBottom();
+    let chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    if (chatInput)
+      chatInput.removeAttribute("disabled");
+  }
+  createReferenceSection(references) {
+    let referenceSection = this.contentEl.createEl("div");
+    referenceSection.classList.add("reference-section");
+    referenceSection.classList.add("collapsed");
+    let numReferences = 0;
+    if (references.hasOwnProperty("notes")) {
+      numReferences += references["notes"].length;
+      references["notes"].forEach((reference, index) => {
+        let polishedReference = this.generateReference(referenceSection, reference, index);
+        referenceSection.appendChild(polishedReference);
+      });
+    }
+    if (references.hasOwnProperty("online")) {
+      numReferences += this.processOnlineReferences(referenceSection, references["online"]);
+    }
+    let referenceExpandButton = this.contentEl.createEl("button");
+    referenceExpandButton.classList.add("reference-expand-button");
+    referenceExpandButton.innerHTML = numReferences == 1 ? "1 reference" : `${numReferences} references`;
+    referenceExpandButton.addEventListener("click", function() {
+      if (referenceSection.classList.contains("collapsed")) {
+        referenceSection.classList.remove("collapsed");
+        referenceSection.classList.add("expanded");
+      } else {
+        referenceSection.classList.add("collapsed");
+        referenceSection.classList.remove("expanded");
+      }
+    });
+    let referencesDiv = this.contentEl.createEl("div");
+    referencesDiv.classList.add("references");
+    referencesDiv.appendChild(referenceExpandButton);
+    referencesDiv.appendChild(referenceSection);
+    return referencesDiv;
+  }
+  handleArrowKeys(event) {
+    const chatInput = this.contentEl.getElementsByClassName("khoj-chat-input")[0];
+    if (this.modeDropdown && this.modeDropdown.style.display !== "none") {
+      const options = this.modeDropdown.querySelectorAll(".khoj-mode-dropdown-option");
+      const visibleOptions = Array.from(options).filter((option) => option.style.display !== "none");
+      if (visibleOptions.length === 0) {
+        this.hideModeDropdown();
+        return;
+      }
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          if (this.selectedOptionIndex < 0) {
+            this.selectedOptionIndex = 0;
+          } else {
+            this.selectedOptionIndex = Math.min(this.selectedOptionIndex + 1, visibleOptions.length - 1);
+          }
+          this.highlightVisibleOption(visibleOptions);
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          if (this.selectedOptionIndex < 0) {
+            this.selectedOptionIndex = visibleOptions.length - 1;
+          } else {
+            this.selectedOptionIndex = Math.max(this.selectedOptionIndex - 1, 0);
+          }
+          this.highlightVisibleOption(visibleOptions);
+          break;
+        case "Enter":
+          break;
+        case "Escape":
+          event.preventDefault();
+          this.hideModeDropdown();
+          break;
+      }
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        return;
+      }
+    }
+  }
+  highlightVisibleOption(visibleOptions) {
+    var _a;
+    const allOptions = (_a = this.modeDropdown) == null ? void 0 : _a.querySelectorAll(".khoj-mode-dropdown-option");
+    if (!allOptions)
+      return;
+    allOptions.forEach((option) => {
+      option.classList.remove("khoj-mode-dropdown-option-selected");
+    });
+    if (this.selectedOptionIndex >= 0 && this.selectedOptionIndex < visibleOptions.length) {
+      const selectedOption = visibleOptions[this.selectedOptionIndex];
+      selectedOption.classList.add("khoj-mode-dropdown-option-selected");
+      if (this.modeDropdown) {
+        const container = this.modeDropdown;
+        if (selectedOption.offsetTop < container.scrollTop) {
+          container.scrollTop = selectedOption.offsetTop;
+        } else if (selectedOption.offsetTop + selectedOption.offsetHeight > container.scrollTop + container.offsetHeight) {
+          container.scrollTop = selectedOption.offsetTop + selectedOption.offsetHeight - container.offsetHeight;
+        }
+      }
+    }
+  }
+  async deleteMessage(messageEl, skipPaired = false, skipBackend = false) {
+    const messageContainer = messageEl.closest(".khoj-chat-message");
+    if (!messageContainer)
+      return;
+    let pairedMessageContainer = null;
+    if (!skipPaired) {
+      const messages = Array.from(document.getElementsByClassName("khoj-chat-message"));
+      const currentIndex = messages.indexOf(messageContainer);
+      if (messageContainer.classList.contains("you") && currentIndex < messages.length - 1) {
+        pairedMessageContainer = messages[currentIndex + 1];
+      } else if (messageContainer.classList.contains("khoj") && currentIndex > 0) {
+        pairedMessageContainer = messages[currentIndex - 1];
+      }
+    }
+    messageContainer.classList.add("deleting");
+    if (pairedMessageContainer) {
+      pairedMessageContainer.classList.add("deleting");
+    }
+    setTimeout(async () => {
+      const turnId = messageContainer.getAttribute("data-turnid");
+      messageContainer.remove();
+      if (pairedMessageContainer) {
+        pairedMessageContainer.remove();
+      }
+      if (!skipBackend && turnId) {
+        const chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+        const conversationId = chatBodyEl.dataset.conversationId;
+        if (!conversationId)
+          return;
+        try {
+          const response = await fetch(`${this.setting.khojUrl}/api/chat/conversation/message`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${this.setting.khojApiKey}`
+            },
+            body: JSON.stringify({
+              conversation_id: conversationId,
+              turn_id: turnId
+            })
+          });
+          if (!response.ok) {
+            console.error("Failed to delete message from backend:", await response.text());
+            this.flashStatusInChatInput("Failed to delete message");
+          }
+        } catch (error) {
+          console.error("Error deleting message:", error);
+          this.flashStatusInChatInput("Error deleting message");
+        }
+      }
+    }, 300);
+  }
+  async fetchAgents() {
+    try {
+      const response = await fetch(`${this.setting.khojUrl}/api/agents`, {
+        headers: {
+          "Authorization": `Bearer ${this.setting.khojApiKey}`
+        }
+      });
+      if (response.ok) {
+        this.agents = await response.json();
+      } else {
+        console.error("Failed to fetch agents:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching agents:", error);
+    }
+  }
+  async getOpenFilesContent() {
+    return this.fileInteractions.getOpenFilesContent(this.fileAccessMode);
+  }
+  parseEditBlocks(message) {
+    return this.fileInteractions.parseEditBlocks(message);
+  }
+  async applyEditBlocks(editBlocks) {
+    if (editBlocks.length === 0)
+      return;
+    const { editResults, fileBackups } = await this.fileInteractions.applyEditBlocks(editBlocks, (blockToRetry) => {
+      if (this.editRetryCount < this.maxEditRetries) {
+        this.handleEditRetry(blockToRetry);
+      }
+    });
+    const chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    const lastMessage = chatBodyEl.lastElementChild;
+    if (lastMessage) {
+      const buttonsContainer = lastMessage.createDiv({ cls: "edit-confirmation-buttons" });
+      const statusContainer = buttonsContainer.createDiv({ cls: "edit-status-container" });
+      const statusSummary = statusContainer.createDiv({ cls: "edit-status-summary" });
+      const successCount = editResults.filter((r) => r.success).length;
+      if (successCount === editResults.length) {
+        statusSummary.innerHTML = `All edits applied successfully`;
+        statusSummary.addClass("success");
+      } else if (successCount === 0) {
+        statusSummary.innerHTML = `No edits were applied`;
+        statusSummary.addClass("error");
+      } else {
+        statusSummary.innerHTML = `${successCount}/${editResults.length} edits applied successfully`;
+        statusSummary.addClass(successCount > 0 ? "success" : "error");
+      }
+      if (editResults.some((r) => !r.success)) {
+        const errorDetails = editResults.filter((r) => !r.success).map((r) => {
+          if (r.error && r.error.includes("Other edits in the group failed")) {
+            return `\u2022 ${r.block.note}: Not applied due to atomic validation failure`;
+          }
+          return `\u2022 ${r.block.note}: ${r.error}`;
+        }).join("\n");
+        statusSummary.title = `Failed edits:
+${errorDetails}`;
+      }
+      const applyButton = buttonsContainer.createEl("button", {
+        text: "Apply",
+        cls: ["edit-confirm-button", "edit-apply-button"]
+      });
+      const cancelButton = buttonsContainer.createEl("button", {
+        text: "Cancel",
+        cls: ["edit-confirm-button", "edit-cancel-button"]
+      });
+      buttonsContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+      this.setupConfirmationButtons(applyButton, cancelButton, fileBackups, lastMessage, buttonsContainer);
+    }
+  }
+  setupConfirmationButtons(applyButton, cancelButton, fileBackups, lastMessage, buttonsContainer) {
+    applyButton.addEventListener("click", async () => {
+      try {
+        for (const [filePath, originalContent] of fileBackups) {
+          const file = this.app.vault.getAbstractFileByPath(filePath);
+          if (file && file instanceof import_obsidian6.TFile) {
+            const currentContent = await this.app.vault.read(file);
+            let finalContent = currentContent;
+            finalContent = finalContent.replace(/~~[^~]*~~\n?(?=~~)/g, "");
+            finalContent = finalContent.replace(/~~[^~]*~~/g, "");
+            finalContent = finalContent.replace(/==/g, "");
+            await this.app.vault.modify(file, finalContent);
+          }
+        }
+        const successMessage = lastMessage.createDiv({ cls: "edit-status-message success" });
+        successMessage.textContent = "Changes applied successfully";
+        setTimeout(() => successMessage.remove(), 3e3);
+      } catch (error) {
+        console.error("Error applying changes:", error);
+        const errorMessage = lastMessage.createDiv({ cls: "edit-status-message error" });
+        errorMessage.textContent = "Error applying changes";
+        setTimeout(() => errorMessage.remove(), 3e3);
+      } finally {
+        buttonsContainer.remove();
+      }
+    });
+    cancelButton.addEventListener("click", async () => {
+      try {
+        for (const [filePath, originalContent] of fileBackups) {
+          const file = this.app.vault.getAbstractFileByPath(filePath);
+          if (file && file instanceof import_obsidian6.TFile) {
+            await this.app.vault.modify(file, originalContent);
+          }
+        }
+        const successMessage = lastMessage.createDiv({ cls: "edit-status-message success" });
+        successMessage.textContent = "Changes cancelled successfully";
+        setTimeout(() => successMessage.remove(), 3e3);
+      } catch (error) {
+        console.error("Error cancelling changes:", error);
+        const errorMessage = lastMessage.createDiv({ cls: "edit-status-message error" });
+        errorMessage.textContent = "Error cancelling changes";
+        setTimeout(() => errorMessage.remove(), 3e3);
+      } finally {
+        buttonsContainer.remove();
+      }
+    });
+  }
+  convertCommandsToEmojis(message) {
+    const modeMatch = this.chatModes.find((mode) => message.startsWith(mode.command));
+    if (modeMatch) {
+      return message.replace(modeMatch.command, `[${modeMatch.label}]`);
+    }
+    return message;
+  }
+  async applyPendingEdits() {
+    const chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    const lastMessage = chatBodyEl.lastElementChild;
+    if (!lastMessage)
+      return;
+    const buttonsContainer = lastMessage.querySelector(".edit-confirmation-buttons");
+    if (!buttonsContainer)
+      return;
+    const applyButton = buttonsContainer.querySelector(".edit-apply-button");
+    if (applyButton instanceof HTMLElement) {
+      applyButton.click();
+    }
+  }
+  async cancelPendingEdits() {
+    const chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    const lastMessage = chatBodyEl.lastElementChild;
+    if (!lastMessage)
+      return;
+    const buttonsContainer = lastMessage.querySelector(".edit-confirmation-buttons");
+    if (!buttonsContainer)
+      return;
+    const cancelButton = buttonsContainer.querySelector(".edit-cancel-button");
+    if (cancelButton instanceof HTMLElement) {
+      cancelButton.click();
+    }
+  }
+  transformEditBlocks(message) {
+    return this.fileInteractions.transformEditBlocks(message);
+  }
+  async handleEditRetry(errorBlock) {
+    var _a, _b, _c, _d;
+    this.editRetryCount++;
+    let errorDetails = "";
+    if (((_a = errorBlock.error) == null ? void 0 : _a.type) === "missing_field") {
+      errorDetails = `Missing required fields: ${errorBlock.error.message}
+`;
+      errorDetails += `Please include all required fields:
+${errorBlock.error.details}
+`;
+    } else if (((_b = errorBlock.error) == null ? void 0 : _b.type) === "invalid_format") {
+      errorDetails = `The JSON format is invalid: ${errorBlock.error.message}
+`;
+      errorDetails += "Please check the syntax and provide a valid JSON edit block.\n";
+    } else {
+      errorDetails = `Error: ${((_c = errorBlock.error) == null ? void 0 : _c.message) || "Unknown error"}
+`;
+      if ((_d = errorBlock.error) == null ? void 0 : _d.details) {
+        errorDetails += `Details: ${errorBlock.error.details}
+`;
+      }
+    }
+    const chatBodyEl = this.contentEl.getElementsByClassName("khoj-chat-body")[0];
+    const retryContainer = chatBodyEl.createDiv({ cls: "khoj-retry-container" });
+    const retryBadge = retryContainer.createDiv({ cls: "khoj-retry-badge" });
+    const retryIcon = retryBadge.createSpan({ cls: "retry-icon" });
+    (0, import_obsidian6.setIcon)(retryIcon, "refresh-cw");
+    retryBadge.createSpan({ text: "Try again to apply changes" });
+    retryBadge.createSpan({
+      cls: "retry-count",
+      text: `Attempt ${this.editRetryCount}/${this.maxEditRetries}`
+    });
+    retryBadge.setAttribute("aria-label", errorDetails);
+    const hoverEditor = this.app.plugins.plugins["obsidian-hover-editor"];
+    if (hoverEditor) {
+      new hoverEditor.HoverPopover(this.app, retryBadge, errorDetails);
+    }
+    retryBadge.scrollIntoView({ behavior: "smooth", block: "center" });
+    const retryPrompt = `/general I noticed some issues with the edit block. Please fix the following and provide a corrected version (retry ${this.editRetryCount}/${this.maxEditRetries}):
+
+${errorDetails}
+
+Please provide a new edit block that fixes these issues. Make sure to follow the exact format required.`;
+    await this.getChatResponse(retryPrompt, "", false, false);
+  }
+  showModeDropdown(inputEl) {
+    if (!this.modeDropdown) {
+      this.modeDropdown = this.contentEl.createDiv({
+        cls: "khoj-mode-dropdown"
+      });
+      const inputRect = inputEl.getBoundingClientRect();
+      const containerRect = this.contentEl.getBoundingClientRect();
+      this.modeDropdown.style.position = "absolute";
+      this.modeDropdown.style.left = `${inputRect.left - containerRect.left}px`;
+      this.modeDropdown.style.top = `${inputRect.top - containerRect.top - 4}px`;
+      this.modeDropdown.style.width = `${inputRect.width}px`;
+      this.modeDropdown.style.zIndex = "1000";
+      this.modeDropdown.style.transform = "translateY(-100%)";
+      this.chatModes.forEach((mode, index) => {
+        const option = this.modeDropdown.createDiv({
+          cls: "khoj-mode-dropdown-option",
+          attr: {
+            "data-index": index.toString(),
+            "data-command": mode.command
+          }
+        });
+        const emojiSpan = option.createSpan({
+          cls: "khoj-mode-dropdown-emoji"
+        });
+        (0, import_obsidian6.setIcon)(emojiSpan, mode.iconName);
+        option.createSpan({
+          cls: "khoj-mode-dropdown-label",
+          text: ` ${mode.label} `
+        });
+        option.createSpan({
+          cls: "khoj-mode-dropdown-command",
+          text: `(${mode.command})`
+        });
+        option.addEventListener("click", () => {
+          inputEl.value = mode.command + " ";
+          inputEl.focus();
+          this.currentUserInput = inputEl.value;
+          this.hideModeDropdown();
+        });
+      });
+      document.addEventListener("click", (e) => {
+        if (this.modeDropdown && !this.modeDropdown.contains(e.target) && e.target !== inputEl) {
+          this.hideModeDropdown();
+        }
+      });
+    } else {
+      this.modeDropdown.style.display = "block";
+    }
+    this.filterDropdownOptions(inputEl.value);
+  }
+  filterDropdownOptions(inputValue) {
+    if (!this.modeDropdown)
+      return;
+    const options = this.modeDropdown.querySelectorAll(".khoj-mode-dropdown-option");
+    let visibleOptionsCount = 0;
+    options.forEach((option) => {
+      const command = option.getAttribute("data-command") || "";
+      if (inputValue.startsWith("/") && inputValue.length > 1) {
+        if (command.toLowerCase().startsWith(inputValue.toLowerCase())) {
+          option.style.display = "flex";
+          visibleOptionsCount++;
+        } else {
+          option.style.display = "none";
+        }
+      } else {
+        option.style.display = "flex";
+        visibleOptionsCount++;
+      }
+    });
+    if (visibleOptionsCount === 0) {
+      this.hideModeDropdown();
+    }
+    this.selectedOptionIndex = -1;
+  }
+  hideModeDropdown() {
+    if (this.modeDropdown) {
+      this.modeDropdown.style.display = "none";
+      this.selectedOptionIndex = -1;
     }
   }
 };
 
+// src/similar_view.ts
+var import_obsidian7 = require("obsidian");
+var KhojSimilarView = class extends KhojPaneView {
+  constructor(leaf, plugin) {
+    super(leaf, plugin);
+    this.currentController = null;
+    this.isLoading = false;
+    this.currentFile = null;
+    this.component = this;
+  }
+  getViewType() {
+    return "khoj-similar-view" /* SIMILAR */;
+  }
+  getDisplayText() {
+    return "Khoj Similar Documents";
+  }
+  getIcon() {
+    return "search";
+  }
+  async onOpen() {
+    await super.onOpen();
+    const { contentEl } = this;
+    const mainContainerEl = contentEl.createDiv({ cls: "khoj-similar-container" });
+    const searchContainerEl = mainContainerEl.createDiv({ cls: "khoj-similar-search-container" });
+    this.searchInputEl = searchContainerEl.createEl("input", {
+      cls: "khoj-similar-search-input",
+      attr: {
+        type: "text",
+        placeholder: "Search or use current file"
+      }
+    });
+    const refreshButtonEl = searchContainerEl.createEl("button", {
+      cls: "khoj-similar-refresh-button"
+    });
+    (0, import_obsidian7.setIcon)(refreshButtonEl, "refresh-cw");
+    refreshButtonEl.createSpan({ text: "Refresh" });
+    refreshButtonEl.addEventListener("click", () => {
+      this.updateSimilarDocuments();
+    });
+    this.resultsContainerEl = mainContainerEl.createDiv({ cls: "khoj-similar-results" });
+    this.loadingEl = mainContainerEl.createDiv({ cls: "search-loading" });
+    const spinnerEl = this.loadingEl.createDiv({ cls: "search-loading-spinner" });
+    this.loadingEl.style.position = "absolute";
+    this.loadingEl.style.top = "50%";
+    this.loadingEl.style.left = "50%";
+    this.loadingEl.style.transform = "translate(-50%, -50%)";
+    this.loadingEl.style.zIndex = "1000";
+    this.loadingEl.style.display = "none";
+    this.registerFileActiveHandler();
+    this.searchInputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.getSimilarDocuments(this.searchInputEl.value);
+      }
+    });
+    this.updateSimilarDocuments();
+  }
+  registerFileActiveHandler() {
+    if (this.fileWatcher) {
+      this.app.workspace.off("file-open", this.fileWatcher);
+    }
+    this.fileWatcher = this.app.workspace.on("file-open", (file) => {
+      if (file) {
+        this.currentFile = file;
+        this.updateSimilarDocuments();
+      }
+    });
+    this.register(() => {
+      this.app.workspace.off("file-open", this.fileWatcher);
+    });
+  }
+  async updateSimilarDocuments() {
+    const file = this.app.workspace.getActiveFile();
+    if (!file) {
+      this.updateUI("no-file");
+      return;
+    }
+    if (file.extension !== "md") {
+      this.updateUI("unsupported-file");
+      return;
+    }
+    this.currentFile = file;
+    const content = await this.app.vault.read(file);
+    await this.getSimilarDocuments(content);
+  }
+  async getSimilarDocuments(query) {
+    if (!query.trim()) {
+      this.isLoading = false;
+      this.updateLoadingState();
+      this.updateUI("empty-query");
+      return [];
+    }
+    this.isLoading = true;
+    this.updateLoadingState();
+    this.updateUI("loading");
+    if (this.currentController) {
+      this.currentController.abort();
+    }
+    try {
+      this.currentController = new AbortController();
+      let encodedQuery = encodeURIComponent(query);
+      let searchUrl = `${this.setting.khojUrl}/api/search?q=${encodedQuery}&n=${this.setting.resultsCount}&r=true&client=obsidian`;
+      let headers = {
+        "Authorization": `Bearer ${this.setting.khojApiKey}`
+      };
+      const response = await fetch(searchUrl, {
+        headers,
+        signal: this.currentController.signal
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      let results = data.filter((result) => {
+        if (this.currentFile && result.additional.file.endsWith(this.currentFile.path)) {
+          return false;
+        }
+        return true;
+      }).map((result) => {
+        return {
+          entry: result.entry,
+          file: result.additional.file,
+          inVault: this.isFileInVault(result.additional.file)
+        };
+      }).sort((a, b) => {
+        if (a.inVault === b.inVault)
+          return 0;
+        return a.inVault ? -1 : 1;
+      });
+      this.isLoading = false;
+      this.updateLoadingState();
+      this.renderResults(results);
+      return results;
+    } catch (error) {
+      if (error.name === "AbortError") {
+        return [];
+      }
+      console.error("Search error:", error);
+      this.isLoading = false;
+      this.updateLoadingState();
+      this.updateUI("error", error.message);
+      return [];
+    }
+  }
+  isFileInVault(filePath) {
+    const files = this.app.vault.getFiles();
+    return files.some((file) => filePath.endsWith(file.path));
+  }
+  renderResults(results) {
+    this.resultsContainerEl.empty();
+    if (results.length === 0) {
+      this.updateUI("no-results");
+      return;
+    }
+    this.resultsContainerEl.createEl("div", {
+      cls: "khoj-results-count",
+      text: `Found ${results.length} similar document${results.length > 1 ? "s" : ""}`
+    });
+    const resultsListEl = this.resultsContainerEl.createEl("div", { cls: "khoj-similar-results-list" });
+    results.forEach(async (result) => {
+      const resultEl = resultsListEl.createEl("div", { cls: "khoj-similar-result-item" });
+      let os_path_separator = result.file.includes("\\") ? "\\" : "/";
+      let filename = result.file.split(os_path_separator).pop();
+      const headerEl = resultEl.createEl("div", { cls: "khoj-similar-result-header" });
+      const fileEl = headerEl.createEl("div", {
+        cls: `khoj-result-file ${result.inVault ? "in-vault" : "not-in-vault"}`
+      });
+      fileEl.setText(filename != null ? filename : "");
+      if (!result.inVault) {
+        fileEl.createSpan({
+          text: " (not in vault)",
+          cls: "khoj-result-file-status"
+        });
+      }
+      const moreContextButton = headerEl.createEl("button", {
+        cls: "khoj-more-context-button"
+      });
+      moreContextButton.createSpan({ text: "More context" });
+      (0, import_obsidian7.setIcon)(moreContextButton.createSpan(), "chevron-down");
+      const contentEl = resultEl.createEl("div", {
+        cls: "khoj-result-entry khoj-similar-content-hidden"
+      });
+      let contentToRender = "";
+      result.entry = result.entry.replace(/---[\n\r][\s\S]*---[\n\r]/, "");
+      const lines_to_render = 8;
+      let entry_snipped_indicator = result.entry.split("\n").length > lines_to_render ? " **...**" : "";
+      let snipped_entry = result.entry.split("\n").slice(0, lines_to_render).join("\n");
+      contentToRender = `${snipped_entry}${entry_snipped_indicator}`;
+      await import_obsidian7.MarkdownRenderer.renderMarkdown(contentToRender, contentEl, result.file, this.component);
+      moreContextButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (contentEl.classList.contains("khoj-similar-content-hidden")) {
+          contentEl.classList.remove("khoj-similar-content-hidden");
+          contentEl.classList.add("khoj-similar-content-visible");
+          moreContextButton.empty();
+          moreContextButton.createSpan({ text: "Less context" });
+          (0, import_obsidian7.setIcon)(moreContextButton.createSpan(), "chevron-up");
+        } else {
+          contentEl.classList.remove("khoj-similar-content-visible");
+          contentEl.classList.add("khoj-similar-content-hidden");
+          moreContextButton.empty();
+          moreContextButton.createSpan({ text: "More context" });
+          (0, import_obsidian7.setIcon)(moreContextButton.createSpan(), "chevron-down");
+        }
+      });
+      resultEl.addEventListener("click", (e) => {
+        if (e.target === moreContextButton || moreContextButton.contains(e.target)) {
+          return;
+        }
+        this.openResult(result);
+      });
+    });
+  }
+  async openResult(result) {
+    if (!result.inVault) {
+      new import_obsidian7.Notice("This file is not in your vault");
+      return;
+    }
+    const mdFiles = this.app.vault.getMarkdownFiles();
+    const binaryFiles = this.app.vault.getFiles().filter((file) => supportedBinaryFileTypes.includes(file.extension));
+    let linkToEntry = getLinkToEntry(mdFiles.concat(binaryFiles), result.file, result.entry);
+    if (linkToEntry) {
+      this.app.workspace.openLinkText(linkToEntry, "");
+    }
+  }
+  updateLoadingState() {
+    this.loadingEl.style.display = this.isLoading ? "block" : "none";
+  }
+  updateUI(state, message) {
+    if (state !== "loading") {
+      this.resultsContainerEl.empty();
+    }
+    const messageEl = this.resultsContainerEl.createEl("div", { cls: "khoj-similar-message" });
+    switch (state) {
+      case "loading":
+        break;
+      case "no-file":
+        messageEl.setText("No file is currently open. Open a markdown file to see similar documents.");
+        break;
+      case "unsupported-file":
+        messageEl.setText("This file type is not supported. Only markdown files are supported.");
+        break;
+      case "no-results":
+        messageEl.setText("No similar documents found.");
+        break;
+      case "error":
+        messageEl.setText(`Error: ${message || "Failed to fetch similar documents"}`);
+        break;
+      case "empty-query":
+        messageEl.setText("Please enter a search query or open a markdown file.");
+        break;
+    }
+  }
+};
+KhojSimilarView.iconName = "search";
+
 // src/main.ts
-var Khoj = class extends import_obsidian5.Plugin {
+var Khoj = class extends import_obsidian8.Plugin {
   async onload() {
     await this.loadSettings();
     this.addCommand({
       id: "search",
       name: "Search",
-      checkCallback: (checking) => {
-        if (!checking && this.settings.connectedToBackend)
-          new KhojSearchModal(this.app, this.settings).open();
-        return this.settings.connectedToBackend;
+      hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "S" }],
+      callback: () => {
+        new KhojSearchModal(this.app, this.settings).open();
       }
     });
     this.addCommand({
       id: "similar",
       name: "Find similar notes",
-      editorCheckCallback: (checking) => {
-        if (!checking && this.settings.connectedToBackend)
-          new KhojSearchModal(this.app, this.settings, true).open();
-        return this.settings.connectedToBackend;
+      hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "F" }],
+      editorCallback: () => {
+        this.activateView("khoj-similar-view" /* SIMILAR */);
       }
     });
     this.addCommand({
       id: "chat",
       name: "Chat",
-      checkCallback: (checking) => {
-        if (!checking && this.settings.connectedToBackend && (!!this.settings.openaiApiKey || this.settings.enableOfflineChat))
-          new KhojChatModal(this.app, this.settings).open();
-        return !!this.settings.openaiApiKey || this.settings.enableOfflineChat;
+      callback: () => {
+        this.activateView("khoj-chat-view" /* CHAT */);
       }
     });
-    this.addRibbonIcon("search", "Khoj", (_) => {
-      this.settings.connectedToBackend ? new KhojSearchModal(this.app, this.settings).open() : new import_obsidian5.Notice(`\u2757\uFE0FEnsure Khoj backend is running and Khoj URL is pointing to it in the plugin settings`);
+    this.addCommand({
+      id: "similar-view",
+      name: "Open Similar Documents View",
+      callback: () => {
+        this.activateView("khoj-similar-view" /* SIMILAR */);
+      }
+    });
+    this.addCommand({
+      id: "new-chat",
+      name: "New Chat",
+      hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "N" }],
+      callback: async () => {
+        await this.activateView("khoj-chat-view" /* CHAT */);
+        setTimeout(() => {
+          const chatView = this.app.workspace.getActiveViewOfType(KhojChatView);
+          if (chatView) {
+            chatView.createNewConversation();
+          }
+        }, 100);
+      }
+    });
+    this.addCommand({
+      id: "conversation-history",
+      name: "Show Conversation History",
+      hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "O" }],
+      callback: () => {
+        this.activateView("khoj-chat-view" /* CHAT */).then(() => {
+          const chatView = this.app.workspace.getActiveViewOfType(KhojChatView);
+          if (chatView) {
+            chatView.toggleChatSessions();
+          }
+        });
+      }
+    });
+    this.addCommand({
+      id: "voice-capture",
+      name: "Start Voice Capture",
+      hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "V" }],
+      callback: () => {
+        this.activateView("khoj-chat-view" /* CHAT */).then(() => {
+          const chatView = this.app.workspace.getActiveViewOfType(KhojChatView);
+          if (chatView) {
+            const toggleEvent = chatView.voiceChatActive ? "keyup" : "keydown";
+            chatView.speechToText(new KeyboardEvent(toggleEvent));
+          }
+        });
+      }
+    });
+    this.addCommand({
+      id: "sync",
+      name: "Sync new changes",
+      callback: async () => {
+        this.settings.lastSync = await updateContentIndex(this.app.vault, this.settings, this.settings.lastSync, false, true);
+      }
+    });
+    this.addCommand({
+      id: "apply-edits",
+      name: "Apply pending edits",
+      hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "Enter" }],
+      callback: () => {
+        const chatView = this.app.workspace.getActiveViewOfType(KhojChatView);
+        if (chatView) {
+          chatView.applyPendingEdits();
+        }
+      }
+    });
+    this.addCommand({
+      id: "cancel-edits",
+      name: "Cancel pending edits",
+      hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "Backspace" }],
+      callback: () => {
+        const chatView = this.app.workspace.getActiveViewOfType(KhojChatView);
+        if (chatView) {
+          chatView.cancelPendingEdits();
+        }
+      }
+    });
+    this.registerView("khoj-chat-view" /* CHAT */, (leaf) => new KhojChatView(leaf, this));
+    this.registerView("khoj-similar-view" /* SIMILAR */, (leaf) => new KhojSimilarView(leaf, this));
+    this.addRibbonIcon("message-circle", "Khoj", (_) => {
+      this.activateView("khoj-chat-view" /* CHAT */);
     });
     this.addSettingTab(new KhojSettingTab(this.app, this));
+    this.startSyncTimer();
+  }
+  startSyncTimer() {
+    if (this.indexingTimer) {
+      clearInterval(this.indexingTimer);
+    }
     this.indexingTimer = setInterval(async () => {
       if (this.settings.autoConfigure) {
-        this.settings.lastSyncedFiles = await updateContentIndex(this.app.vault, this.settings, this.settings.lastSyncedFiles);
+        this.settings.lastSync = await updateContentIndex(this.app.vault, this.settings, this.settings.lastSync);
       }
-    }, 60 * 60 * 1e3);
+    }, this.settings.syncInterval * 60 * 1e3);
+  }
+  restartSyncTimer() {
+    this.startSyncTimer();
   }
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    if (this.settings.autoConfigure) {
-      await configureKhojBackend(this.app.vault, this.settings);
-    }
+    ({ connectedToBackend: this.settings.connectedToBackend } = await canConnectToBackend(this.settings.khojUrl, this.settings.khojApiKey, true));
   }
   async saveSettings() {
-    if (this.settings.autoConfigure) {
-      await configureKhojBackend(this.app.vault, this.settings, false);
-    }
-    this.saveData(this.settings);
+    await this.saveData(this.settings);
   }
   async onunload() {
     if (this.indexingTimer)
       clearInterval(this.indexingTimer);
     this.unload();
   }
+  async activateView(viewType, existingLeaf) {
+    const { workspace } = this.app;
+    let leafToUse = null;
+    if (existingLeaf && existingLeaf.view && (existingLeaf.view.getViewType() === "khoj-chat-view" /* CHAT */ || existingLeaf.view.getViewType() === "khoj-similar-view" /* SIMILAR */) && existingLeaf.view.getViewType() !== viewType) {
+      leafToUse = existingLeaf;
+      await leafToUse.setViewState({ type: viewType, active: true });
+    } else {
+      const leaves = workspace.getLeavesOfType(viewType);
+      if (leaves.length > 0) {
+        leafToUse = leaves[0];
+      } else {
+        leafToUse = existingLeaf && !(existingLeaf.view instanceof KhojPaneView) ? existingLeaf : workspace.getRightLeaf(false);
+        if (leafToUse) {
+          await leafToUse.setViewState({ type: viewType, active: true });
+        } else {
+          console.error("Khoj: Could not get a leaf to activate view.");
+          return;
+        }
+      }
+    }
+    if (leafToUse) {
+      workspace.revealLeaf(leafToUse);
+      if (viewType === "khoj-chat-view" /* CHAT */) {
+        const chatView = leafToUse.view;
+        if (chatView instanceof KhojChatView) {
+          const chatInput = chatView.containerEl.querySelector(".khoj-chat-input");
+          chatInput == null ? void 0 : chatInput.focus();
+        }
+      }
+    }
+  }
 };
-/*! fetch-blob. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
-/*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
-/*! node-domexception. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
+/*! @license DOMPurify 3.2.6 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.2.6/LICENSE */
+
+/* nosourcemap */

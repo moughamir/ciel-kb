@@ -1,3 +1,12 @@
 {
-  "cssTheme": "AnuPpuccin"
+  "baseFontSize": 16,
+  "cssTheme": "Minimal",
+  "translucency": false,
+  "theme": "#dd4c4f",
+  "enabledCssSnippets": [],
+  "accentColor": "#dd4c4f",
+  "showViewHeader": true,
+  "interfaceFontFamily": "Inter",
+  "textFontFamily": "Avenir",
+  "monospaceFontFamily": "Avenir"
 }

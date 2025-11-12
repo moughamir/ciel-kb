@@ -1,20 +1,20 @@
 {
   "main": {
-    "id": "03ffd6528c088c83",
+    "id": "863551197086b1be",
     "type": "split",
     "children": [
       {
-        "id": "81fde1bbb4263e96",
+        "id": "f75fcd8ecd3e01bc",
         "type": "tabs",
         "children": [
           {
-            "id": "ce4351303f5a3edc",
+            "id": "0210b184cf91505a",
             "type": "leaf",
             "state": {
-              "type": "graph",
+              "type": "empty",
               "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -23,45 +23,54 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "e044136555385bdb",
+    "id": "1056d052d9d1486e",
     "type": "split",
     "children": [
       {
-        "id": "0925b075a2de4c8a",
+        "id": "97d06fa14281b982",
         "type": "tabs",
         "children": [
           {
-            "id": "effa04e4456302a9",
+            "id": "08a20692f1bf5ffb",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical",
-                "autoReveal": false
+                "sortOrder": "alphabetical"
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
             }
           },
           {
-            "id": "65e6bf49c643f9b3",
+            "id": "fbb5b38869b604a3",
             "type": "leaf",
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#design",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
                 "extraContext": false,
-                "sortOrder": "alphabetical"
+                "sortOrder": "byModifiedTime"
               },
               "icon": "lucide-search",
               "title": "Search"
             }
           },
           {
-            "id": "795bf5e200268509",
+            "id": "aa8052c3b1e96e1d",
+            "type": "leaf",
+            "state": {
+              "type": "starred",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Plugin no longer active"
+            }
+          },
+          {
+            "id": "d92da12c156699cc",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -74,18 +83,19 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 317.5
   },
   "right": {
-    "id": "0448be3a563c0aee",
+    "id": "8f5eec4ed7a6a453",
     "type": "split",
     "children": [
       {
-        "id": "76df7a7eff68b671",
+        "id": "b0963d3d2d72e12f",
         "type": "tabs",
+        "dimension": 71.30559540889527,
         "children": [
           {
-            "id": "81a44610778eda19",
+            "id": "320262d294a7ea5b",
             "type": "leaf",
             "state": {
               "type": "backlink",
@@ -103,105 +113,194 @@
             }
           },
           {
-            "id": "6c2cb8673b8cdaf5",
-            "type": "leaf",
-            "state": {
-              "type": "outgoing-link",
-              "state": {
-                "linksCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-going-out",
-              "title": "Outgoing links"
-            }
-          },
-          {
-            "id": "100174e200203872",
+            "id": "58ec04b5b4cb18d9",
             "type": "leaf",
             "state": {
               "type": "tag",
               "state": {
                 "sortOrder": "frequency",
-                "useHierarchy": true,
-                "showSearch": false,
-                "searchQuery": ""
+                "useHierarchy": false
               },
               "icon": "lucide-tags",
               "title": "Tags"
             }
           },
           {
-            "id": "ef3ab09a21aaa385",
+            "id": "3247bbff4e97388a",
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
+              "state": {},
               "icon": "lucide-list",
               "title": "Outline"
             }
+          },
+          {
+            "id": "bdfaab372ed69e76",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": false
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "7e87b110132f46f2",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
+            }
+          },
+          {
+            "id": "8a501e4c5afbe9b9",
+            "type": "leaf",
+            "state": {
+              "type": "chat",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Plugin no longer active"
+            }
+          },
+          {
+            "id": "c11be29e8fe61b87",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "bb58724b08c3f977",
+            "type": "leaf",
+            "state": {
+              "type": "review-queue-list-view",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Plugin no longer active"
+            }
+          },
+          {
+            "id": "ff1cb571a4b61f50",
+            "type": "leaf",
+            "state": {
+              "type": "review-queue-list-view",
+              "state": {},
+              "icon": "SpacedRepIcon",
+              "title": "Notes Review Queue"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 8
+      },
+      {
+        "id": "fb7584ac7010d526",
+        "type": "tabs",
+        "dimension": 28.694404591104735,
+        "children": [
+          {
+            "id": "9b516c25052be5df",
+            "type": "leaf",
+            "state": {
+              "type": "localgraph",
+              "state": {
+                "options": {
+                  "collapse-filter": true,
+                  "search": "",
+                  "localJumps": 1,
+                  "localBacklinks": true,
+                  "localForelinks": true,
+                  "localInterlinks": false,
+                  "showTags": false,
+                  "showAttachments": false,
+                  "hideUnresolved": false,
+                  "collapse-color-groups": true,
+                  "colorGroups": [],
+                  "collapse-display": true,
+                  "showArrow": false,
+                  "textFadeMultiplier": 0,
+                  "nodeSizeMultiplier": 1,
+                  "lineSizeMultiplier": 1,
+                  "collapse-forces": true,
+                  "centerStrength": 0.518713248970312,
+                  "repelStrength": 10,
+                  "linkStrength": 1,
+                  "linkDistance": 250,
+                  "scale": 0.19629981813994257,
+                  "close": true
+                }
+              },
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 300,
+    "width": 340.5,
     "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
+      "khoj:Khoj": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
-      "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false,
-      "obsidian-git:Open Git source control": false,
-      "pdf-plus:PDF++: Toggle auto-copy": false,
-      "pdf-plus:PDF++: Toggle auto-focus": false,
-      "pdf-plus:PDF++: Toggle auto-paste": false,
-      "obsidian-import-json:JSON/CSV Importer": false
+      "markdown-importer:Open format converter": false,
+      "zk-prefixer:Create new unique note": false,
+      "random-note:Open random note": false,
+      "workspaces:Manage workspace layouts": false,
+      "smart-random-note:Open Random Note from Search": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false,
+      "obsidian-excalidraw-plugin:Create new drawing": false,
+      "homepage:Open homepage": false,
+      "templater-obsidian:Templater": false,
+      "obsidian-spaced-repetition:Review flashcards": false,
+      "periodic-notes:Open this month": false
     }
   },
-  "active": "ce4351303f5a3edc",
+  "active": "0210b184cf91505a",
   "lastOpenFiles": [
-    "40-Summary-Notes/Tahuti Vault.md",
-    "attachements/zai-chat-export.json",
-    "attachements/build-serverless-web-app-lambda-amplify-bedrock-cognito-gen-ai.pdf",
-    "attachements/build-react-app-amplify-graphql.pdf",
-    "30-All-Notes/Microscopic_View..md",
-    "30-All-Notes/Meeting_Report_Request..md",
-    "30-All-Notes/Video_Game_Content_Creation..md",
-    "40-Summary-Notes/UpWork Freelancer Bio.md",
-    "40-Summary-Notes/Custom Arch Linux Optimization.md",
-    "40-Summary-Notes/Cognitive Internet Project Whitepaper.md",
-    "30-All-Notes/New_chat.md",
-    "40-Summary-Notes/Multi-talented Educator.md",
-    "40-Summary-Notes/Learning Moroccan Arabic.md",
-    "40-Summary-Notes/Nadra Mijharia Blog.md",
-    "40-Summary-Notes/Talos Story (Moroccan Dialect).md",
-    "40-Summary-Notes/Abdelghani Gomrani Profile & Strategy.md",
-    "40-Summary-Notes/Digital Flow Meeting Report.md",
-    "40-Summary-Notes/Video Game Content Creation.md",
-    "30-All-Notes/New_Chat.md",
-    "20-Notes/Cognitive Internet Project.md",
-    "40-Summary-Notes/Moroccan AI Podcast Launch.md",
-    "10-Project-CIEL/12-Hardware/Hardware Procurement Specification.md",
-    "10-Project-CIEL/11-Architecture/Cognitive Internet - Repository Structure.md",
-    "00-Inbox/Initial Response with Canvas.md",
-    "00-Inbox/0000 Init Claude Prompt.md",
-    "00-Inbox/Chat Exports/STAND-BY_Command.md",
-    "30-All-Notes/Memory_Recall_Requested..md",
-    "40-Summary-Notes/Social Media Marketing Panels (SMM).md",
-    "40-Summary-Notes/Random Adventures Podcast.md",
-    "Untitled.base",
-    "attachements",
-    "scripts/vectors.json",
-    "QWEN"
+    "a.json",
+    "screenshots/web-clipper.png",
+    "screenshots/web-clipper-template.png",
+    "screenshots/image.png",
+    "notes/Homepage.md",
+    "notes/(Kanban) Reading list.md",
+    "notes/books/20210829094148 - (Book) Range - Why Generalists Triumph in a Specialized World.md",
+    "notes/typography/20210829093738 - Kerning (typography).md",
+    "notes/typography/20210829093905 - Typeface (typography).md",
+    "notes/typography/20210829094032 - Typography terms (Resource).md",
+    "notes/20210829093439 - Zettelkasten.md",
+    "templates/daily/Daily Note  - System.md",
+    "README.md",
+    "screenshots/screenshot-1.png",
+    "screenshots/screenshot-2.png",
+    "screenshots/edit-mode.png",
+    "screenshots/preview-mode.png",
+    "notes/monthly/2021-08.md",
+    "notes/monthly/2021-09.md",
+    "notes/thoughts/20210903091900 - (Thought) We should improve our web performance.md",
+    "notes/(Kanban) Books.md",
+    "notes/20210903091505 - My thoughts (resource).md",
+    "notes/uncategorized/20210829094555 - Todo term.md",
+    "notes/books/20210829094933 - (Book) The war of art.md",
+    "templates/ID.md",
+    "notes/uncategorized/20221002101404.md"
   ]
 }

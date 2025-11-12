@@ -5,54 +5,26 @@
   "showAttachments": false,
   "hideUnresolved": false,
   "showOrphans": true,
-  "collapse-color-groups": true,
+  "collapse-color-groups": false,
   "colorGroups": [
     {
-      "query": "path:00-Inbox  ",
+      "query": "tag:#monthly-note",
       "color": {
         "a": 1,
-        "rgb": 14701261
-      }
-    },
-    {
-      "query": "path:10-Project-CIEL  ",
-      "color": {
-        "a": 1,
-        "rgb": 3669760
-      }
-    },
-    {
-      "query": "path:20-Notes  ",
-      "color": {
-        "a": 1,
-        "rgb": 65518
-      }
-    },
-    {
-      "query": "path:30-All-Notes  ",
-      "color": {
-        "a": 1,
-        "rgb": 5474816
-      }
-    },
-    {
-      "query": "path:40-Summary-Notes  ",
-      "color": {
-        "a": 1,
-        "rgb": 16711680
+        "rgb": 16384017
       }
     }
   ],
-  "collapse-display": true,
+  "collapse-display": false,
   "showArrow": true,
-  "textFadeMultiplier": -0.2,
-  "nodeSizeMultiplier": 1.73333333333333,
-  "lineSizeMultiplier": 0.3296875,
-  "collapse-forces": true,
-  "centerStrength": 0.427083333333333,
-  "repelStrength": 20,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": false,
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
   "linkStrength": 1,
-  "linkDistance": 500,
-  "scale": 0.05852766346593502,
+  "linkDistance": 250,
+  "scale": 0.12700384292867403,
   "close": true
 }
